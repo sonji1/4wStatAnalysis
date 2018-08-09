@@ -1,0 +1,344 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Korean resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+#ifdef _WIN32
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+#pragma code_page(949)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 18, 1\r\n"
+    "#pragma code_page(949)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\ACE400Statistics.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.kor\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\Bioptro.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ACE400Statistics"
+FONT 9, "굴림"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "ACE400Statistics Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (c) 2018",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_MAIN_DIALOG DIALOGEX 0, 0, 719, 469
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "ACE400Statistics"
+FONT 10, "Calibri"
+BEGIN
+    PUSHBUTTON      "Exit",IDOK,162,12,42,23
+    LTEXT           "To view 4W Data, follow these steps, please. \n\n 1.Click  '4W Statistics -> Load 4W Data' button to select the desired 4W Data file.\n 2. Click Lot to select it and then choose Net on the screen.\n 3. Select the Date.",
+                    IDC_STATIC,223,7,218,50
+    LTEXT           "Click '4W Statistics -> Load 4W Data (Multi Lot)' button to load multiple 4W Lot data at once..  It may take a few minutes. Not all files in all Lot directories are loaded, \n\nRestrictions: \nMaxLot = 3, MaxDate = 5, MaxNet = 5000, MaxFileSize = 850MB",
+                    IDC_STATIC,444,5,257,53
+    CONTROL         "4W Statistics",IDC_CHECK_STATISTICS,"Button",
+                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,12,48,23
+    CONTROL         "4W YR p-Chart",IDC_CHECK_PCHART,"Button",
+                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,62,12,48,23
+    CONTROL         "Config",IDC_CHECK_CONFIG,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,115,12,41,23
+END
+
+IDD_STATISTICS_DIALOG DIALOG DISCARDABLE  5, 65, 710, 398
+STYLE WS_CHILD | WS_BORDER
+FONT 10, "Calibri"
+BEGIN
+    LTEXT           "Item",IDC_STATIC,11,67,17,8
+    CONTROL         "Statistics Grid",IDC_GRID_DATA,"MFCGridCtrl",WS_TABSTOP,
+                    130,66,573,323
+    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | 
+                    TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,88,115,238
+    EDITTEXT        IDC_EDIT_SELECT,32,65,90,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "Custom1",IDC_GRID_SUMMARY,"MFCGridCtrl",WS_TABSTOP,131,
+                    25,412,25
+    COMBOBOX        IDC_COMBO_DATE,35,337,87,64,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Date :",IDC_STATIC,13,339,17,8
+    PUSHBUTTON      "Load 4W Data (Multi Lot)",IDC_BUTTON_LOAD4W_DATA,7,36,
+                    115,19
+    LTEXT           "Time\nTuple #",IDC_STATIC,554,17,27,17
+    EDITTEXT        IDC_EDIT_TUPLE_NUM,555,36,29,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Data #",IDC_STATIC,589,25,32,8
+    EDITTEXT        IDC_EDIT_SAMPLE_NUM,589,36,32,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "LSL",IDC_STATIC,625,25,27,8,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    EDITTEXT        IDC_EDIT_LSL,625,36,29,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "USL",IDC_STATIC,659,25,32,8,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    EDITTEXT        IDC_EDIT_USL,659,36,32,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "Clear Data",IDC_BUTTON_CLEAR_GRID,8,358,115,17
+    LTEXT           "Summary",IDC_STATIC,130,15,30,8
+    LTEXT           "Data",IDC_STATIC,131,56,16,8
+    PUSHBUTTON      "Load 4W Data",IDC_BUTTON_LOAD4W_DATA_SINGLE,7,14,115,19
+    CONTROL         "Fault Tuple Only",IDC_CHECK_DATA_FAULT_ONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,626,52,76,10
+END
+
+IDD_CONFIG_DIALOG DIALOGEX 5, 65, 425, 186
+STYLE WS_CHILD
+FONT 10, "Calibri", 0, 0, 0x1
+BEGIN
+    CONTROL         "Basic",IDC_CHECK_PRT_BASIC,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,17,34,40,18
+    GROUPBOX        "Log Print Option",IDC_STATIC,7,12,394,87
+    CONTROL         "Level 1",IDC_CHECK_PRT_LEVEL1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,66,34,40,18
+    CONTROL         "Level 2",IDC_CHECK_PRT_Level2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,120,34,40,18
+    CONTROL         "Level 3",IDC_CHECK_PRT_LEVEL3,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,175,34,40,18
+    CONTROL         "Device (D96)",IDC_CHECK_PRT_DEVICE,"Button",
+                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,224,34,44,18
+    LTEXT           "printState",IDC_STATIC,19,70,32,14
+    CTEXT           "0",IDC_STATIC_PRINT_STATE,67,66,63,16,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    CONTROL         "Device D64",IDC_CHECK_PRT_DEV_D64,"Button",
+                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,275,34,40,18
+END
+
+IDD_PCHART_DIALOG DIALOG DISCARDABLE  5, 60, 697, 403
+STYLE WS_CHILD | WS_BORDER
+FONT 10, "Calibri"
+BEGIN
+    COMBOBOX        IDC_COMBO_LOT,34,7,75,43,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_DATE2,34,32,75,38,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Lot",IDC_STATIC,7,7,10,8
+    LTEXT           "Date",IDC_STATIC,7,33,15,8
+    CONTROL         "",IDC_CHART,"Static",SS_BITMAP,131,7,13,11
+    LTEXT           "\nOOC (Out Of Control) List",IDC_STATIC,130,162,552,18
+    PUSHBUTTON      "Diplay p-Chart",IDC_BUTTON_DIS_PCHART,13,58,96,17,NOT 
+                    WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_PCHART,13,312,96,17
+    CONTROL         "Custom1",IDC_GRID_PCHART_OOC,"MFCGridCtrl",WS_TABSTOP,
+                    130,183,545,204
+    EDITTEXT        IDC_EDIT_PCAHRT_NET_CNT,61,183,48,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Net Count",IDC_STATIC,7,183,31,8
+    EDITTEXT        IDC_EDIT_PCAHRT_OOC_CNT,61,205,48,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "OOC Net Count",IDC_STATIC,7,205,47,8
+    GROUPBOX        "OOC List Mode",IDC_STATIC,7,249,102,44
+    CONTROL         "OOC Alarm Net Only",IDC_CHECK_OOCNET_ONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,262,79,10
+    CONTROL         "Fault Net Only",IDC_CHECK_FAULT_ONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,278,61,10
+    EDITTEXT        IDC_EDIT_PCAHRT_FAULT_CNT,61,226,48,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Fault Net Count",IDC_STATIC,7,226,49,8
+    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_PCHART_CSV,13,338,
+                    96,17
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041204B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "ACE400Statistics MFC 응용 프로그램\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "ACE400Statistics\0"
+            VALUE "LegalCopyright", "Copyright (C) 2018\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "ACE400Statistics.EXE\0"
+            VALUE "ProductName", "ACE400Statistics 응용 프로그램\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x412, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_MAIN_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 712
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 464
+    END
+
+    IDD_STATISTICS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 703
+        TOPMARGIN, 8
+        BOTTOMMARGIN, 391
+    END
+
+    IDD_CONFIG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 418
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 179
+        HORZGUIDE, 12
+    END
+
+    IDD_PCHART_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 690
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 396
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP  DISCARDABLE     "res\\tree.bmp"
+IDB_BITMAP2             BITMAP  DISCARDABLE     "res\\Bioptro.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "ACE400Statistics 정보(&A)..."
+END
+
+#endif    // Korean resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+#ifdef _WIN32
+LANGUAGE 18, 1
+#pragma code_page(949)
+#endif //_WIN32
+#include "res\ACE400Statistics.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.kor\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
