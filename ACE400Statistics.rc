@@ -177,7 +177,7 @@ BEGIN
     LTEXT           "Lot",IDC_STATIC,7,7,10,8
     LTEXT           "Date",IDC_STATIC,7,33,15,8
     CONTROL         "",IDC_CHART,"Static",SS_BITMAP,131,7,13,11
-    LTEXT           "\nOOC (Out Of Control) List",IDC_STATIC,130,162,552,18
+    LTEXT           "OOC (Out Of Control) List",IDC_STATIC,130,170,155,10
     PUSHBUTTON      "Diplay p-Chart",IDC_BUTTON_DIS_PCHART,13,58,96,17,NOT 
                     WS_VISIBLE | WS_DISABLED
     PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_PCHART,13,312,96,17

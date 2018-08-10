@@ -16,10 +16,10 @@ Class4=CConfigDialog
 Class5=CStatisticsDialog
 
 ResourceCount=5
-Resource1=IDD_MAIN_DIALOG
-Resource2=IDD_STATISTICS_DIALOG
-Resource3=IDD_CONFIG_DIALOG
-Resource4=IDD_ABOUTBOX
+Resource1=IDD_ABOUTBOX
+Resource2=IDD_CONFIG_DIALOG
+Resource3=IDD_MAIN_DIALOG
+Resource4=IDD_STATISTICS_DIALOG
 Class6=CPChartDialog
 Resource5=IDD_PCHART_DIALOG
 
