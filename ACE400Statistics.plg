@@ -7,15 +7,33 @@
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x412 /fo"Debug/ACE400Statistics.res" /d "_DEBUG" /d "_AFXDLL" "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400Statistics.rc"" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP1CB3.tmp" with contents
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP80F4.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/ACE400Statistics.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400MainDlg.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400Statistics.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ChartViewer.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ConfigDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\Error.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\Globals.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\GridCtrl.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\GridDropTarget.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\InPlaceEdit.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\InPlaceList.cpp"
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\PChartDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\StatisticsDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\TitleTip.cpp"
 ]
-Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP1CB3.tmp" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP1CB4.tmp" with contents
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP80F4.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP80F5.tmp" with contents
 [
-./chartdir60.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/ACE400Statistics.pdb" /debug /machine:I386 /out:"Debug/ACE400Statistics.exe" /pdbtype:sept 
+/nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/ACE400Statistics.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP80F5.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP80F6.tmp" with contents
+[
+./chartdir60.lib /nologo /stack:0x200000 /subsystem:windows /incremental:yes /pdb:"Debug/ACE400Statistics.pdb" /debug /machine:I386 /out:"Debug/ACE400Statistics.exe" /pdbtype:sept 
 .\Debug\ACE400MainDlg.obj
 .\Debug\ACE400Statistics.obj
 .\Debug\ChartViewer.obj
@@ -32,13 +50,28 @@ Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP1CB4.tmp" with cont
 .\Debug\TitleTip.obj
 .\Debug\ACE400Statistics.res
 ]
-Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP1CB4.tmp"
+Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP80F6.tmp"
 <h3>Output Window</h3>
 Compiling resources...
 Compiling...
+StdAfx.cpp
+Compiling...
+ACE400MainDlg.cpp
+ACE400Statistics.cpp
+ChartViewer.cpp
+ConfigDialog.cpp
+Error.cpp
+Globals.cpp
+GridCtrl.cpp
+GridDropTarget.cpp
+InPlaceEdit.cpp
+InPlaceList.cpp
 PChartDialog.cpp
+StatisticsDialog.cpp
+TitleTip.cpp
+Generating Code...
 Linking...
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP20AB.tmp" with contents
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP8A2B.tmp" with contents
 [
 /nologo /o"Debug/ACE400Statistics.bsc" 
 .\Debug\StdAfx.sbr
@@ -55,7 +88,7 @@ Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP20AB.tmp" with cont
 .\Debug\PChartDialog.sbr
 .\Debug\StatisticsDialog.sbr
 .\Debug\TitleTip.sbr]
-Creating command line "bscmake.exe @C:\Users\User\AppData\Local\Temp\RSP20AB.tmp"
+Creating command line "bscmake.exe @C:\Users\User\AppData\Local\Temp\RSP8A2B.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

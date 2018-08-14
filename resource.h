@@ -41,6 +41,8 @@
 #define IDC_CHECK_OOCNET_ONLY           1031
 #define IDC_CHECK_DATA_FAULT_ONLY       1032
 #define IDC_CHECK_FAULT_ONLY            1033
+#define IDC_BUTTON_SAVE_STAT_CSV        1034
+#define IDC_BUTTON_VIEW_STAT_CSV        1035
 #define IDC_CHECK_PRT_BASIC             1085
 #define IDC_CHECK_PRT_LEVEL1            1086
 #define IDC_CHECK_PRT_Level2            1087
@@ -55,7 +57,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_CONTROL_VALUE         1035
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
