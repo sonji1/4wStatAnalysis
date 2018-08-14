@@ -16,10 +16,10 @@ Class4=CConfigDialog
 Class5=CStatisticsDialog
 
 ResourceCount=5
-Resource1=IDD_ABOUTBOX
+Resource1=IDD_STATISTICS_DIALOG
 Resource2=IDD_CONFIG_DIALOG
 Resource3=IDD_MAIN_DIALOG
-Resource4=IDD_STATISTICS_DIALOG
+Resource4=IDD_ABOUTBOX
 Class6=CPChartDialog
 Resource5=IDD_PCHART_DIALOG
 
@@ -59,7 +59,7 @@ HeaderFile=StatisticsDialog.h
 ImplementationFile=StatisticsDialog.cpp
 Filter=D
 VirtualFilter=dWC
-LastObject=IDC_CHECK_DATA_FAULT_ONLY
+LastObject=IDC_BUTTON_SAVE_STAT_CSV
 
 [DLG:IDD_ABOUTBOX]
 Type=1
@@ -98,7 +98,7 @@ Control9=IDC_CHECK_PRT_DEV_D64,button,1342246915
 [DLG:IDD_STATISTICS_DIALOG]
 Type=1
 Class=CStatisticsDialog
-ControlCount=21
+ControlCount=23
 Control1=IDC_STATIC,static,1342308352
 Control2=IDC_GRID_DATA,MFCGridCtrl,1342242816
 Control3=IDC_TREE,SysTreeView32,1350631479
@@ -120,6 +120,8 @@ Control18=IDC_STATIC,static,1342308352
 Control19=IDC_STATIC,static,1342308352
 Control20=IDC_BUTTON_LOAD4W_DATA_SINGLE,button,1342242816
 Control21=IDC_CHECK_DATA_FAULT_ONLY,button,1342242819
+Control22=IDC_BUTTON_SAVE_STAT_CSV,button,1342242816
+Control23=IDC_BUTTON_VIEW_STAT_CSV,button,1342242816
 
 [DLG:IDD_PCHART_DIALOG]
 Type=1

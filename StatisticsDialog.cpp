@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CStatisticsDialog, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_USL, 					OnChangeEditUsl)
 	ON_BN_CLICKED(IDC_BUTTON_CLEAR_GRID, 		OnButtonClearGrid)
 	ON_BN_CLICKED(IDC_CHECK_DATA_FAULT_ONLY, 	OnCheckDataFaultOnly)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE_STAT_CSV, 	OnButtonSaveStatCsv)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_STAT_CSV, 	OnButtonViewStatCsv)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -202,6 +204,7 @@ BOOL CStatisticsDialog::InitMember()
 	g_sLotNetDate_Info.InitMember();
 	m_nNetDataCount = 0;
 
+	m_GridSnap.InitMember();
 
 	return TRUE;
 }
@@ -1745,208 +1748,6 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 
 
 
-// 1. 지금까지 insert 한 data를  binary 파일을 open하여  write. 
-// 2. data를 delete하고 file을 close  
-void CStatisticsDialog::Save_StatLotDataFile()
-{
-	FILE 	*fp; 
-	char  	fName[200]; 
-	CString strTemp;
-
-
-	MyTrace(PRT_BASIC, "Save_StatLotDataFile()\n");
-
-	// 디버깅을 위한 파일 프린트 출력.
-	::ZeroMemory(&fName, sizeof(fName));
-	//strTemp.Format(".\\Data\\Lot%02d_DebugOut.csv", nLot);
-	strTemp.Format(".\\Data\\Stat_DebugOut.csv");
-	strcat(fName, strTemp);
-
-	fp=fopen(fName,"wt");
-	if(fp == NULL)
-	{ 	
-		strTemp.Format("fName=%s, err=%s", fName, strerror( errno ));
-		ERR.Set(FLAG_FILE_CANNOT_OPEN, strTemp); 
-		return; 
-	}
-
-
-
-#if 0 
-	// Time 별 p chart data 출력하기  (문제있는 time을 찾기)
-	//    1개 lot, date에 한해서(time 갯수가 같아야 하므로)  같은 time의 모든 net의 fault갯수를 세어본다.
-	//    time별 fault 갯수를 평균내고 USL, LSL을 판단하여 넘어서는 OOC 값을 찾아내기 위함.
-	
-	// 같은 lot, 같은 date이므로 모든 net은 tupleSize가 같아야 한다. 이를 하나로 timeSize라고 하자.
-	int netCount = 0;
-	static short	waTimeFaultCount[MAX_TIME_FILE];
-	static short	waTimeNgCount[MAX_TIME_FILE];
-	static short	waTimeTotalCount[MAX_TIME_FILE];
-	::ZeroMemory(waTimeFaultCount, sizeof(waTimeFaultCount));
-	::ZeroMemory(waTimeNgCount, sizeof(waTimeNgCount));
-	::ZeroMemory(waTimeTotalCount, sizeof(waTimeTotalCount));
-
-	int lot, time, tupleSize;
-	for (lot =0; lot < 1; lot++)		// Lot은 1개로 고정
-	{
-		//for (int date =0; date < g_sLotNetDate_Info.naLotDateCnt[lot]; date++)
-		for (int date =0; date < 1; date++)	// Date 1개로 고정
-		{
-
-			for (int net =0; net < MAX_NET_PER_LOT; net++)
-			{
-				if(g_pvsaNetData[lot][net][date] == NULL)	// 없는 date면 skip
-					continue;
-
-				if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)	// 없는 Net이면 skip
-					continue;
-
-				netCount++;
-
-				tupleSize = g_pvsaNetData[lot][net][date]->size();		// time 갯수
-
-				for (time=0; time < tupleSize; time++)
-				{
-					double dLsl = (*g_pvsaNetData[lot][net][date])[time].dLsl;
-					double dUsl = (*g_pvsaNetData[lot][net][date])[time].dUsl;
-
-					int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
-					for (int sample= 0; sample < sampleSize; sample++)
-					{
-						double dSampleVal = (*g_pvsaNetData[lot][net][date])[time].daSample[sample];
-						if ((*g_pvsaNetData[lot][net][date])[time].daSample[sample] == -1)	//NG
-							waTimeNgCount[time]++;
-						else
-						{
-							if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
-								waTimeFaultCount[time]++;
-						}
-					}
-
-				}
-				//fprintf(fp, "Lot=%d(%s), Net=%d, Date=%d(%s), tupleSize=%d,  \n", 
-				//		lot, g_sLotNetDate_Info.strLot[lot], net, 
-				//		date, g_sLotNetDate_Info.strLotDate[lot][date],
-				//		tupleSize );
-			}	
-		}
-	}
-
-	for (lot =0; lot < 1; lot++)		// Lot은 1개로 고정
-	{
-		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
-		for (time =0; time < tupleSize; time++)
-		{
-			CString strTime;
-			strTime.Format("%02d:%02d:%02d", 
-					(*g_pvsaNetData[lot][1][0])[time].statTime.hour,
-					(*g_pvsaNetData[lot][1][0])[time].statTime.min,
-					(*g_pvsaNetData[lot][1][0])[time].statTime.sec);
-
-			waTimeTotalCount[time] = (netCount * sampleSize);		// net 갯수 * sample 갯수
-			fprintf(fp, "Time(%s)=,%d, FaultCount=,%d, Count=,%d, Total=%d, NgCount=%d\n", 
-							strTime, time, 
-							waTimeFaultCount[time], (waTimeTotalCount[time] - waTimeNgCount[time]),
-							waTimeTotalCount[time], waTimeNgCount[time]);
-		}	
-	}
-#endif
-
-
-
-#if 0   
-	// Net 별 p chart data 출력하기  (문제있는 Net을 찾기)
-	//for (int lot =0; lot < g_sLotNetDate_Info.nLotCnt; lot++)
-	for (int lot =0; lot < 1; lot++)		// Lot은 1개로 고정
-
-	{
-		for (int net =0; net < MAX_NET_PER_LOT; net++)
-		{
-			if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)
-				continue;
-
-			// Total = SampleCount* tupleSize,   Count = Total - Ng
-			fprintf(fp, "Lot=%d,(%s), Net=,%d, FaultCount=,%d, Count=,%d, NgCount=,%d, TotCount=,%d\n", 
-							lot, g_sLotNetDate_Info.strLot[lot], net, 
-							g_sLotNetDate_Info.waNetFaultCount[lot][net],
-							(g_sLotNetDate_Info.waNetTotalCount[lot][net] - g_sLotNetDate_Info.waNetNgCount[lot][net]),
-							g_sLotNetDate_Info.waNetNgCount[lot][net],
-							g_sLotNetDate_Info.waNetTotalCount[lot][net]);
-		}	
-	}
-#endif
-
-
-#if 0
-	// Net별로 출력하기 1
-	for (int lot =0; lot < g_sLotNetDate_Info.nLotCnt; lot++)
-	{
-		for (int net =0; net < MAX_NET_PER_LOT; net++)
-		{
-			if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)
-				continue;
-
-			//for (int date =0; date < MAX_DATE; date++)
-			for (int date =0; date < g_sLotNetDate_Info.naLotDateCnt[lot]; date++)
-			{
-				if(g_pvsaNetData[lot][net][date] != NULL)
-				{
-					int tupleSize = g_pvsaNetData[lot][net][date]->size();
-					fprintf(fp, "Lot=%d, (%s), Net=%d, Date=%d, (d_%s), tupleSize=%d : \n", 
-							lot, g_sLotNetDate_Info.strLot[lot], net, 
-							date, g_sLotNetDate_Info.strLotDate[lot][date],
-							tupleSize );
-	
-					for (int tuple=0; tuple < tupleSize; tuple++)
-					{
-						fprintf(fp, "    waPin, %d, %d, %d, %d,", 
-							g_sLotNetDate_Info.waLotNetPin[lot][net][0],
-							g_sLotNetDate_Info.waLotNetPin[lot][net][1],
-							g_sLotNetDate_Info.waLotNetPin[lot][net][2],
-							g_sLotNetDate_Info.waLotNetPin[lot][net][3] );
-						fprintf(fp, "    time, %02d:%02d:%02d: ,", 
-								(*g_pvsaNetData[lot][net][date])[tuple].statTime.hour,
-								(*g_pvsaNetData[lot][net][date])[tuple].statTime.min,
-								(*g_pvsaNetData[lot][net][date])[tuple].statTime.sec);
-
-						fprintf(fp, "    waSample");
-						int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
-						for (int sample=0; sample < sampleSize; sample++)
-					#ifdef DP_SAMPLE
-							fprintf(fp, ", %.2f", (*g_pvsaNetData[lot][net][date])[tuple].pdaSample[sample] );
-					#else
-							fprintf(fp, ", %.2f", (*g_pvsaNetData[lot][net][date])[tuple].daSample[sample] );
-					#endif
-
-					}
-	
-				}
-			}
-		}	
-	}
-#endif
-
-	fclose(fp);
-
-
-	// 2018.04.24 모든 Lot을 메모리에 올리기로 하였으므로 하기 date는 Stat Dialog 종료이전엔 Clear하면 안 된다.
-	//            코드 수행을 코멘트로 막음.
-	//Stat_deleteAllNetData();
-
-
-}
-
-
-#if 0
-// 1. binary 파일을 open하여  Memory에 load
-void CStatisticsDialog::Load_StatLotDataFile(int nLot)
-{
-
-}
-#endif
-
-
-
 // Tree Control의 선택 item이 변경될 때 호출
 void CStatisticsDialog::OnSelchangedTree(NMHDR* pNMHDR, LRESULT* pResult) 
 {
@@ -2071,14 +1872,14 @@ void  CStatisticsDialog::Combo_UpdateDateContents(int nLot)
 		m_comboDate.ResetContent();	
 		
 		// com idx=0 추가
-		m_comboDate.InsertString(-1, "ALL");		// combo idx = 0: ALL
+		m_comboDate.InsertString(-1, "ALL");		// combo idx = 0: DATE_ALL
 
 		// date_0이 두번째 (idx=1) 로  combo에 추가된다.  combo idx는 'date+1'로 다룰 것.
 		for (int date = 0 ; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
 			m_comboDate.InsertString(-1, g_sLotNetDate_Info.strLotDate[nLot][date]);			
 
 		// net이나 combo 클릭시에 바로 display를 위해 date 를 default로 "ALL"을 설정해 준다.
-		m_nCombo_CurrDate = DATE_ALL; 	// All     0=All,  1~7 : 실제 date#+1
+		m_nCombo_CurrDate = DATE_ALL; 	//  0=DATE_ALL,  1~7 : 실제 date#+1
 		m_comboDate.SetCurSel(0);
 
 		UpdateData(FALSE);		// SetCurSel 결과를 UI에 반영.
@@ -2132,7 +1933,7 @@ void CStatisticsDialog::OnButtonDisplay()
 */
 
 
-void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nDate) 
+void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nComboDate) 
 {
 	CString strTemp;
 
@@ -2163,7 +1964,7 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nDate)
 	if (nLevel == 3)
 	{
 		// Lot, Net, Date가 모두 값이 존재한다면, DataGrid와 SummaryGrid 출력
-		if (nDate != DATE_ALL )	
+		if (nComboDate != DATE_ALL )	
 		{
 			// DataGrid, SummaryGrid 모두 출력.
 			// 1. Lot, net, date를 key로 해서  모든 time tuple을 sum해서 summary grid  출력
@@ -2171,7 +1972,7 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nDate)
 			
 			GetDlgItem(IDC_GRID_DATA)->ShowWindow(TRUE);		// DataGrid 보이기 
 
-			Display_SumupLotNetDate(nLot, nNet, nDate -1);			
+			Display_SumupLotNetDate(nLot, nNet, nComboDate -1);			
  											// m_nCombo_CurrDate는 실제 Date +1 값이므로 -1해서 넘긴다.
 
 		}
@@ -2200,8 +2001,8 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nDate)
 
 		// Lot 존재, Net= -1, Date값이 존재한다면
 		// 1. lot, date를 key로 하고,  모든 net, 모든 time tuple을 sum 해서 summary grid  출력 
-		if (nDate != DATE_ALL )	
-			Display_SumupLotDate(nLot, nDate -1 ); 	// Summary Data 출력.
+		if (nComboDate != DATE_ALL )	
+			Display_SumupLotDate(nLot, nComboDate -1 ); 	// Summary Data 출력.
  													// m_nCombo_CurrDate는 실제 Date +1 값이므로 -1해서 넘긴다.
  											
 		// Lot 존재, Net= -1, Date=All
@@ -2220,7 +2021,7 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nDate)
 
 		// Lot 미존재, Net 미존재, Date = All
 		// 1. 모든 lot,  모든 net, 모든 date, 모든 time tuple을 sum해서 summary grid 출력.
-		if (nDate == DATE_ALL)
+		if (nComboDate == DATE_ALL)
 			Display_SumupTotal();	// Summary Data 생성 
 
 	}
@@ -2265,14 +2066,17 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 
 
 	// nLot, nNet, NDate에 맞는 모든 data Grid Tuple을 출력한다.
-	DisplayGrid_4wData(nLot, nNet, nDate, 0);
+	m_GridSnap.dataCount = DisplayGrid_4wData(nLot, nNet, nDate, 0);
 
 
 	//---------------------------
 	// Net Info Edit 박스값 설정
 	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 	m_editTupleNum  = tupleSize;
+
 	m_editSampleNum = g_sLotNetDate_Info.naLotSampleCnt[nLot];
+
+
 	// m_editLSL과 m_editUSL 부분은  DisplayGrid_Summary()에서 수행.
 
 	MyTrace(PRT_BASIC, "Lot=%d(%s), Net=%d, Date=%d(%s), tupleSize=%d : \n", 
@@ -2547,7 +2351,7 @@ int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tup
 
 // Data Grid에 1개 tuple을 Display 한다.
 // nPrtTuple: ALL 인 경우 이전에 출력한 위치 이후로 tuple을 출력한다.
-int CStatisticsDialog::DisplayGrid_4wData_Tuple(int nLot, int nNet, int nDate, int nTuple, int nPrtTuple,
+int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, int nTuple, int nPrtTuple,
 						double dTupleAvg, double dTupleSigma, double dTupleMin, double dTupleMax)
 {
 	CString strTemp;
@@ -2587,7 +2391,66 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple(int nLot, int nNet, int nDate, i
 		return -1;
 
 
-	// 2. Display Tuple 4W Data   ------------------------
+	// 2. Display  PinInfo, R, LSL, USL  ----------------------
+	
+	// row 0 헤더는 제외하고 data영역인 row 1 (nTuple + 1)부터 출력.
+	strTemp.Format("%d", (nPrtTuple+1));
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_NO, strTemp);				// col 0:  No
+
+	//m_GridSnap.saData[nTuple].nTuple = nTuple; 	 // Save data snap for csv
+	m_GridSnap.saData[nTuple].nPrtTuple = nPrtTuple; // Save data snap for csv
+
+
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATE, 
+		g_sLotNetDate_Info.strLotDate[nLot][nDate]);						// col 1:  Date 
+	m_GridSnap.saData[nPrtTuple].strDate = g_sLotNetDate_Info.strLotDate[nLot][nDate];
+
+	CString strTime;
+	strTime.Format("%02d:%02d:%02d", 
+			(*g_pvsaNetData[nLot][nNet][nDate])[nTuple].statTime.hour,
+			(*g_pvsaNetData[nLot][nNet][nDate])[nTuple].statTime.min,
+			(*g_pvsaNetData[nLot][nNet][nDate])[nTuple].statTime.sec);
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_TIME, strTime);			// col 2:  Time 
+	m_GridSnap.saData[nPrtTuple].strTime = strTime;
+
+	for (int pin= 0; pin < NUM_STAT_PIN; pin++)
+	{
+		strTemp.Format("%d", g_sLotNetDate_Info.waLotNetPin[nLot][nNet][pin]);
+		m_gridData.SetItemText(nPrtTuple+1, DATA_COL_PIN1+pin, strTemp);	// col 3~6: Pin1~ Pin4 
+	}
+	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dRefR);
+	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_R, strTemp);				// col 7:   RefR
+	m_GridSnap.saData[nPrtTuple].strRefR = strTemp;
+
+	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dLsl);
+	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_LSL, strTemp);			// col 8:   LSL
+	m_GridSnap.saData[nPrtTuple].strLSL = strTemp;
+
+	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dUsl);
+	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_USL, strTemp);			// col 9:   USL
+	m_GridSnap.saData[nPrtTuple].strUSL = strTemp;
+
+
+	// 3. Display Tuple Avg, Sigma, Min, Max  ------------------------
+	strTemp.Format("%.2f",  dTupleAvg);
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_AVG, strTemp);	
+	m_GridSnap.saData[nPrtTuple].strTupleAvg = strTemp;
+
+	strTemp.Format("%.2f",  dTupleSigma);
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_SIGMA, strTemp);	
+	m_GridSnap.saData[nPrtTuple].strTupleSigma = strTemp;
+
+	strTemp.Format("%.2f",  dTupleMin);
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_MIN, strTemp);	
+	m_GridSnap.saData[nPrtTuple].strTupleMin = strTemp;
+
+	strTemp.Format("%.2f",  dTupleMax);
+	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_MAX, strTemp);	
+	m_GridSnap.saData[nPrtTuple].strTupleMax = strTemp;
+
+
+
+	// 4. Display Tuple 4W Data   ------------------------
 	for (sample= 0; sample < sampleSize; sample++) // col 14~25:  Sample1~ Sample12
 	{
 															
@@ -2596,7 +2459,10 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple(int nLot, int nNet, int nDate, i
 	#else
 		if ((*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daSample[sample] == -1)	// NG이면
 	#endif
+		{
 			m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATA1+sample, "NG");	
+			m_GridSnap.saData[nPrtTuple].strData[sample] = "NG";
+		}
 
 		else		// NG가 아니면
 		{
@@ -2608,6 +2474,7 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple(int nLot, int nNet, int nDate, i
 
 			strTemp.Format("%.2f",  dSampleVal);
 			m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATA1+sample, strTemp);	
+			m_GridSnap.saData[nPrtTuple].strData[sample] = strTemp;
 
 			if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
 			{
@@ -2617,50 +2484,6 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple(int nLot, int nNet, int nDate, i
 			}
 		}
 	}
-
-	// 3. Display  PinInfo, R, LSL, USL  ----------------------
-	
-	// row 0 헤더는 제외하고 data영역인 row 1 (nTuple + 1)부터 출력.
-	strTemp.Format("%d", (nPrtTuple+1));
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_NO, strTemp);				// col 0:  No
-
-
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATE, 
-		g_sLotNetDate_Info.strLotDate[nLot][nDate]);						// col 1:  Date 
-
-	strTemp.Format("%02d:%02d:%02d", 
-			(*g_pvsaNetData[nLot][nNet][nDate])[nTuple].statTime.hour,
-			(*g_pvsaNetData[nLot][nNet][nDate])[nTuple].statTime.min,
-			(*g_pvsaNetData[nLot][nNet][nDate])[nTuple].statTime.sec);
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_TIME, strTemp);			// col 2:  Time 
-
-	for (int pin= 0; pin < NUM_STAT_PIN; pin++)
-	{
-		strTemp.Format("%d", g_sLotNetDate_Info.waLotNetPin[nLot][nNet][pin]);
-		m_gridData.SetItemText(nPrtTuple+1, DATA_COL_PIN1+pin, strTemp);	// col 3~6: Pin1~ Pin4 
-	}
-	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dRefR);
-	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_R, strTemp);				// col 7:   RefR
-
-	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dLsl);
-	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_LSL, strTemp);			// col 8:   LSL
-
-	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dUsl);
-	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_USL, strTemp);			// col 9:   USL
-
-
-	// 4. Display Tuple Avg, Sigma, Min, Max  ------------------------
-	strTemp.Format("%.2f",  dTupleAvg);
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_AVG, strTemp);	
-
-	strTemp.Format("%.2f",  dTupleSigma);
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_SIGMA, strTemp);	
-
-	strTemp.Format("%.2f",  dTupleMin);
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_MIN, strTemp);	
-
-	strTemp.Format("%.2f",  dTupleMax);
-	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_MAX, strTemp);	
 
 	return 0;
 }
@@ -2690,33 +2513,45 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 
 	strTemp.Format("Net_%d", nNet);
 	m_gridSummary.SetItemText(1, SUM_COL_NET, strTemp);			// col 0:  Net Name
+	m_GridSnap.Summary.strNetName = strTemp;
 
-	if (nDate == -1)
-		m_gridSummary.SetItemText(1, SUM_COL_DATE, "ALL");		// col 1:  Date
+	int nComboDate = nDate +1;
+	if (nComboDate == DATE_ALL)
+		strTemp = "ALL";
 	else
-		m_gridSummary.SetItemText(1, SUM_COL_DATE, 			
-			g_sLotNetDate_Info.strLotDate[nLot][nDate]);			
+		strTemp = g_sLotNetDate_Info.strLotDate[nLot][nDate];
+
+	m_gridSummary.SetItemText(1, SUM_COL_DATE, strTemp);		// col 1:  Date
+	m_GridSnap.Summary.strDate = strTemp;
 
 	strTemp.Format("%d", nCount);
 	m_gridSummary.SetItemText(1, SUM_COL_COUNT, strTemp);		// col 2:  Count
+	m_GridSnap.Summary.strCount = strTemp;
 
 	strTemp.Format("%d", (nTotal - nCount));
 	m_gridSummary.SetItemText(1, SUM_COL_NG, strTemp);			// col 3:  N/G Count
+	m_GridSnap.Summary.strNgCount = strTemp;
+
 
 	strTemp.Format("%.2f", dAvg);
 	m_gridSummary.SetItemText(1, SUM_COL_AVG, strTemp);			// col 4:  Average
+	m_GridSnap.Summary.strAvg = strTemp;
 
 	strTemp.Format("%.2f", dSigma);
 	m_gridSummary.SetItemText(1, SUM_COL_SIGMA, strTemp);		// col 5:  Sigma (표준편차)
+	m_GridSnap.Summary.strSigma = strTemp;
 
 	strTemp.Format("%.2f", dMin);
 	m_gridSummary.SetItemText(1, SUM_COL_DATAMIN, strTemp);		// col 6:  Min
+	m_GridSnap.Summary.strMin = strTemp;
 
 	strTemp.Format("%.2f", dMax);
 	m_gridSummary.SetItemText(1, SUM_COL_DATAMAX, strTemp);		// col 7:  Max
+	m_GridSnap.Summary.strMax = strTemp;
 
 	strTemp.Format("%d", nFaultCount); 
 	m_gridSummary.SetItemText(1, SUM_COL_FALUT, strTemp);		// col 8:  FaultCount
+	m_GridSnap.Summary.strFault = strTemp;
 
 	// Fault가 1개라도 있으면 Summary의 FaultCount를 붉은색으로, net Icon도 붉은색으로 변경한다.
 	if (nFaultCount > 0)	
@@ -2765,6 +2600,7 @@ void CStatisticsDialog::ClearGrid()
 	ClearGrid_Summary();	
 	ClearGrid_Data();	
 
+	m_GridSnap.InitMember();
 
 	UpdateData(FALSE);		// 변경 data 화면 반영
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
@@ -2848,6 +2684,7 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	int tupleOffset = 0;
 	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
 		tupleOffset= DisplayGrid_4wData(nLot, nNet, date, tupleOffset);
+	m_GridSnap.dataCount = tupleOffset;
 
 
 
@@ -2959,7 +2796,7 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 			for (tuple=0; tuple < tupleSize; tuple++)
 			{
 				sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-				for (sample= 0; sample < g_sLotNetDate_Info.naLotSampleCnt[nLot]; sample++)
+				for (sample= 0; sample < sampleSize; sample++)
 				{
 				#ifdef DP_SAMPLE
 					if ((*g_pvsaNetData[nLot][nNet][date])[tuple].pdaSample[sample] != -1)
@@ -3132,4 +2969,325 @@ void CStatisticsDialog::OnCheckDataFaultOnly()
 }
 
 
+
+
+void CStatisticsDialog::OnButtonSaveStatCsv() 
+{
+	// TODO: Add your control notification handler code here
+	//Save_StatLotDataFile();
+	SaveStat_CsvFile(m_nTree_CurrLot, m_nTree_CurrNet, m_nCombo_CurrDate);
+}
+
+
+void CStatisticsDialog::OnButtonViewStatCsv() 
+{
+	// TODO: Add your control notification handler code here
+	
+	int nLot 		= m_nTree_CurrLot;
+	int nNet 		= m_nTree_CurrNet;
+	int nDate 		= m_nCombo_CurrDate -1; //  m_nCombo_CurrDate는 실제 Date +1 값
+
+	CString strTemp;
+	
+	strTemp.Format(".\\Data\\%s_%s_Net%d_StatDataOut.csv", 
+			g_sLotNetDate_Info.strLot[nLot], 
+			(m_nCombo_CurrDate == DATE_ALL) ? "DATE_ALL" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
+			nNet); 					
+
+	::ShellExecute(NULL,"open","EXCEl.EXE",strTemp,"NULL",SW_SHOWNORMAL);	
+
+	
+}
+
+
+// 1. 지금까지 insert 한 data를  binary 파일을 open하여  write. 
+// 2. data를 delete하고 file을 close  
+void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
+{
+	FILE 	*fp; 
+	char  	fName[200]; 
+	CString strTemp;
+	int 	nDate = nComboDate -1; //  m_nCombo_CurrDate는 실제 Date +1 값
+
+
+	MyTrace(PRT_BASIC, "SaveStat_CsvFile(nLot=%d, nNet=%d, nDate=%d)\n", nLot, nNet, nDate);
+
+	// 디버깅을 위한 파일 프린트 출력.
+	::ZeroMemory(&fName, sizeof(fName));
+	strTemp.Format(".\\Data\\%s_%s_Net%d_StatDataOut.csv", 
+			g_sLotNetDate_Info.strLot[nLot], 
+			(nComboDate == DATE_ALL) ? "DATE_ALL" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
+			nNet);
+	strcat(fName, strTemp);
+
+	fp=fopen(fName,"wt");
+	if(fp == NULL)
+	{ 	
+		strTemp.Format("fName=%s, err=%s", fName, strerror( errno ));
+		ERR.Set(FLAG_FILE_CANNOT_OPEN, strTemp); 
+		return; 
+	}
+
+
+	//-----------------------------------
+	//  Summary Grid Data 출력
+
+	// 헤더 출력
+	fprintf(fp, "Net, Date, Count, NgCount, Average, Sigma, DataMin, DataMax, FaultCount, , ,TimeTuple#, Data#\n" );
+
+	fprintf(fp, "%s, %s, %s, %s, %s, %s, %s, %s, %s, , ,%d, %d\n",
+				m_GridSnap.Summary.strNetName, 		// 0:
+				m_GridSnap.Summary.strDate, 		// 1:
+				m_GridSnap.Summary.strCount, 		// 2:
+				m_GridSnap.Summary.strNgCount, 		// 3:
+
+				m_GridSnap.Summary.strAvg, 			// 4:
+				m_GridSnap.Summary.strSigma, 		// 5:
+				m_GridSnap.Summary.strMin, 			// 6:
+				m_GridSnap.Summary.strMax, 			// 7:
+				m_GridSnap.Summary.strFault, 		// 8:
+
+				m_editTupleNum,				// edit box
+				m_editSampleNum);			// edit box
+
+	//-----------------------------------
+	//  Data Grid Data 출력
+
+	fprintf(fp, "\n\n");
+	fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL, USL, Avg, Sigma, Min, Max, "); 
+	fprintf(fp, "Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12\n");
+
+	for (int row=0; row < m_GridSnap.dataCount; row++)
+	{
+		fprintf(fp, "%d, %s, %s, %d, %d, %d, %d, ",
+				(m_GridSnap.saData[row].nPrtTuple + 1),
+				m_GridSnap.saData[row].strDate,
+				m_GridSnap.saData[row].strTime,
+				g_sLotNetDate_Info.waLotNetPin[nLot][nNet][0],
+				g_sLotNetDate_Info.waLotNetPin[nLot][nNet][1],
+				g_sLotNetDate_Info.waLotNetPin[nLot][nNet][2],
+				g_sLotNetDate_Info.waLotNetPin[nLot][nNet][3]);
+
+
+		fprintf(fp, "%s, %s, %s, %s, %s, %s, %s, ",
+				m_GridSnap.saData[row].strRefR,
+				m_GridSnap.saData[row].strLSL,
+				m_GridSnap.saData[row].strUSL,
+				m_GridSnap.saData[row].strTupleAvg,
+				m_GridSnap.saData[row].strTupleSigma,
+				m_GridSnap.saData[row].strTupleMin,
+				m_GridSnap.saData[row].strTupleMax);
+
+
+		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
+		for (int sample=0; sample < sampleSize; sample++)
+			fprintf(fp, "%s, ", m_GridSnap.saData[row].strData[sample]);
+
+		fprintf(fp, "\n");
+
+	}
+
+	fclose(fp);
+}
+
+// 1. 지금까지 insert 한 data를  binary 파일을 open하여  write. 
+// 2. data를 delete하고 file을 close  
+void CStatisticsDialog::Save_StatLotDataFile()
+{
+	FILE 	*fp; 
+	char  	fName[200]; 
+	CString strTemp;
+
+
+	MyTrace(PRT_BASIC, "Save_StatLotDataFile()\n");
+
+	// 디버깅을 위한 파일 프린트 출력.
+	::ZeroMemory(&fName, sizeof(fName));
+	//strTemp.Format(".\\Data\\Lot%02d_DebugOut.csv", nLot);
+	strTemp.Format(".\\Data\\Stat_DebugOut.csv");
+	strcat(fName, strTemp);
+
+	fp=fopen(fName,"wt");
+	if(fp == NULL)
+	{ 	
+		strTemp.Format("fName=%s, err=%s", fName, strerror( errno ));
+		ERR.Set(FLAG_FILE_CANNOT_OPEN, strTemp); 
+		return; 
+	}
+
+#if 0 
+	//-----------------------------------
+	// p Chart를 위한 sample data 출력 
+
+	// Time 별 p chart data 출력하기  (문제있는 time을 찾기)
+	//    1개 lot, date에 한해서(time 갯수가 같아야 하므로)  같은 time의 모든 net의 fault갯수를 세어본다.
+	//    time별 fault 갯수를 평균내고 USL, LSL을 판단하여 넘어서는 OOC 값을 찾아내기 위함.
+	
+	// 같은 lot, 같은 date이므로 모든 net은 tupleSize가 같아야 한다. 이를 하나로 timeSize라고 하자.
+	int netCount = 0;
+	static short	waTimeFaultCount[MAX_TIME_FILE];
+	static short	waTimeNgCount[MAX_TIME_FILE];
+	static short	waTimeTotalCount[MAX_TIME_FILE];
+	::ZeroMemory(waTimeFaultCount, sizeof(waTimeFaultCount));
+	::ZeroMemory(waTimeNgCount, sizeof(waTimeNgCount));
+	::ZeroMemory(waTimeTotalCount, sizeof(waTimeTotalCount));
+
+	int lot, time, tupleSize;
+	for (lot =0; lot < 1; lot++)		// Lot은 1개로 고정
+	{
+		//for (int date =0; date < g_sLotNetDate_Info.naLotDateCnt[lot]; date++)
+		for (int date =0; date < 1; date++)	// Date 1개로 고정
+		{
+
+			for (int net =0; net < MAX_NET_PER_LOT; net++)
+			{
+				if(g_pvsaNetData[lot][net][date] == NULL)	// 없는 date면 skip
+					continue;
+
+				if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)	// 없는 Net이면 skip
+					continue;
+
+				netCount++;
+
+				tupleSize = g_pvsaNetData[lot][net][date]->size();		// time 갯수
+
+				for (time=0; time < tupleSize; time++)
+				{
+					double dLsl = (*g_pvsaNetData[lot][net][date])[time].dLsl;
+					double dUsl = (*g_pvsaNetData[lot][net][date])[time].dUsl;
+
+					int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
+					for (int sample= 0; sample < sampleSize; sample++)
+					{
+						double dSampleVal = (*g_pvsaNetData[lot][net][date])[time].daSample[sample];
+						if ((*g_pvsaNetData[lot][net][date])[time].daSample[sample] == -1)	//NG
+							waTimeNgCount[time]++;
+						else
+						{
+							if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
+								waTimeFaultCount[time]++;
+						}
+					}
+
+				}
+				//fprintf(fp, "Lot=%d(%s), Net=%d, Date=%d(%s), tupleSize=%d,  \n", 
+				//		lot, g_sLotNetDate_Info.strLot[lot], net, 
+				//		date, g_sLotNetDate_Info.strLotDate[lot][date],
+				//		tupleSize );
+			}	
+		}
+	}
+
+	for (lot =0; lot < 1; lot++)		// Lot은 1개로 고정
+	{
+		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
+		for (time =0; time < tupleSize; time++)
+		{
+			CString strTime;
+			strTime.Format("%02d:%02d:%02d", 
+					(*g_pvsaNetData[lot][1][0])[time].statTime.hour,
+					(*g_pvsaNetData[lot][1][0])[time].statTime.min,
+					(*g_pvsaNetData[lot][1][0])[time].statTime.sec);
+
+			waTimeTotalCount[time] = (netCount * sampleSize);		// net 갯수 * sample 갯수
+			fprintf(fp, "Time(%s)=,%d, FaultCount=,%d, Count=,%d, Total=%d, NgCount=%d\n", 
+							strTime, time, 
+							waTimeFaultCount[time], (waTimeTotalCount[time] - waTimeNgCount[time]),
+							waTimeTotalCount[time], waTimeNgCount[time]);
+		}	
+	}
+#endif
+
+
+
+#if 0   
+	// Net 별 p chart data 출력하기  (문제있는 Net을 찾기)
+	//for (int lot =0; lot < g_sLotNetDate_Info.nLotCnt; lot++)
+	for (int lot =0; lot < 1; lot++)		// Lot은 1개로 고정
+
+	{
+		for (int net =0; net < MAX_NET_PER_LOT; net++)
+		{
+			if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)
+				continue;
+
+			// Total = SampleCount* tupleSize,   Count = Total - Ng
+			fprintf(fp, "Lot=%d,(%s), Net=,%d, FaultCount=,%d, Count=,%d, NgCount=,%d, TotCount=,%d\n", 
+							lot, g_sLotNetDate_Info.strLot[lot], net, 
+							g_sLotNetDate_Info.waNetFaultCount[lot][net],
+							(g_sLotNetDate_Info.waNetTotalCount[lot][net] - g_sLotNetDate_Info.waNetNgCount[lot][net]),
+							g_sLotNetDate_Info.waNetNgCount[lot][net],
+							g_sLotNetDate_Info.waNetTotalCount[lot][net]);
+		}	
+	}
+#endif
+
+
+#if 0
+	// Net별로 출력하기 1
+	for (int lot =0; lot < g_sLotNetDate_Info.nLotCnt; lot++)
+	{
+		for (int net =0; net < MAX_NET_PER_LOT; net++)
+		{
+			if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)
+				continue;
+
+			//for (int date =0; date < MAX_DATE; date++)
+			for (int date =0; date < g_sLotNetDate_Info.naLotDateCnt[lot]; date++)
+			{
+				if(g_pvsaNetData[lot][net][date] != NULL)
+				{
+					int tupleSize = g_pvsaNetData[lot][net][date]->size();
+					fprintf(fp, "Lot=%d, (%s), Net=%d, Date=%d, (d_%s), tupleSize=%d : \n", 
+							lot, g_sLotNetDate_Info.strLot[lot], net, 
+							date, g_sLotNetDate_Info.strLotDate[lot][date],
+							tupleSize );
+	
+					for (int tuple=0; tuple < tupleSize; tuple++)
+					{
+						fprintf(fp, "    waPin, %d, %d, %d, %d,", 
+							g_sLotNetDate_Info.waLotNetPin[lot][net][0],
+							g_sLotNetDate_Info.waLotNetPin[lot][net][1],
+							g_sLotNetDate_Info.waLotNetPin[lot][net][2],
+							g_sLotNetDate_Info.waLotNetPin[lot][net][3] );
+						fprintf(fp, "    time, %02d:%02d:%02d: ,", 
+								(*g_pvsaNetData[lot][net][date])[tuple].statTime.hour,
+								(*g_pvsaNetData[lot][net][date])[tuple].statTime.min,
+								(*g_pvsaNetData[lot][net][date])[tuple].statTime.sec);
+
+						fprintf(fp, "    waSample");
+						int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
+						for (int sample=0; sample < sampleSize; sample++)
+					#ifdef DP_SAMPLE
+							fprintf(fp, ", %.2f", (*g_pvsaNetData[lot][net][date])[tuple].pdaSample[sample] );
+					#else
+							fprintf(fp, ", %.2f", (*g_pvsaNetData[lot][net][date])[tuple].daSample[sample] );
+					#endif
+
+					}
+	
+				}
+			}
+		}	
+	}
+#endif
+
+	fclose(fp);
+
+
+	// 2018.04.24 모든 Lot을 메모리에 올리기로 하였으므로 하기 date는 Stat Dialog 종료이전엔 Clear하면 안 된다.
+	//            코드 수행을 코멘트로 막음.
+	//Stat_deleteAllNetData();
+
+
+}
+
+
+#if 0
+// 1. binary 파일을 open하여  Memory에 load
+void CStatisticsDialog::Load_StatLotDataFile(int nLot)
+{
+
+}
+#endif
 

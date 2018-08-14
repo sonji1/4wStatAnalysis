@@ -613,8 +613,7 @@ void CPChartDialog::DisplayPChart(int nLot, int nDate, int nTrackNet /*= -1*/)
     m_ChartViewer.setChart(c);
 	
     // Include tool tip for the chart
-    m_ChartViewer.setImageMap(
-    	c->getHTMLImageMap("", "", "title='{xLabel}: US${value}K'"));
+    m_ChartViewer.setImageMap( c->getHTMLImageMap("", "", "title='{xLabel}: US${value}K'"));
 
 	// In this sample project, we do not need to chart object any more, so we 
 	// delete it now.

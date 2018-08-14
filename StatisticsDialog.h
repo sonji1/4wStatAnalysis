@@ -393,8 +393,6 @@ public:
 };
 
 
-
-
 //---------------------
 // Define & enum
 //---------------------
@@ -454,6 +452,132 @@ enum SUM_COL_TYPE  { SUM_COL_NET, 			// 0
 enum DATE_TYPE  { DATE_ALL }; 		// 0
 
 
+//------------------------------------------------------
+// CSV 파일 출력을 위한 현재  Grid Snap Data
+//------------------------------------------------------
+class SumSnapData
+{
+public:
+	CString strNetName;
+	CString strDate;
+	CString strCount;
+	CString strNgCount;
+
+	CString strAvg;
+	CString strSigma;
+	CString strMin;
+	CString strMax;
+	CString strFault;
+
+
+	SumSnapData()	// 생성자
+	{
+		strNetName = "";
+		strDate = "";
+		strCount = "";
+		strNgCount = "";
+
+		strAvg = "";
+		strSigma = "";
+		strMin = "";
+		strMax = "";
+		strFault = "";
+
+	}
+
+	void InitMember() 
+	{
+		strNetName = "";
+		strDate = "";
+		strCount = "";
+		strNgCount = "";
+
+		strAvg = "";
+		strSigma = "";
+		strMin = "";
+		strMax = "";
+		strFault = "";
+
+	}
+};
+
+class DataSnapTuple
+{
+public:
+//	int nTuple; 
+	int nPrtTuple;
+	CString strDate; 	// 같은 화면에서 date가 달라질 수 있으므로 저장. (DATE_ALL로 조회시)
+	CString strTime;	
+
+	CString strRefR; 	// DATE_ALL인 경우 nDate를 바꿔가며 계산해야 하므로 오류를 줄이기 위해 
+	CString strLSL; 	// RefR, LSL, USL, strData[] 같은 값들도 모두 snap에 넣기로 함.
+	CString strUSL; 
+	CString strTupleAvg; 
+	CString strTupleSigma; 
+	CString strTupleMin; 
+	CString strTupleMax;
+
+	CString strData[NUM_STAT_SAMPLE];
+
+	DataSnapTuple()	// 생성자
+	{
+		int i;
+//		nTuple = 0;
+		nPrtTuple = 0;
+		strDate = "";
+		strTime = "";
+
+		strRefR = ""; 
+		strLSL = ""; 
+		strUSL = ""; 
+		strTupleAvg = ""; 
+		strTupleSigma = ""; 
+		strTupleMin = ""; 
+		strTupleMax = "";
+
+		for (i = 0; i < NUM_STAT_SAMPLE; i++)
+			strData[i] = "";
+	}
+
+	void InitMember() 
+	{
+		int i;
+//		nTuple = 0;
+		nPrtTuple = 0;
+		strDate = "";
+		strTime = "";
+
+		strRefR = ""; 
+		strLSL = ""; 
+		strUSL = ""; 
+		strTupleAvg = ""; 
+		strTupleSigma = ""; 
+		strTupleMin = ""; 
+		strTupleMax = "";
+
+		for (i = 0; i < NUM_STAT_SAMPLE; i++)
+			strData[i] = "";
+	}
+};
+
+class GridSnapInfo
+{
+public:
+	
+	SumSnapData		Summary;
+
+	int				dataCount;
+	DataSnapTuple   saData[MAX_DATA_GRID_ROW];
+
+	void InitMember()
+	{
+		Summary.InitMember();
+		for (int i = 0; i < MAX_DATA_GRID_ROW; i++)
+			saData[i].InitMember();
+
+	}
+};
+
 //---------------------------
 // 전역변수 extern 선언
 //---------------------------
@@ -506,6 +630,8 @@ protected:
 	afx_msg void OnChangeEditUsl();
 	afx_msg void OnButtonClearGrid();
 	afx_msg void OnCheckDataFaultOnly();
+	afx_msg void OnButtonSaveStatCsv();
+	afx_msg void OnButtonViewStatCsv();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -600,6 +726,11 @@ public:
 
 	int			m_nNetDataCount;			// Stat_insertNetData 호출 횟수
 
+	//--------------------------
+	// Display Snap
+	
+	GridSnapInfo	m_GridSnap;
+
 	//-------------------
 	// Member Function 
 	
@@ -632,12 +763,8 @@ public:
 														// 해당 Lot에 속한  모든 Net의 Fault 여부를 판단한다.
 	void 		Tree_CheckNetFault(HTREEITEM hNetItem, int nLot);
 
-	void		Save_StatLotDataFile();				// data를 csv 파일에 저장.
-	//void		Save_StatLotDataFile(int nLot);		// Lot별 data를 파일에 저장.
-	//void 		Load_StatLotDataFile(int nLot);		// Lot별 data 파일을 memory에 load.
-
 	void  		Combo_UpdateDateContents(int nLot);
-	void		DisplayGrid(int nLot, int nNet, int nDate); 
+	void		DisplayGrid(int nLot, int nNet, int nComboDate); 
 	void		Display_SumupLotNetDate(int nLot, int nNet, int nDate);
 	void		Display_SumupLotNet(int nLot, int nNet);
 	void		Display_SumupLotDate(int nLot, int nDate);
@@ -654,6 +781,11 @@ public:
 	void		ClearGrid();
 	void		ClearGrid_Data();
 	void		ClearGrid_Summary();
+
+	void 		SaveStat_CsvFile(int nLot, int nNet, int nComboDate); // 현재 grid data를 csv 파일에 저장.
+	void		Save_StatLotDataFile();				
+	//void		Save_StatLotDataFile(int nLot);		// Lot별 data를 파일에 저장.
+	//void 		Load_StatLotDataFile(int nLot);		// Lot별 data 파일을 memory에 load.
 };
 
 //{{AFX_INSERT_LOCATION}}
