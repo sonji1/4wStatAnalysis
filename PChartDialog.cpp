@@ -286,11 +286,11 @@ void CPChartDialog::OnSelchangeComboLot()
 	m_nCombo_CurrLot = m_comboLot.GetCurSel();		// 현재 combo에서 선택된 Lot# 
 
 	// Range Check
-	if ( m_nCombo_CurrLot < 0 || m_nCombo_CurrLot > (MAX_LOT + 1) ) 
+	if (m_nCombo_CurrLot < 0 || m_nCombo_CurrLot >= MAX_LOT) 
 	{
 
 		strTemp.Format("OnSelchangeComboLot(): m_nCombo_CurrLot=%d, Range(0<= Lot <%d) Over\n", 
-					m_nCombo_CurrLot, (MAX_LOT + 1) );
+					m_nCombo_CurrLot, MAX_LOT);
 		ERR.Set(RANGE_OVER, strTemp); 
 		ErrMsg();  ERR.Reset(); 
 
@@ -314,7 +314,7 @@ void CPChartDialog::OnSelchangeComboDate()
 	m_nCombo_CurrDate = m_comboDate.GetCurSel();		// 현재 combo에서 선택된 date# (0=ALL이므로 실제 date+1),  미선택이면 -1
 
 	// Range Check
-	if ( m_nCombo_CurrDate < 0 || m_nCombo_CurrDate > (MAX_DATE + 1) )
+	if ( m_nCombo_CurrDate < 0 || m_nCombo_CurrDate >= (MAX_DATE + 1) )
 	{
 
 		strTemp.Format("OnSelchangeComboDate(): m_nCombo_CurrDate=%d, Range(0<= Date <%d) Over\n", 

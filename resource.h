@@ -12,6 +12,7 @@
 #define IDD_CONFIG_DIALOG               134
 #define IDB_BITMAP2                     134
 #define IDD_PCHART_DIALOG               135
+#define IDD_FR_RANK_DIALOG              136
 #define IDC_GRID_DATA                   1002
 #define IDC_TREE                        1003
 #define IDC_EDIT_SELECT                 1005
@@ -36,13 +37,23 @@
 #define IDC_EDIT_PCAHRT_FAULT_CNT       1027
 #define IDC_BUTTON_VIEW_PCHART_CSV      1028
 #define IDC_CHECK_STATISTICS            1029
+#define IDC_EDIT_FR_NET_CNT             1029
 #define IDC_CHECK_PCHART                1030
+#define IDC_EDIT_FR_FAULT_CNT2          1030
 #define IDC_CHECK_CONFIG                1031
 #define IDC_CHECK_OOCNET_ONLY           1031
+#define IDC_COMBO_FR_LOT                1031
 #define IDC_CHECK_DATA_FAULT_ONLY       1032
+#define IDC_COMBO_FR_DATE               1032
+#define IDC_CHECK_FR_RANK               1032
 #define IDC_CHECK_FAULT_ONLY            1033
+#define IDC_BUTTON_SAVE_FR_LIST_CSV     1033
 #define IDC_BUTTON_SAVE_STAT_CSV        1034
+#define IDC_CHECK_SORT_FAULT_RATE       1034
 #define IDC_BUTTON_VIEW_STAT_CSV        1035
+#define IDC_BUTTON_VIEW_FR_LIST_CSV     1035
+#define IDC_GRID_FR_LIST                1036
+#define IDC_CHECK_FR_FAULT_ONLY         1037
 #define IDC_CHECK_PRT_BASIC             1085
 #define IDC_CHECK_PRT_LEVEL1            1086
 #define IDC_CHECK_PRT_Level2            1087
@@ -55,9 +66,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        136
+#define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1035
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -14,6 +14,7 @@
 
 #include "resource.h"		// main symbols
 
+
 /////////////////////////////////////////////////////////////////////////////
 // CACE400StatisticsApp:
 // See ACE400Statistics.cpp for the implementation of this class

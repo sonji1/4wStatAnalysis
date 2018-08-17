@@ -111,6 +111,10 @@ SOURCE=.\Error.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FrRankDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Globals.cpp
 # End Source File
 # Begin Source File
@@ -177,6 +181,10 @@ SOURCE=.\ConfigDialog.h
 # Begin Source File
 
 SOURCE=.\Error.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\FrRankDialog.h
 # End Source File
 # Begin Source File
 

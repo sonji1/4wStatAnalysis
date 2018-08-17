@@ -89,6 +89,7 @@ BEGIN_MESSAGE_MAP(CACE400MainDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_STATISTICS, OnCheckStatistics)
 	ON_BN_CLICKED(IDC_CHECK_PCHART, OnCheckPchart)
 	ON_BN_CLICKED(IDC_CHECK_CONFIG, OnCheckConfig)
+	ON_BN_CLICKED(IDC_CHECK_FR_RANK, OnCheckFrRank)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -128,12 +129,15 @@ BOOL CACE400MainDlg::OnInitDialog()
 	m_StatisticsDlg.ShowWindow(SW_SHOW);
 	m_ConfigDlg.Create(IDD_CONFIG_DIALOG, this);		// make Modeless Dialog
 	m_ConfigDlg.ShowWindow(SW_HIDE);
-	m_PChildDlg.Create(IDD_PCHART_DIALOG, this);		// make Modeless Dialog
-	m_PChildDlg.ShowWindow(SW_HIDE);
+	m_PChartDlg.Create(IDD_PCHART_DIALOG, this);		// make Modeless Dialog
+	m_PChartDlg.ShowWindow(SW_HIDE);
+	m_FrRankDlg.Create(IDD_FR_RANK_DIALOG, this);		// make Modeless Dialog
+	m_FrRankDlg.ShowWindow(SW_HIDE);
 
 	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
 
 #if 0
 //#ifdef _DEBUG
@@ -204,8 +208,8 @@ HCURSOR CACE400MainDlg::OnQueryDragIcon()
 BOOL CACE400MainDlg::DestroyWindow() 
 {
 	// TODO: Add your specialized code here and/or call the base class
-	m_StatisticsDlg.DestroyWindow();
-
+	m_StatisticsDlg.DestroyWindow();	// vector를 반환
+	m_FrRankDlg.DestroyWindow();		// vector를 반환
 
 
 #if 0
@@ -224,14 +228,34 @@ BOOL CACE400MainDlg::DestroyWindow()
 void CACE400MainDlg::OnCheckStatistics() 
 {
 	// TODO: Add your control notification handler code here
+	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
-	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
+	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
 
-	m_ConfigDlg.ShowWindow(SW_HIDE);
-	m_PChildDlg.ShowWindow(SW_HIDE);
 	m_StatisticsDlg.ShowWindow(SW_SHOW);
+	m_ConfigDlg.ShowWindow(SW_HIDE);
+	m_PChartDlg.ShowWindow(SW_HIDE);
+	m_FrRankDlg.ShowWindow(SW_HIDE);
 
+	UpdateData(FALSE);
+	
+}
+
+
+void CACE400MainDlg::OnCheckConfig() 
+{
+	// TODO: Add your control notification handler code here
+
+	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
+	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
+
+	m_StatisticsDlg.ShowWindow(SW_HIDE);
+	m_ConfigDlg.ShowWindow(SW_SHOW);
+	m_PChartDlg.ShowWindow(SW_HIDE);
+	m_FrRankDlg.ShowWindow(SW_HIDE);
 	UpdateData(FALSE);
 	
 }
@@ -243,25 +267,28 @@ void CACE400MainDlg::OnCheckPchart()
 	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
+	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
 
 	m_StatisticsDlg.ShowWindow(SW_HIDE);
 	m_ConfigDlg.ShowWindow(SW_HIDE);
-	m_PChildDlg.ShowWindow(SW_SHOW);
+	m_PChartDlg.ShowWindow(SW_SHOW);
+	m_FrRankDlg.ShowWindow(SW_HIDE);
 	UpdateData(FALSE);
 	
 }
 
-void CACE400MainDlg::OnCheckConfig() 
+void CACE400MainDlg::OnCheckFrRank() 
 {
 	// TODO: Add your control notification handler code here
-
 	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(0);
-	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
-	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
+	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);	
+	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(1); // 해당 check 버튼을 눌린 상태로 유지
 
 	m_StatisticsDlg.ShowWindow(SW_HIDE);
-	m_PChildDlg.ShowWindow(SW_HIDE);
-	m_ConfigDlg.ShowWindow(SW_SHOW);
+	m_ConfigDlg.ShowWindow(SW_HIDE);
+	m_PChartDlg.ShowWindow(SW_HIDE);
+	m_FrRankDlg.ShowWindow(SW_SHOW);
 	UpdateData(FALSE);
 	
 }
