@@ -437,13 +437,13 @@ enum DATA_COL_TYPE  { DATA_COL_NO, 			// 0
 // enum for SUMMARY GRID Column Location 
 enum SUM_COL_TYPE  { SUM_COL_NET, 			// 0
 					 SUM_COL_DATE, 			// 1
-					 SUM_COL_COUNT, 		// 2
-					 SUM_COL_NG,			// 3
+					 SUM_COL_NG,			// 2
+					 SUM_COL_COUNT, 		// 3
 					 SUM_COL_AVG,			// 4
 					 SUM_COL_SIGMA,			// 5
 					 SUM_COL_DATAMIN,		// 6
 					 SUM_COL_DATAMAX,		// 7
-					 SUM_COL_FALUT,			// 8
+					 SUM_COL_FAULT,			// 8
 
 					 NUM_SUM_GRID_COL	 	// 9
 }; 
@@ -460,8 +460,8 @@ class SumSnapData
 public:
 	CString strNetName;
 	CString strDate;
-	CString strCount;
 	CString strNgCount;
+	CString strCount;
 
 	CString strAvg;
 	CString strSigma;

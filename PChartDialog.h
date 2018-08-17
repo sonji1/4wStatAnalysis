@@ -19,18 +19,18 @@
 
 // enum for OOC GRID Column Location 
 enum OOC_COL_TYPE  { OOC_COL_NO, 			// 0
-					OOC_COL_LOT, 
-					OOC_COL_DATE, 
-					OOC_COL_NET,
-					OOC_COL_TOTAL,
-					OOC_COL_FAULT,
-					OOC_COL_NGCOUNT,
-					OOC_COL_NORMAL,
-					OOC_COL_COUNT,
-					OOC_COL_YR,
+					OOC_COL_LOT, 			// 1
+					OOC_COL_DATE, 			// 2
+					OOC_COL_NET,			// 3
+					OOC_COL_TOTAL,			// 4
+					OOC_COL_NGCOUNT,		// 5
+					OOC_COL_COUNT,			// 6
+					OOC_COL_FAULT,			// 7
+					OOC_COL_NORMAL,			// 8
+					OOC_COL_YR,				// 9
 					OOC_COL_CENTER,			// 10
-					OOC_COL_LCL,
-					OOC_COL_OOC,
+					OOC_COL_LCL,			// 11
+					OOC_COL_OOC,			// 12
 					NUM_OOC_GRID_COL		// (12 + 1) : No까지 1추가
 }; 
 
@@ -133,8 +133,9 @@ public:
 	//void 	trackLineLegend(XYChart *c, int xValue);
 	void 	trackLineLabel(XYChart *c, int xValue);
 	void 	DisplayGrid_OOC(int nLot, int nDate, int nTrackNet = -1,  BOOL bSbInit = TRUE);
-	void 	DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet, int nTotal, int nFault, int nNgCount,
-								int nNormal, int nCount, double dYR, double dCenter, double dLCL, bool bOOC);
+	void 	DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet, 
+					int nTotal, int nNgCount, int nCount, int nFault, int nNormal, 
+					double dYR, double dCenter, double dLCL, bool bOOC);
 
 	void 	ClearGrid_OOC();
 	void 	SavePChart_CsvFile(int nLot, int nDate);

@@ -163,12 +163,12 @@ BOOL CPChartDialog::InitView()
 
 	// OOC Grid Header 설정
 	
-	//            0     1        2      3       4                       5          6        7                           8                     9                         10        11      12
+	//            0     1        2      3       4                       5           6                      7                  8                     9                         10        11      12
 	char oocHeader[NUM_OOC_GRID_COL][30] = 
-				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "Fault", "NgCount", "Normal\n(Count-Fault)",  "Count\n(n:Total-NG)",  "YR\n(Normal/Count)",   "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
+				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Fault", "Normal\n(Count-Fault)",  "YR\n(Normal/Count)",   "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
 
 	int oocColWidth[NUM_OOC_GRID_COL] =    
-				{ 40,    80,     70,    50,     80,                     70,     70,         85,                        80,                   100,                       70,     70,     80 };
+				{ 40,    80,     70,    50,     80,                     70,         80,                   70,                 85,                  100,                       70,     70,     80 };
 
 	int i;
 	for (i=0; i < NUM_OOC_GRID_COL; i++)
@@ -804,18 +804,18 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 
 		nRow++; // row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
 
-		DisplayGrid_OOCTuple(nRow,											// 0: Grid Row No
-				nLot, nDate, net, 											// 1~3: Lot, Date, Net
+		DisplayGrid_OOCTuple(nRow,											// Grid Row No
+				nLot, nDate, net, 											// Lot, Date, Net
 				(m_waCount[net] + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]),
-																			// 4: Total (nCount + NG)
-				g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate],	// 5: Fault Count
-				g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// 6: NG Count
-				m_waNormal[net], 											// 7: Normal Count
-				m_waCount[net], 											// 8: n(Total-NG) Count
-				m_daYR[net],												// 9: YR
-				m_dCenter,													// 10: Center
-				m_daLCL[net],												// 11: LCL
-				m_baOOC[net]);												// 12: OOC
+																			// Total (nCount + NG)
+				g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// NG Count
+				m_waCount[net], 											// n(Total-NG) Count
+				g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate],	// Fault Count
+				m_waNormal[net], 											// Normal Count (Count-Fault)
+				m_daYR[net],												// YR (Normal / Count)
+				m_dCenter,													// Center
+				m_daLCL[net],												// LCL
+				m_baOOC[net]);												// OOC
 
 		// track net이 설정된 경우, 해당 Net번호 Cell을 하늘색 표시
 		if (nTrackNet != -1 && nTrackNet == net)
@@ -834,13 +834,14 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
 }
 	
-void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet, int nTotal, int nFault, int nNgCount,
-								int nNormal, int nCount, double dYR, double dCenter, double dLCL, bool bOOC)
+void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet, 
+								int nTotal, int nNgCount, int nCount, int nFault, int nNormal, 
+								double dYR, double dCenter, double dLCL, bool bOOC)
 {
 	CString strTemp;
 
-	//    0     1        2      3       4         5         6          7          8       9       10      11      12
-	//	{"No", "Lot", "Date", "Net", "Total" ,  "Fault", "NgCount", "Normal",  "Count",  "YR", "Center", "LCL",  "OOC" };
+	//    0     1        2      3       4         5         6       7          8        9       10      11      12
+	//	{"No", "Lot", "Date", "Net", "Total", "NgCount", "Count",  "Fault", "Normal",  "YR", "Center", "LCL",  "OOC" };
 	
 		
 	// row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
@@ -859,17 +860,17 @@ void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet
 	strTemp.Format("%d", nTotal);
 	m_gridOOC.SetItemText(nRow, OOC_COL_TOTAL, strTemp);				// col 4: Total Count
 
-	strTemp.Format("%d", nFault);
-	m_gridOOC.SetItemText(nRow, OOC_COL_FAULT, strTemp);				// col 5: Fault Count
-
 	strTemp.Format("%d", nNgCount);
-	m_gridOOC.SetItemText(nRow, OOC_COL_NGCOUNT, strTemp);				// col 6: NG Count
-
-	strTemp.Format("%d", nNormal);
-	m_gridOOC.SetItemText(nRow, OOC_COL_NORMAL, strTemp);				// col 7: Normal Count
+	m_gridOOC.SetItemText(nRow, OOC_COL_NGCOUNT, strTemp);				// col 5: NG Count
 
 	strTemp.Format("%d", nCount);
-	m_gridOOC.SetItemText(nRow, OOC_COL_COUNT, strTemp);				// col 8: n(Total-NG) Count
+	m_gridOOC.SetItemText(nRow, OOC_COL_COUNT, strTemp);				// col 6: n(Total-NG) Count
+
+	strTemp.Format("%d", nFault);
+	m_gridOOC.SetItemText(nRow, OOC_COL_FAULT, strTemp);				// col 7: Fault Count
+
+	strTemp.Format("%d", nNormal);
+	m_gridOOC.SetItemText(nRow, OOC_COL_NORMAL, strTemp);				// col 8: Normal Count
 	
 	strTemp.Format("%.4f", dYR);
 	m_gridOOC.SetItemText(nRow, OOC_COL_YR, strTemp);					// col 9: YR
@@ -879,7 +880,6 @@ void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet
 
 	strTemp.Format("%.4f", dLCL);
 	m_gridOOC.SetItemText(nRow, OOC_COL_LCL, strTemp);					// col 11: LCL
-
 
 	strTemp.Format("%s", (bOOC == TRUE) ? "On": "Off");		
 	m_gridOOC.SetItemText(nRow, OOC_COL_OOC, strTemp);					// col 12: OOC
@@ -974,12 +974,12 @@ void CPChartDialog::SavePChart_CsvFile(int nLot, int nDate)
 
 
 	//----------------------------------------------------
-	// p Chart Data 출력
+	// p Chart CSV 출력
 
 	// 헤더 출력
 	fprintf(fp, "NetCount =, %d, ,OocNetCnt=, %d, ,FaultNetCnt=, %d\n\n",  m_nNetCount, m_nOocNetCount, m_nFaultNetCount );
 
-	fprintf(fp, "Lot=%d, Date=%d, Net, Total, Fault, NgCount, Normal, Count, YR, Center, LCL, OOC Alarm\n", 
+	fprintf(fp, "Lot=%d, Date=%d, Net, Total, NgCount, Count, Fault, Normal, YR, Center, LCL, OOC Alarm\n", 
 				nLot, nDate);
 
 	// Data  출력
@@ -998,10 +998,10 @@ void CPChartDialog::SavePChart_CsvFile(int nLot, int nDate)
 						net, 														// 3: Net No
 						(m_waCount[net] + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]), 	
 																					// 4: Total Count
-						g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate], // 5: Fault Count
-						g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// 6: NG Count
-						m_waNormal[net], 											// 7: Normal Count
-						m_waCount[net], 											// 8: n(Total-NG) Count
+						g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// 5: NG Count
+						m_waCount[net], 											// 6: n(Total-NG) Count
+						g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate], // 7: Fault Count
+						m_waNormal[net], 											// 8: Normal Count
 						m_daYR[net],												// 9: YR
 						m_dCenter,													//10: Center
 						m_daLCL[net],												//11: LCL
@@ -1012,7 +1012,7 @@ void CPChartDialog::SavePChart_CsvFile(int nLot, int nDate)
 
 	fclose(fp);
 
-	strTemp.Format("\'Save p-Chart to CSV(%s)\' completed.", fName);
+	strTemp.Format("\'Save to CSV\' completed. \n(%s)", fName);
 	AfxMessageBox(strTemp, MB_ICONINFORMATION);
 	MyTrace(PRT_BASIC, strTemp);
 }

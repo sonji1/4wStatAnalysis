@@ -178,7 +178,7 @@ BOOL CStatisticsDialog::InitMember()
 	//----------------------------
 	// Grid 관련 멤버 변수 초기화
 	m_nFixRows = 1;
-	m_nFixCols = 3;		
+	m_nFixCols = 1;		
 	m_nCols = NUM_DATA_GRID_COL;
 	m_nRows = MAX_DATA_GRID_ROW;
 	m_bEditable = FALSE;
@@ -252,11 +252,11 @@ BOOL CStatisticsDialog::InitView()
     m_gridSummary.SetItemText(0, SUM_COL_DATE, "Date");
 	//m_gridSummary.SetColumnWidth(SUM_COL_DATE, 80);
 
-    m_gridSummary.SetItemText(0, SUM_COL_COUNT, "Count");
-	//m_gridSummary.SetColumnWidth(SUM_COL_COUNT, 70);
-
     m_gridSummary.SetItemText(0, SUM_COL_NG, "NG Count");
 	//m_gridSummary.SetColumnWidth(SUM_COL_NG, 70);
+	
+    m_gridSummary.SetItemText(0, SUM_COL_COUNT, "Count");
+	//m_gridSummary.SetColumnWidth(SUM_COL_COUNT, 70);
 
     m_gridSummary.SetItemText(0, SUM_COL_AVG, "Average");
 	//m_gridSummary.SetColumnWidth(SUM_COL_AVG, 70);
@@ -270,8 +270,8 @@ BOOL CStatisticsDialog::InitView()
     m_gridSummary.SetItemText(0, SUM_COL_DATAMAX, "DataMax");		
 	//m_gridSummary.SetColumnWidth(SUM_COL_DATAMAX, 70);
 
-    m_gridSummary.SetItemText(0, SUM_COL_FALUT, "Fault Count");		
-	//m_gridSummary.SetColumnWidth(SUM_COL_FALUT, 70);
+    m_gridSummary.SetItemText(0, SUM_COL_FAULT, "Fault Count");		
+	//m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
 	
 
 	//----------------------------
@@ -2524,13 +2524,13 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 	m_gridSummary.SetItemText(1, SUM_COL_DATE, strTemp);		// col 1:  Date
 	m_GridSnap.Summary.strDate = strTemp;
 
-	strTemp.Format("%d", nCount);
-	m_gridSummary.SetItemText(1, SUM_COL_COUNT, strTemp);		// col 2:  Count
-	m_GridSnap.Summary.strCount = strTemp;
-
 	strTemp.Format("%d", (nTotal - nCount));
-	m_gridSummary.SetItemText(1, SUM_COL_NG, strTemp);			// col 3:  N/G Count
+	m_gridSummary.SetItemText(1, SUM_COL_NG, strTemp);			// col 2:  N/G Count
 	m_GridSnap.Summary.strNgCount = strTemp;
+
+	strTemp.Format("%d", nCount);
+	m_gridSummary.SetItemText(1, SUM_COL_COUNT, strTemp);		// col 3:  Count
+	m_GridSnap.Summary.strCount = strTemp;
 
 
 	strTemp.Format("%.2f", dAvg);
@@ -2550,14 +2550,14 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 	m_GridSnap.Summary.strMax = strTemp;
 
 	strTemp.Format("%d", nFaultCount); 
-	m_gridSummary.SetItemText(1, SUM_COL_FALUT, strTemp);		// col 8:  FaultCount
+	m_gridSummary.SetItemText(1, SUM_COL_FAULT, strTemp);		// col 8:  FaultCount
 	m_GridSnap.Summary.strFault = strTemp;
 
 	// Fault가 1개라도 있으면 Summary의 FaultCount를 붉은색으로, net Icon도 붉은색으로 변경한다.
 	if (nFaultCount > 0)	
 	{
     	// 'Fault 셀' 배경을 '주황색' 표시하기	
-    	m_gridSummary.SetItemBkColour(1, SUM_COL_FALUT, 
+    	m_gridSummary.SetItemBkColour(1, SUM_COL_FAULT, 
 									//RGB(0xdc, 0x24, 0x4c));		// crimson(0xdc143c)보다 약간 연한 빨강
 									RGB(0xff, 0x63, 0x47));			// tomato : 진한 주황
     	
@@ -2566,7 +2566,7 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 	else // Fault가 없으면 
 	{
     	// 'Fault 셀' 배경을 원상복구  -> 이건 이미 ClearGrid_Summary를 수행했으므로 안해도 됨.
-    	//m_gridSummary.SetItemBkColour(1, SUM_COL_FALUT, RGB(0xFF, 0xFF, 0xE0));	// 연노랑색 
+    	//m_gridSummary.SetItemBkColour(1, SUM_COL_FAULT, RGB(0xFF, 0xFF, 0xE0));	// 연노랑색 
 
 	}
 
@@ -3033,13 +3033,13 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 	//  Summary Grid Data 출력
 
 	// 헤더 출력
-	fprintf(fp, "Net, Date, Count, NgCount, Average, Sigma, DataMin, DataMax, FaultCount, , ,TimeTuple#, Data#\n" );
+	fprintf(fp, "Net, Date, NgCount, Count, Average, Sigma, DataMin, DataMax, FaultCount, , ,TimeTuple#, Data#\n" );
 
 	fprintf(fp, "%s, %s, %s, %s, %s, %s, %s, %s, %s, , ,%d, %d\n",
 				m_GridSnap.Summary.strNetName, 		// 0:
 				m_GridSnap.Summary.strDate, 		// 1:
-				m_GridSnap.Summary.strCount, 		// 2:
-				m_GridSnap.Summary.strNgCount, 		// 3:
+				m_GridSnap.Summary.strNgCount, 		// 2:
+				m_GridSnap.Summary.strCount, 		// 3:
 
 				m_GridSnap.Summary.strAvg, 			// 4:
 				m_GridSnap.Summary.strSigma, 		// 5:
@@ -3088,6 +3088,10 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 	}
 
 	fclose(fp);
+
+	strTemp.Format("\'Save to CSV\' completed.\n(%s)", fName);
+	AfxMessageBox(strTemp, MB_ICONINFORMATION);
+	MyTrace(PRT_BASIC, strTemp);
 }
 
 // 1. 지금까지 insert 한 data를  binary 파일을 open하여  write. 
