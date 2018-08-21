@@ -54,11 +54,11 @@ public:
 	CChartViewer	m_ChartViewer;		// for Chart,	 선택된 Lot, Date의 그래프 출력
 	CGridCtrl		m_gridOOC;			// for grid,	 선택된 Lot, Date의 Data를 표에 출력하는 'OOC List'
 	int				m_nNetCount;		// for editBox,  현재 Lot, Date의 Net 갯수
-
-	BOOL			m_bOocListOocOnly;	// for checkBox, On이면 'OOC List' gird에서 OOC인 Net만 골라서 출력
 	int				m_nOocNetCount; 	// for editBox,  선택된  Lot, Date의 OOC 발생 Net 갯수
-	BOOL			m_bOocListFaultOnly;// for checkBox, On이면 'OOC List' grid에서 Fault인 Net만 골라서 출력
 	int				m_nFaultNetCount;	// for editBox,  선택된  Lot, Date의 fault 발생 Net 갯수
+
+	BOOL			m_bOocListOocOnly;	// for checkBox, On이면 'OOC List' grid에서 OOC인 Net만 골라서 출력
+	BOOL			m_bOocListFaultOnly;// for checkBox, On이면 'OOC List' grid에서 Fault인 Net만 골라서 출력
 	//}}AFX_DATA
 
 
@@ -132,7 +132,7 @@ public:
 	void 	DisplayPChart(int nLot, int nDate, int nTrackNet = -1);
 	//void 	trackLineLegend(XYChart *c, int xValue);
 	void 	trackLineLabel(XYChart *c, int xValue);
-	void 	DisplayGrid_OOC(int nLot, int nDate, int nTrackNet = -1,  BOOL bSbInit = TRUE);
+	void 	DisplayGrid_OOC(int nLot, int nDate, int nTrackNet = -1,  BOOL bScrollBarInit = TRUE);
 	void 	DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet, 
 					int nTotal, int nNgCount, int nCount, int nFault, int nNormal, 
 					double dYR, double dCenter, double dLCL, bool bOOC);

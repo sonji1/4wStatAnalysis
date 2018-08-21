@@ -118,7 +118,7 @@ public:
 
 
 
-} ;
+};
 
 
 //-----------------------------------------------
@@ -729,7 +729,7 @@ public:
 	//--------------------------
 	// Display Snap
 	
-	GridSnapInfo	m_GridSnap;
+	GridSnapInfo	m_GridSnap;			// CSV 출력을 위해 현재 Grid의 출력 이미지 data를 동일하게 저장해 둔다.
 
 	//-------------------
 	// Member Function 

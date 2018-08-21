@@ -12,6 +12,54 @@
 #include "StatisticsDialog.h" 	// g_sLotNetDate_Info, g_pvsaNetData 정보 사용을 위해 추가
 
 
+//---------------------
+// Define & enum
+//---------------------
+
+// for FAULT Grid  -----
+
+#define MAX_FR_GRID_ROW		(MAX_NET_PER_LOT + 1)	// 헤더까지 1추가
+
+// enum for FAULT RANK GRID Column Location 
+enum FR_COL_TYPE  { FR_COL_NO, 			// 0
+					FR_COL_LOT, 		// 1
+					FR_COL_DATE, 		// 2
+					FR_COL_NET,			// 3
+					FR_COL_TOTAL,		// 4
+					FR_COL_NGCOUNT,		// 5
+					FR_COL_COUNT,		// 6
+					FR_COL_FAULT,		// 7
+					FR_COL_FR,			// 8
+
+					NUM_FR_GRID_COL     // (8 +1) : No까지 1추가
+}; 
+
+
+//---------------------
+// Fault Rank Data 
+//---------------------
+
+
+class faultRankData
+{
+	public:
+
+	// for  FR Rank Calc 
+	short  	wNet;
+	short  	wCount;
+	double 	dFR; 			// FR(불량율) = Fault / Count 
+							//            = Fault / (Total - NG)
+							
+	faultRankData()		// 생성자
+	{
+		wNet = 0;
+		wCount = 0;
+		dFR = 0;
+	}
+};
+
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CFrRankDialog dialog
 
@@ -26,6 +74,11 @@ public:
 	enum { IDD = IDD_FR_RANK_DIALOG };
 	CComboBox	m_comboFrLot;
 	CComboBox	m_comboFrDate;
+	int			m_nNetCount;			// for editBox,  현재 Lot, Date의 Net 갯수
+	int			m_nFaultNetCount;		// for editBox,  선택된 Lot, Date의 fault 발생 Net 갯수
+	CGridCtrl	m_gridFault;			// for grid,	 선택된 Lot, Date의 Fault Data를 표에 출력
+	BOOL		m_bFaultListFaultOnly;	// for checkBox, On이면 'Fault List' grid에서 Fault인 Net만 골라서 출력
+	BOOL		m_bFaultListFrRank;		// for checkBox, On이면 'Fault List' grid를 FR 항목기준으로 내림차순 정렬
 	//}}AFX_DATA
 
 
@@ -47,6 +100,8 @@ protected:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnSelchangeComboFrLot();
 	afx_msg void OnSelchangeComboFrDate();
+	afx_msg void OnCheckFrFaultOnly();
+	afx_msg void OnCheckSortFaultRate();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -56,6 +111,25 @@ public:
 	// Member Variable 
 	int 	m_nCombo_CurrLot;			// m_comboFrLot  컨트롤에서 선택된 lot index
 	int 	m_nCombo_CurrDate;			// m_comboFrDate 컨트롤에서 선택된 date index
+
+
+
+	// for  FR Rank Calc 
+	short  	m_waCount[MAX_NET_PER_LOT];
+	double 	m_daFR[MAX_NET_PER_LOT]; 	// FR(불량율) = Fault / Count 
+										//            = Fault / (Total - NG)
+										
+	vector <faultRankData> m_vsFrData;
+
+
+	// member for grid control
+	int		m_nFixCols;
+	int		m_nFixRows;
+	int		m_nCols;
+	int		m_nRows;
+	BOOL	m_bEditable;
+	//BOOL	m_bListMode;
+
 	
 	
 	//-------------------
@@ -63,10 +137,17 @@ public:
 	
 	BOOL 	InitMember();
 	BOOL 	InitView();	
+	void 	ClearGrid_Fault();
+
 	void 	ComboLot_UpdateContents();
 	void 	ComboDate_UpdateContents(int nLot);
 
 	void 	DisplayFrRank();
+	void 	CalcFrRank(int nLot, int nDate);
+	void 	DisplayGridFault(int nLot, int nDate);
+	void 	DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nNet, 
+					int nTotal, int nNgCount, int nCount, int nFault, double dYR );
+
 
 };
 

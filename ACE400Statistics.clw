@@ -20,10 +20,10 @@ Class8=CStatisticsDialog
 
 ResourceCount=6
 Resource1=IDD_CONFIG_DIALOG
-Resource2=IDD_PCHART_DIALOG
-Resource3=IDD_STATISTICS_DIALOG
+Resource2=IDD_STATISTICS_DIALOG
+Resource3=IDD_MAIN_DIALOG
 Resource4=IDD_ABOUTBOX
-Resource5=IDD_MAIN_DIALOG
+Resource5=IDD_PCHART_DIALOG
 Resource6=IDD_FR_RANK_DIALOG
 
 [CLS:CAboutDlg]
@@ -66,7 +66,7 @@ Type=0
 BaseClass=CDialog
 HeaderFile=FrRankDialog.h
 ImplementationFile=FrRankDialog.cpp
-LastObject=IDC_COMBO_FR_DATE
+LastObject=IDC_CHECK_SORT_FAULT_RATE
 Filter=D
 VirtualFilter=dWC
 

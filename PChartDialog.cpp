@@ -25,11 +25,11 @@ CPChartDialog::CPChartDialog(CWnd* pParent /*=NULL*/)
 {
 	//{{AFX_DATA_INIT(CPChartDialog)
 	m_nNetCount = 0;
+	m_nOocNetCount = 0;
+	m_nFaultNetCount = 0;
 
 	m_bOocListOocOnly = TRUE;		// for check box
-	m_nOocNetCount = 0;
 	m_bOocListFaultOnly = FALSE;	// for check box
-	m_nFaultNetCount = 0;
 	//}}AFX_DATA_INIT
 }
 
@@ -87,10 +87,11 @@ BOOL CPChartDialog::InitMember()
 	m_dMinYR = 0.0;
 
 	m_nNetCount = 0;
-	m_bOocListOocOnly = TRUE;
 	m_nOocNetCount = 0;
-	m_bOocListFaultOnly = FALSE;
 	m_nFaultNetCount = 0;
+
+	m_bOocListOocOnly = TRUE;
+	m_bOocListFaultOnly = FALSE;
 
 	m_nNetSum_Normal = 0; 
 	m_nNetSum_Count = 0; 
@@ -340,19 +341,19 @@ void CPChartDialog::OnButtonDisPchart()
 void CPChartDialog::DisplayPchart_ALL() 
 {
 	// 선택된 Lot, Date 기준으로 P-Chart와 관련 data를 출력한다.
-	CalcPChart(m_nCombo_CurrLot, m_nCombo_CurrDate);
+	CalcPChart(m_nCombo_CurrLot, m_nCombo_CurrDate);		// DATE_ALL이 combo에 없으므로 comboDate를 그냥 nDate로 사용
 	DisplayPChart(m_nCombo_CurrLot, m_nCombo_CurrDate);		// trackLine은 빼고 차트를 그린다.
 	DisplayGrid_OOC(m_nCombo_CurrLot, m_nCombo_CurrDate);
 	
 }
 
+
+// Normal, Count, YR, Center, LCL 계산하기  
 void CPChartDialog::CalcPChart(int nLot, int nDate)
 {
 
 	MyTrace(PRT_BASIC, "CalcPChart(): nLot=%d, nDate=%d\n", nLot, nDate);
 
-	//------------------------------------------------
-	// YR, Center, LCL 계산하기  
 
 										 	
 	// 이전에 사용한 값이 남아 있을 수 있으므로 반드시 초기화하고 사용한다.
@@ -766,16 +767,16 @@ void CPChartDialog::trackLineLegend(XYChart *c, int xValue)
 #endif
 
 
-void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/, BOOL bSbInit /*= TRUE*/)
+void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/, BOOL bScrollBarInit /*= TRUE*/)
 {
 	
-	MyTrace(PRT_BASIC, _T("DisplayGrid_OOC(): nLot=%d, nDate=%d, nTrackNet=%d, bSbInit=%d\n"), 
-			nLot, nDate, nTrackNet, bSbInit);
+	MyTrace(PRT_BASIC, _T("DisplayGrid_OOC(): nLot=%d, nDate=%d, nTrackNet=%d, bScrollBarInit=%d\n"), 
+			nLot, nDate, nTrackNet, bScrollBarInit);
 
 	ClearGrid_OOC();
 
 	// Scroll Bar 초기화 옵션이 켜져 있으면 초기화 수행.
-	if (bSbInit == TRUE)
+	if (bScrollBarInit == TRUE)
 	{
 		m_gridOOC.SetScrollPos32(SB_VERT, 0);
 		m_gridOOC.SetScrollPos32(SB_HORZ, 0);
@@ -892,6 +893,7 @@ void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet
     	m_gridOOC.SetItemBkColour(nRow, OOC_COL_OOC, RGB(0xdc, 0x24, 0x4c));		
 	}
 
+	// Fault가 있으면 OOC_COL_FAULT를 주황색 표시
 	if (nFault > 0)
     	m_gridOOC.SetItemBkColour(nRow, OOC_COL_FAULT, RGB(0xff, 0x63, 0x47));	// tomato : 진한 주황
 			
