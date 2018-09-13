@@ -6,15 +6,13 @@
 --------------------Configuration: ACE400Statistics - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP6AD1.tmp" with contents
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP4A17.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/ACE400Statistics.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400MainDlg.cpp"
-"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400Statistics.cpp"
-"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\FrRankDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\Globals.cpp"
 ]
-Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP6AD1.tmp" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP6AD2.tmp" with contents
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP4A17.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP4A18.tmp" with contents
 [
 ./chartdir60.lib /nologo /stack:0x200000 /subsystem:windows /incremental:yes /pdb:"Debug/ACE400Statistics.pdb" /debug /machine:I386 /out:"Debug/ACE400Statistics.exe" /pdbtype:sept 
 .\Debug\ACE400MainDlg.obj
@@ -34,17 +32,12 @@ Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP6AD2.tmp" with cont
 .\Debug\TitleTip.obj
 .\Debug\ACE400Statistics.res
 ]
-Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP6AD2.tmp"
+Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP4A18.tmp"
 <h3>Output Window</h3>
 Compiling...
-FrRankDialog.cpp
-Generating Code...
-Compiling...
-ACE400MainDlg.cpp
-ACE400Statistics.cpp
-Generating Code...
+Globals.cpp
 Linking...
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP6E2D.tmp" with contents
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP4C0D.tmp" with contents
 [
 /nologo /o"Debug/ACE400Statistics.bsc" 
 .\Debug\StdAfx.sbr
@@ -62,7 +55,7 @@ Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP6E2D.tmp" with cont
 .\Debug\PChartDialog.sbr
 .\Debug\StatisticsDialog.sbr
 .\Debug\TitleTip.sbr]
-Creating command line "bscmake.exe @C:\Users\User\AppData\Local\Temp\RSP6E2D.tmp"
+Creating command line "bscmake.exe @C:\Users\User\AppData\Local\Temp\RSP4C0D.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

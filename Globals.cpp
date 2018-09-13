@@ -292,10 +292,6 @@ void AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...)
 	sprintf(path, "%s\\log_%s_%02d.txt", g_sFile.DataDir, date_time, t.GetHour()); 
 				// ex) .\\Data\log_20180608_13.txt   : log_yyyymmdd_hh.txt
 
-	CFile f;
-	f.Open( path, CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate );
-	f.SeekToEnd();	
-
 
 	// OUTPUT 창에 print out----------------
 	int nBuf;
@@ -314,18 +310,48 @@ void AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...)
 	afxDump << szBuffer;
 #endif
 
-
+#if 1
 	// log 파일에 print out ----------
+	CFile f;
+	f.Open( path, CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate );
+	f.SeekToEnd();	
+
 	t = CTime::GetCurrentTime();
 	CString strTime;
 	strTime.Format( "%02d:%02d:%02d ", t.GetHour(), t.GetMinute(), t.GetSecond() );
 
 	f.Write( strTime, strTime.GetLength() );
 
-	strcat( szBuffer, "\r\n" );
-	f.Write( szBuffer, strlen(szBuffer) );
+	CString strTemp = szBuffer;
+	strTemp.Replace("\n", "\r\n");		// \n을 \r\n으로 변경.
+	f.Write( strTemp, strlen(strTemp) );
 
 	f.Close();
+#endif
+
+#if 0
+	// log 파일에 print out ----------
+	CFile f;
+	CArchive ar(&f, CArchive::store);
+	f.Open( path, CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate);
+	f.SeekToEnd(); 	// 기존 파일내용의 뒤에 붙여 쓰기 위해 이동	
+
+	CString strTime;
+	t = CTime::GetCurrentTime();
+	strTime.Format( "%02d:%02d:%02d ", t.GetHour(), t.GetMinute(), t.GetSecond() );
+
+	ar.WriteString(strTime);
+
+	CString strTemp = szBuffer;
+	strTemp.Replace("\n", "\r\n");		// \n을 \r\n으로 변경.
+	f.Write( strTemp, strlen(strTemp) );
+
+	ar.WriteString(strTemp);
+
+	ar.Close();
+	f.Close();
+#endif
+
 	g_cs.Unlock();		// CriticalSection 해제
 }
 
