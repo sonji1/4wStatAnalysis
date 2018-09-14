@@ -91,19 +91,19 @@ EXSTYLE WS_EX_APPWINDOW
 CAPTION "ACE400Statistics"
 FONT 10, "Calibri"
 BEGIN
-    PUSHBUTTON      "Exit",IDOK,177,11,37,23
+    PUSHBUTTON      "Exit",IDOK,175,11,37,23
     LTEXT           "To view 4W Data, follow these steps, please. \n\n 1.Click  '4W Statistics -> Load 4W Data' button to select the desired 4W Data file.\n 2. Click Lot to select it and then choose Net on the screen.\n 3. Select the Date.",
                     IDC_STATIC,234,7,218,50
     LTEXT           "Click '4W Statistics -> Load 4W Data (Multi Lot)' button to load multiple 4W Lot data at once..  It may take a few minutes. Not all files in all Lot directories are loaded, \n\nRestrictions: \nMaxLot = 3, MaxDate = 5, MaxNet = 5000, MaxFileSize = 850MB",
                     IDC_STATIC,455,5,257,53
     CONTROL         "4W Statistics",IDC_CHECK_STATISTICS,"Button",
-                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,11,43,23
+                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,11,46,23
     CONTROL         "YR p-Chart",IDC_CHECK_PCHART,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | WS_TABSTOP,94,11,37,23
     CONTROL         "Config",IDC_CHECK_CONFIG,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,135,11,38,23
+                    BS_PUSHLIKE | WS_TABSTOP,134,11,38,23
     CONTROL         "FR Rank",IDC_CHECK_FR_RANK,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,55,11,35,23
+                    BS_PUSHLIKE | WS_TABSTOP,56,11,35,23
 END
 
 IDD_STATISTICS_DIALOG DIALOG DISCARDABLE  5, 65, 710, 398
@@ -210,31 +210,28 @@ IDD_FR_RANK_DIALOG DIALOG DISCARDABLE  5, 65, 686, 393
 STYLE WS_CHILD | WS_BORDER
 FONT 10, "Calibri"
 BEGIN
-    EDITTEXT        IDC_EDIT_FR_NET_CNT,61,182,48,14,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_FR_NET_CNT,61,65,48,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Net Count",IDC_STATIC,7,182,31,8
-    EDITTEXT        IDC_EDIT_FR_FAULT_CNT2,61,207,48,14,ES_AUTOHSCROLL | 
+    LTEXT           "Net Count",IDC_STATIC,7,65,31,8
+    EDITTEXT        IDC_EDIT_FR_FAULT_CNT2,61,90,48,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Fault Net Count",IDC_STATIC,7,207,49,8
+    LTEXT           "Fault Net Count",IDC_STATIC,7,90,49,8
     COMBOBOX        IDC_COMBO_FR_LOT,34,7,75,47,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_COMBO_FR_DATE,34,32,75,38,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Lot",IDC_STATIC,7,7,10,8
     LTEXT           "Date",IDC_STATIC,7,33,15,8
-    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,13,334,
-                    96,17
-    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,283,102,32
+    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,7,183,96,
+                    17
+    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,120,102,32
     CONTROL         "Rank in FR (Fault Rate)",IDC_CHECK_SORT_FAULT_RATE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,299,86,10
-    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,13,
-                    360,96,17
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,136,86,10
+    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,209,
+                    96,17
     LTEXT           "Fault List",IDC_STATIC,130,7,155,10
     CONTROL         "Custom1",IDC_GRID_FR_LIST,"MFCGridCtrl",WS_TABSTOP,130,
                     24,545,352
-    GROUPBOX        "Fault List Mode",IDC_STATIC,7,235,102,31
-    CONTROL         "Fault Net Only",IDC_CHECK_FR_FAULT_ONLY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,14,251,61,10
 END
 
 

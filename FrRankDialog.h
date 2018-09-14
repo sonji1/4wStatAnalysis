@@ -40,7 +40,7 @@ enum FR_COL_TYPE  { FR_COL_NO, 			// 0
 //---------------------
 
 
-class faultRankData
+class FaultRankData
 {
 	public:
 
@@ -50,11 +50,11 @@ class faultRankData
 	double 	dFR; 			// FR(불량율) = Fault / Count 
 							//            = Fault / (Total - NG)
 							
-	faultRankData()		// 생성자
+	FaultRankData()		// 생성자
 	{
 		wNet = 0;
 		wCount = 0;
-		dFR = 0;
+		dFR = 0.0;
 	}
 };
 
@@ -77,7 +77,6 @@ public:
 	int			m_nNetCount;			// for editBox,  현재 Lot, Date의 Net 갯수
 	int			m_nFaultNetCount;		// for editBox,  선택된 Lot, Date의 fault 발생 Net 갯수
 	CGridCtrl	m_gridFault;			// for grid,	 선택된 Lot, Date의 Fault Data를 표에 출력
-	BOOL		m_bFaultListFaultOnly;	// for checkBox, On이면 'Fault List' grid에서 Fault인 Net만 골라서 출력
 	BOOL		m_bFaultListFrRank;		// for checkBox, On이면 'Fault List' grid를 FR 항목기준으로 내림차순 정렬
 	//}}AFX_DATA
 
@@ -100,7 +99,6 @@ protected:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnSelchangeComboFrLot();
 	afx_msg void OnSelchangeComboFrDate();
-	afx_msg void OnCheckFrFaultOnly();
 	afx_msg void OnCheckSortFaultRate();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -119,7 +117,7 @@ public:
 	double 	m_daFR[MAX_NET_PER_LOT]; 	// FR(불량율) = Fault / Count 
 										//            = Fault / (Total - NG)
 										
-	vector <faultRankData> m_vsFrData;
+	vector <FaultRankData> m_vsFrData;
 
 
 	// member for grid control
@@ -145,6 +143,8 @@ public:
 	void 	DisplayFrRank();
 	void 	CalcFrRank(int nLot, int nDate);
 	void 	DisplayGridFault(int nLot, int nDate);
+	void 	CalcFrRank_Old(int nLot, int nDate);
+	void 	DisplayGridFault_Old(int nLot, int nDate);
 	void 	DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nNet, 
 					int nTotal, int nNgCount, int nCount, int nFault, double dYR );
 

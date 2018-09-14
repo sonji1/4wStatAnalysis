@@ -5,6 +5,11 @@
 #include "ace400statistics.h"
 #include "FrRankDialog.h"
 
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <functional>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -21,8 +26,7 @@ CFrRankDialog::CFrRankDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CFrRankDialog)
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
-	m_bFaultListFaultOnly = TRUE;
-	m_bFaultListFrRank = FALSE;
+	m_bFaultListFrRank = TRUE;
 	//}}AFX_DATA_INIT
 }
 
@@ -36,7 +40,6 @@ void CFrRankDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, 		IDC_EDIT_FR_NET_CNT, 		m_nNetCount);
 	DDX_Text(pDX, 		IDC_EDIT_FR_FAULT_CNT2, 	m_nFaultNetCount);
 	DDX_Control(pDX, 	IDC_GRID_FR_LIST, 			m_gridFault);
-	DDX_Check(pDX, 		IDC_CHECK_FR_FAULT_ONLY, 	m_bFaultListFaultOnly);
 	DDX_Check(pDX, 		IDC_CHECK_SORT_FAULT_RATE, 	m_bFaultListFrRank);
 	//}}AFX_DATA_MAP
 }
@@ -47,7 +50,6 @@ BEGIN_MESSAGE_MAP(CFrRankDialog, CDialog)
 	ON_WM_SHOWWINDOW()
 	ON_CBN_SELCHANGE(IDC_COMBO_FR_LOT, OnSelchangeComboFrLot)
 	ON_CBN_SELCHANGE(IDC_COMBO_FR_DATE, OnSelchangeComboFrDate)
-	ON_BN_CLICKED(IDC_CHECK_FR_FAULT_ONLY, OnCheckFrFaultOnly)
 	ON_BN_CLICKED(IDC_CHECK_SORT_FAULT_RATE, OnCheckSortFaultRate)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -93,7 +95,9 @@ BOOL CFrRankDialog::DestroyWindow()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	
-	//deleteAllNetData();
+	// vector를 초기화한다. 
+	if (m_vsFrData.empty() == false)	
+		m_vsFrData.clear();	
 	
 	return CDialog::DestroyWindow();
 }
@@ -107,8 +111,7 @@ BOOL CFrRankDialog::InitMember()
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
 
-	m_bFaultListFaultOnly = TRUE;
-	m_bFaultListFrRank = FALSE;
+	m_bFaultListFrRank = TRUE;
 
 	//----------------------------
 	// Grid 관련 멤버 변수 초기화
@@ -117,6 +120,11 @@ BOOL CFrRankDialog::InitMember()
 	m_nCols = NUM_FR_GRID_COL;
 	m_nRows = MAX_FR_GRID_ROW;
 	m_bEditable = FALSE;
+
+	//----------------------------
+	// vector를 초기화한다. 
+	if (m_vsFrData.empty() == false)	
+		m_vsFrData.clear();	
 
 	UpdateData(FALSE);		// m_nNetCount, m_nOocNetCount edit box 화면 갱신을 위해 필요
 	return TRUE;
@@ -171,7 +179,7 @@ BOOL CFrRankDialog::InitView()
 				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Fault", "FR\n(Fault/Count)"  };
 
 	int faultGridColWidth[NUM_FR_GRID_COL] =    
-				{ 40,    80,     70,    50,     80,                     70,         80,                   70,           100,       }; 
+				{ 40,    110,     70,    50,     80,                     70,         80,                   70,           100,       }; 
 	int i;
 	for (i=0; i < NUM_FR_GRID_COL; i++)
 	{
@@ -308,12 +316,127 @@ void CFrRankDialog::DisplayFrRank()
 	CalcFrRank(m_nCombo_CurrLot, m_nCombo_CurrDate);	// DATE_ALL이 combo에 없으므로 comboDate를 그냥 nDate로 사용
 
 	DisplayGridFault(m_nCombo_CurrLot, m_nCombo_CurrDate);
+	//DisplayGridFault_Old(m_nCombo_CurrLot, m_nCombo_CurrDate);
 	
 	UpdateData(FALSE);
 
 }
 
 void CFrRankDialog::CalcFrRank(int nLot, int nDate)
+{
+
+	MyTrace(PRT_BASIC, "CalcFrRank(): nLot=%d, nDate=%d\n", nLot, nDate);
+
+
+	// 이전에 사용한 값이 남아 있을 수 있으므로 이전 vector를 초기화한다. 
+	if (m_vsFrData.empty() == false)	
+		m_vsFrData.clear();	
+
+
+	m_nNetCount =  g_sLotNetDate_Info.naLotNetCnt[nLot];	// for 'Net Count' edit box
+	m_nFaultNetCount = 0;									// for 'Fault Net count' edit box
+
+	//------------------------------------------------
+	// FR 계산하기  
+	
+	FaultRankData	frData;		// 한번 정의해서 계속 재사용.
+
+	int net;
+	for (net =0; net <= g_sLotNetDate_Info.naLotNetCnt[nLot]; net++)
+	{
+		if (g_sLotNetDate_Info.naLotNet[nLot][net] == -1)	// 없는 Net이면 skip
+			continue;
+
+		if(g_pvsaNetData[nLot][net][nDate] == NULL)			// 없는 date면 skip
+			continue;
+
+		int nFault =  g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate];
+		if (nFault <= 0)
+			continue;
+
+		m_nFaultNetCount++;		// Fault Net 갯수. for 'Fault Net Count' edit box
+
+
+		// FR(불량율): 측정 대상
+		int tupleSize  = g_pvsaNetData[nLot][net][nDate]->size();
+		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
+		int nTotal     = tupleSize * sampleSize; 
+		int nNgCount   = g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate];
+
+		frData.wCount  = nTotal - nNgCount;	
+		frData.dFR     = nFault / (double)frData.wCount;
+		frData.wNet    = net;
+
+		m_vsFrData.push_back(frData);		// member 변수 vector에 추가
+	}
+}
+
+
+struct FR_FR_COMP
+{
+	bool operator()(const FaultRankData& fr1, const FaultRankData& fr2)
+	{
+		return fr1.dFR > fr2.dFR;		// greater(내림차순) sort 
+	}
+};
+
+struct FR_NET_COMP
+{
+	bool operator()(const FaultRankData& fr1, const FaultRankData& fr2)
+	{
+		return fr1.wNet < fr2.wNet;		// less (오름차순) sort
+	}
+};
+
+void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
+{
+	MyTrace(PRT_BASIC, _T("DisplayGridFault(): nLot=%d, nDate=%d\n"), nLot, nDate);
+
+
+	// CheckBox On이면 FR(Fault Rate) 기준으로 vector를 내림차순(greater) Sort 
+	if (m_bFaultListFrRank == TRUE)		
+		sort( m_vsFrData.begin(), m_vsFrData.end(), FR_FR_COMP() );
+
+	// CheckBox Off이면 net 기준으로 vector를 오름차순(less) Sort
+	else
+		sort( m_vsFrData.begin(), m_vsFrData.end(), FR_NET_COMP() );
+
+
+	// 이전의 Grid data를 화면에서 지운다.
+	ClearGrid_Fault();
+
+	// scroll bar 위치를 초기화
+	m_gridFault.SetScrollPos32(SB_VERT, 0);
+	m_gridFault.SetScrollPos32(SB_HORZ, 0);
+
+
+	int nRow = 0;
+	
+	// Data  출력 (배열 방식으로 vector 출력)
+	for (int i =0; i < m_vsFrData.size(); i++)
+	{
+		nRow++; // row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
+
+		int net = m_vsFrData[i].wNet;
+
+		DisplayGrid_FaultTuple(nRow,										// Grid Row No
+				nLot, nDate, net, 											// Lot, Date, Net
+				(m_vsFrData[i].wCount + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]),
+																			// Total (nCount + NG)
+				g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// NG Count
+				m_vsFrData[i].wCount, 										// n(Total-NG) Count
+				g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate],	// Fault Count
+				m_vsFrData[i].dFR);											// FR (Fault / Count)
+
+	}
+
+	UpdateData(FALSE);
+	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
+
+}
+
+#if 0
+void CFrRankDialog::CalcFrRank_Old(int nLot, int nDate)
 {
 
 	MyTrace(PRT_BASIC, "CalcFrRank(): nLot=%d, nDate=%d\n", nLot, nDate);
@@ -331,7 +454,6 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 	//------------------------------------------------
 	// FR 계산하기  
 	
-	faultRankData	frData;		// 한번 정의해서 계속 재사용.
 
 	int net;
 	for (net =0; net <= g_sLotNetDate_Info.naLotNetCnt[nLot]; net++)
@@ -342,7 +464,6 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 		if(g_pvsaNetData[nLot][net][nDate] == NULL)			// 없는 date면 skip
 			continue;
 
-		//frData.wNet = net;
 
 		// FR(불량율): 측정 대상
 		int tupleSize  = g_pvsaNetData[nLot][net][nDate]->size();
@@ -357,8 +478,7 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 			m_nFaultNetCount++;		// Fault Net 갯수. for 'Fault Net Count' edit box
 	}
 }
-
-void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
+void CFrRankDialog::DisplayGridFault_Old(int nLot, int nDate)
 {
 	MyTrace(PRT_BASIC, _T("DisplayGridFault(): nLot=%d, nDate=%d\n"), nLot, nDate);
 
@@ -381,14 +501,13 @@ void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
 
 
 		// FALUT 인 net만 출력하기
-		if (m_bFaultListFaultOnly == TRUE 
-				&&  g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate] == 0)
+		if (g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate] == 0)
 			continue;
 
 
 		nRow++; // row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
 
-		DisplayGrid_FaultTuple(nRow,											// Grid Row No
+		DisplayGrid_FaultTuple(nRow,										// Grid Row No
 				nLot, nDate, net, 											// Lot, Date, Net
 				(m_waCount[net] + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]),
 																			// Total (nCount + NG)
@@ -403,6 +522,7 @@ void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
 
 }
+#endif
 
 void CFrRankDialog::DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nNet, 
 					int nTotal, int nNgCount, int nCount, int nFault, double dYR )
@@ -453,23 +573,11 @@ void CFrRankDialog::DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nN
 
 }
 
-void CFrRankDialog::OnCheckFrFaultOnly() 
-{
-	// TODO: Add your control notification handler code here
-	UpdateData(TRUE);
-
-	MyTrace(PRT_BASIC, "m_bFaultListFaultOnly Value Changed to %d\n", m_bFaultListFaultOnly);
-
-	// 바뀐모드로 Fault Grid를 다시 그린다.
-	DisplayGridFault(m_nCombo_CurrLot, m_nCombo_CurrDate);
-
-	UpdateData(FALSE);
-	
-}
 
 void CFrRankDialog::OnCheckSortFaultRate() 
 {
 	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
 	MyTrace(PRT_BASIC, "m_bFaultListFrRank Value Changed to %d\n", m_bFaultListFrRank);
 
 
