@@ -28,10 +28,14 @@ enum FR_COL_TYPE  { FR_COL_NO, 			// 0
 					FR_COL_TOTAL,		// 4
 					FR_COL_NGCOUNT,		// 5
 					FR_COL_COUNT,		// 6
-					FR_COL_FAULT,		// 7
-					FR_COL_FR,			// 8
+					FR_COL_AVG,		    // 7
+					FR_COL_SIGMA,		// 8
+					FR_COL_MIN,			// 9
+					FR_COL_MAX,			// 10 
+					FR_COL_FAULT,		// 11 
+					FR_COL_FR,			// 12 
 
-					NUM_FR_GRID_COL     // (8 +1) : No까지 1추가
+					NUM_FR_GRID_COL     // (12 +1) : No까지 1추가
 }; 
 
 
@@ -47,6 +51,10 @@ class FaultRankData
 	// for  FR Rank Calc 
 	short  	wNet;
 	short  	wCount;
+	double	dAvg;
+	double	dSigma;
+	double	dMin;
+	double	dMax;
 	double 	dFR; 			// FR(불량율) = Fault / Count 
 							//            = Fault / (Total - NG)
 							
@@ -54,6 +62,10 @@ class FaultRankData
 	{
 		wNet = 0;
 		wCount = 0;
+		dAvg = 0.0;
+		dSigma = 0.0;
+		dMin = 0.0;
+		dMax = 0.0;
 		dFR = 0.0;
 	}
 };
@@ -78,6 +90,7 @@ public:
 	int			m_nFaultNetCount;		// for editBox,  선택된 Lot, Date의 fault 발생 Net 갯수
 	CGridCtrl	m_gridFault;			// for grid,	 선택된 Lot, Date의 Fault Data를 표에 출력
 	BOOL		m_bFaultListFrRank;		// for checkBox, On이면 'Fault List' grid를 FR 항목기준으로 내림차순 정렬
+	BOOL		m_bFaultListFaultOnly;	// for checkBox, On이면 'Fault List' grid에서 Fault인 Net만 골라서 출력
 	//}}AFX_DATA
 
 
@@ -100,6 +113,9 @@ protected:
 	afx_msg void OnSelchangeComboFrLot();
 	afx_msg void OnSelchangeComboFrDate();
 	afx_msg void OnCheckSortFaultRate();
+	afx_msg void OnCheckFrFaultOnly();
+	afx_msg void OnButtonSaveFrListCsv();
+	afx_msg void OnButtonViewFrListCsv();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -113,8 +129,8 @@ public:
 
 
 	// for  FR Rank Calc 
-	short  	m_waCount[MAX_NET_PER_LOT];
-	double 	m_daFR[MAX_NET_PER_LOT]; 	// FR(불량율) = Fault / Count 
+//	short  	m_waCount[MAX_NET_PER_LOT];
+//	double 	m_daFR[MAX_NET_PER_LOT]; 	// FR(불량율) = Fault / Count 
 										//            = Fault / (Total - NG)
 										
 	vector <FaultRankData> m_vsFrData;
@@ -146,7 +162,9 @@ public:
 	void 	CalcFrRank_Old(int nLot, int nDate);
 	void 	DisplayGridFault_Old(int nLot, int nDate);
 	void 	DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nNet, 
-					int nTotal, int nNgCount, int nCount, int nFault, double dYR );
+					int nTotal, int nNgCount, int nCount, 
+					double dAvg, double dSigma, double dMin, double dMax,
+					int nFault, double dFR );
 
 
 };

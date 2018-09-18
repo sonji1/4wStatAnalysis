@@ -112,38 +112,38 @@ FONT 10, "Calibri"
 BEGIN
     LTEXT           "Item",IDC_STATIC,11,67,17,8
     CONTROL         "Statistics Grid",IDC_GRID_DATA,"MFCGridCtrl",WS_TABSTOP,
-                    130,66,573,323
+                    130,72,573,317
     CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
                     TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | 
                     TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,88,115,234
     EDITTEXT        IDC_EDIT_SELECT,32,65,90,14,ES_AUTOHSCROLL | ES_READONLY
-    CONTROL         "Custom1",IDC_GRID_SUMMARY,"MFCGridCtrl",WS_TABSTOP,131,
-                    25,412,25
+    CONTROL         "Custom1",IDC_GRID_SUMMARY,"MFCGridCtrl",WS_TABSTOP,130,
+                    21,457,34
     COMBOBOX        IDC_COMBO_DATE,35,330,87,64,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Date :",IDC_STATIC,12,332,17,8
     PUSHBUTTON      "Load 4W Data (Multi Lot)",IDC_BUTTON_LOAD4W_DATA,7,36,
                     115,19
-    LTEXT           "Time\nTuple #",IDC_STATIC,554,17,27,17
-    EDITTEXT        IDC_EDIT_TUPLE_NUM,555,36,29,14,ES_AUTOHSCROLL | 
+    LTEXT           "Time\nTuple #",IDC_STATIC,597,21,27,17
+    EDITTEXT        IDC_EDIT_TUPLE_NUM,598,40,29,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Data #",IDC_STATIC,589,25,32,8
-    EDITTEXT        IDC_EDIT_SAMPLE_NUM,589,36,32,14,ES_AUTOHSCROLL | 
+    LTEXT           "Data #",IDC_STATIC,632,29,32,8
+    EDITTEXT        IDC_EDIT_SAMPLE_NUM,632,40,32,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "LSL",IDC_STATIC,625,25,27,8,NOT WS_VISIBLE | 
+    LTEXT           "LSL",IDC_STATIC,689,46,13,8,NOT WS_VISIBLE | 
                     WS_DISABLED
-    EDITTEXT        IDC_EDIT_LSL,625,36,29,14,ES_AUTOHSCROLL | ES_READONLY | 
+    EDITTEXT        IDC_EDIT_LSL,684,56,19,14,ES_AUTOHSCROLL | ES_READONLY | 
                     NOT WS_VISIBLE | WS_DISABLED
-    LTEXT           "USL",IDC_STATIC,659,25,32,8,NOT WS_VISIBLE | 
+    LTEXT           "USL",IDC_STATIC,682,18,21,8,NOT WS_VISIBLE | 
                     WS_DISABLED
-    EDITTEXT        IDC_EDIT_USL,659,36,32,14,ES_AUTOHSCROLL | ES_READONLY | 
+    EDITTEXT        IDC_EDIT_USL,680,29,23,14,ES_AUTOHSCROLL | ES_READONLY | 
                     NOT WS_VISIBLE | WS_DISABLED
     PUSHBUTTON      "Clear Data",IDC_BUTTON_CLEAR_GRID,7,372,114,17
-    LTEXT           "Summary",IDC_STATIC,130,15,30,8
-    LTEXT           "Data",IDC_STATIC,131,56,16,8
+    LTEXT           "Summary",IDC_STATIC,133,8,30,8
+    LTEXT           "Data",IDC_STATIC,133,62,15,8
     PUSHBUTTON      "Load 4W Data",IDC_BUTTON_LOAD4W_DATA_SINGLE,7,14,115,19
     CONTROL         "Fault Tuple Only",IDC_CHECK_DATA_FAULT_ONLY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,626,52,76,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,605,60,76,10
     PUSHBUTTON      "Save to CSV",IDC_BUTTON_SAVE_STAT_CSV,7,350,54,18
     PUSHBUTTON      "View saved CSV",IDC_BUTTON_VIEW_STAT_CSV,67,350,54,18
 END
@@ -222,16 +222,19 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Lot",IDC_STATIC,7,7,10,8
     LTEXT           "Date",IDC_STATIC,7,33,15,8
-    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,7,183,96,
+    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,7,230,96,
                     17
-    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,120,102,32
+    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,173,102,32
     CONTROL         "Rank in FR (Fault Rate)",IDC_CHECK_SORT_FAULT_RATE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,136,86,10
-    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,209,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,189,86,10
+    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,256,
                     96,17
     LTEXT           "Fault List",IDC_STATIC,130,7,155,10
     CONTROL         "Custom1",IDC_GRID_FR_LIST,"MFCGridCtrl",WS_TABSTOP,130,
                     24,545,352
+    GROUPBOX        "Fault List Mode",IDC_STATIC,7,128,102,32
+    CONTROL         "Fault Net Only",IDC_CHECK_FR_FAULT_ONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,144,61,10
 END
 
 

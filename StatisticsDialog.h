@@ -437,15 +437,16 @@ enum DATA_COL_TYPE  { DATA_COL_NO, 			// 0
 // enum for SUMMARY GRID Column Location 
 enum SUM_COL_TYPE  { SUM_COL_NET, 			// 0
 					 SUM_COL_DATE, 			// 1
-					 SUM_COL_NG,			// 2
-					 SUM_COL_COUNT, 		// 3
-					 SUM_COL_AVG,			// 4
-					 SUM_COL_SIGMA,			// 5
-					 SUM_COL_DATAMIN,		// 6
-					 SUM_COL_DATAMAX,		// 7
-					 SUM_COL_FAULT,			// 8
+					 SUM_COL_TOTAL,			// 2
+					 SUM_COL_NG,			// 3
+					 SUM_COL_COUNT, 		// 4
+					 SUM_COL_AVG,			// 6
+					 SUM_COL_SIGMA,			// 6
+					 SUM_COL_DATAMIN,		// 7
+					 SUM_COL_DATAMAX,		// 8
+					 SUM_COL_FAULT,			// 9
 
-					 NUM_SUM_GRID_COL	 	// 9
+					 NUM_SUM_GRID_COL	 	// 10
 }; 
 
 // enum for m_nCombo_CurrDate
@@ -579,12 +580,19 @@ public:
 };
 
 //---------------------------
-// 전역변수 extern 선언
+// 전역변수,함수  extern 선언
 //---------------------------
 
-// 2018.07.18 4W p-chart에서도 활용하기 위해 다음 정보를 전역변수로 변경함. 
+// 2018.07.18 4W YRp-chart에서도 활용하기 위해 다음 정보를 전역변수로 변경함. 
+// Stat, YR p-Chart, FR Rank 화면 모두에서 사용.
 extern LotNetDate_Info		g_sLotNetDate_Info;	
 extern vector <statNetData>	*g_pvsaNetData[MAX_LOT][MAX_NET_PER_LOT][MAX_DATE];	// 동적할당 vector
+
+
+// Stat 화면과 FR Rank 화면에서 사용.
+extern void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  	// argument
+		int& rnCount, int& rnTotal, double& rdAvg, double& rdSigma, double& rdMin, double& rdMax );	// reference
+
 
 
 class CStatisticsDialog : public CDialog

@@ -27,6 +27,7 @@ CFrRankDialog::CFrRankDialog(CWnd* pParent /*=NULL*/)
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
 	m_bFaultListFrRank = TRUE;
+	m_bFaultListFaultOnly = TRUE;
 	//}}AFX_DATA_INIT
 }
 
@@ -41,6 +42,7 @@ void CFrRankDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, 		IDC_EDIT_FR_FAULT_CNT2, 	m_nFaultNetCount);
 	DDX_Control(pDX, 	IDC_GRID_FR_LIST, 			m_gridFault);
 	DDX_Check(pDX, 		IDC_CHECK_SORT_FAULT_RATE, 	m_bFaultListFrRank);
+	DDX_Check(pDX, 		IDC_CHECK_FR_FAULT_ONLY, 	m_bFaultListFaultOnly);
 	//}}AFX_DATA_MAP
 }
 
@@ -51,6 +53,9 @@ BEGIN_MESSAGE_MAP(CFrRankDialog, CDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO_FR_LOT, OnSelchangeComboFrLot)
 	ON_CBN_SELCHANGE(IDC_COMBO_FR_DATE, OnSelchangeComboFrDate)
 	ON_BN_CLICKED(IDC_CHECK_SORT_FAULT_RATE, OnCheckSortFaultRate)
+	ON_BN_CLICKED(IDC_CHECK_FR_FAULT_ONLY, OnCheckFrFaultOnly)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE_FR_LIST_CSV, OnButtonSaveFrListCsv)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_FR_LIST_CSV, OnButtonViewFrListCsv)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -112,6 +117,7 @@ BOOL CFrRankDialog::InitMember()
 	m_nFaultNetCount = 0;
 
 	m_bFaultListFrRank = TRUE;
+	m_bFaultListFaultOnly = TRUE;
 
 	//----------------------------
 	// Grid 관련 멤버 변수 초기화
@@ -174,12 +180,12 @@ BOOL CFrRankDialog::InitView()
 
 	// FAULT Grid Header 설정
 	
-	//            0     1        2      3       4                       5           6                      7            8            
+	//            0     1        2      3       4                       5           6                      7            8       9       10       11        12
 	char faultGridHeader[NUM_FR_GRID_COL][30] = 
-				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Fault", "FR\n(Fault/Count)"  };
+				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Average",  "Sigma",  "Min",  "Max", "Fault", "FR\n(Fault/Count)"  };
 
 	int faultGridColWidth[NUM_FR_GRID_COL] =    
-				{ 40,    110,     70,    50,     80,                     70,         80,                   70,           100,       }; 
+				{ 40,    115,     70,    55,     80,                     70,         80,                   70,          70,      70,    70,     60,        90,       }; 
 	int i;
 	for (i=0; i < NUM_FR_GRID_COL; i++)
 	{
@@ -351,21 +357,25 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 			continue;
 
 		int nFault =  g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate];
-		if (nFault <= 0)
-			continue;
+		if (nFault > 0) 
+			m_nFaultNetCount++;		// Fault Net 갯수. for 'Fault Net Count' edit box
+		
 
-		m_nFaultNetCount++;		// Fault Net 갯수. for 'Fault Net Count' edit box
+		// Calc Total, Count, Avg, Sigma, Min, Max
+		int	   	nCount=0, nTotal=0;
+		double 	dAvg=0, dSigma=0, dMax=0, dMin=0; 
+		CalcSummary_AvgSigmaMinMax(nLot, net, nDate, 					// argument 
+							nCount, nTotal, dAvg, dSigma, dMin, dMax);	// reference 
 
-
-		// FR(불량율): 측정 대상
-		int tupleSize  = g_pvsaNetData[nLot][net][nDate]->size();
-		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-		int nTotal     = tupleSize * sampleSize; 
 		int nNgCount   = g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate];
 
-		frData.wCount  = nTotal - nNgCount;	
-		frData.dFR     = nFault / (double)frData.wCount;
 		frData.wNet    = net;
+		frData.wCount  = nTotal - nNgCount;	
+		frData.dAvg    = dAvg;
+		frData.dSigma  = dSigma;
+		frData.dMin    = dMin;
+		frData.dMax    = dMax;
+		frData.dFR     = nFault / (double)frData.wCount;
 
 		m_vsFrData.push_back(frData);		// member 변수 vector에 추가
 	}
@@ -415,9 +425,15 @@ void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
 	// Data  출력 (배열 방식으로 vector 출력)
 	for (int i =0; i < m_vsFrData.size(); i++)
 	{
-		nRow++; // row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
 
 		int net = m_vsFrData[i].wNet;
+
+		// FR Only Check가 On이면, FALUT 인 net만 출력하기 (Fault 아닌 net은 출력 안 함)
+		if (m_bFaultListFaultOnly == TRUE	
+				&& g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate] == 0)
+			continue;
+
+		nRow++; // row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
 
 		DisplayGrid_FaultTuple(nRow,										// Grid Row No
 				nLot, nDate, net, 											// Lot, Date, Net
@@ -425,6 +441,10 @@ void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
 																			// Total (nCount + NG)
 				g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// NG Count
 				m_vsFrData[i].wCount, 										// n(Total-NG) Count
+				m_vsFrData[i].dAvg, 										// Average 
+				m_vsFrData[i].dSigma, 										// Sigma 
+				m_vsFrData[i].dMin, 										// Min 
+				m_vsFrData[i].dMax, 										// Max 
 				g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate],	// Fault Count
 				m_vsFrData[i].dFR);											// FR (Fault / Count)
 
@@ -525,13 +545,15 @@ void CFrRankDialog::DisplayGridFault_Old(int nLot, int nDate)
 #endif
 
 void CFrRankDialog::DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nNet, 
-					int nTotal, int nNgCount, int nCount, int nFault, double dYR )
+					int nTotal, int nNgCount, int nCount, 
+					double dAvg, double dSigma, double dMin, double dMax,
+					int nFault, double dFR )
 {
 
 	CString strTemp;
 
-	//    0     1        2      3       4         5         6       7        8      
-	//	{"No", "Lot", "Date", "Net", "Total", "NgCount", "Count",  "Fault", "FR"  };
+	//    0     1        2      3       4         5         6       7            8       9     10      11      12
+	//	{"No", "Lot", "Date", "Net", "Total", "NgCount", "Count",  "Average", "Sigma", "Min", "Max", "Fault", "FR"  };
 	
 
 	// row 0 헤더는 제외하고 data영역인 row 1 (net 1)부터 출력
@@ -556,11 +578,24 @@ void CFrRankDialog::DisplayGrid_FaultTuple(int nRow, int nLot, int nDate, int nN
 	strTemp.Format("%d", nCount);
 	m_gridFault.SetItemText(nRow, FR_COL_COUNT, strTemp);				// col 6: n(Total-NG) Count
 
+
+	strTemp.Format("%.2f", dAvg);
+	m_gridFault.SetItemText(nRow, FR_COL_AVG, strTemp);					// col 7: Average
+
+	strTemp.Format("%.2f", dSigma);
+	m_gridFault.SetItemText(nRow, FR_COL_SIGMA, strTemp);				// col 8: Sigma
+
+	strTemp.Format("%.2f", dMin);
+	m_gridFault.SetItemText(nRow, FR_COL_MIN, strTemp);					// col 9: Min
+
+	strTemp.Format("%.2f", dMax);
+	m_gridFault.SetItemText(nRow, FR_COL_MAX, strTemp);					// col 10: Max
+
 	strTemp.Format("%d", nFault);
-	m_gridFault.SetItemText(nRow, FR_COL_FAULT, strTemp);				// col 7: Fault Count
+	m_gridFault.SetItemText(nRow, FR_COL_FAULT, strTemp);				// col 11: Fault Count
 	
-	strTemp.Format("%.4f", dYR);
-	m_gridFault.SetItemText(nRow, FR_COL_FR, strTemp);					// col 8: YR
+	strTemp.Format("%.4f", dFR);
+	m_gridFault.SetItemText(nRow, FR_COL_FR, strTemp);					// col 12: FR
 
 
 	if (nFault > 0)
@@ -585,4 +620,29 @@ void CFrRankDialog::OnCheckSortFaultRate()
 	DisplayGridFault(m_nCombo_CurrLot, m_nCombo_CurrDate);
 	
 	UpdateData(FALSE);
+}
+
+void CFrRankDialog::OnCheckFrFaultOnly() 
+{
+	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+ 	MyTrace(PRT_BASIC, "m_bFaultListFaultOnly Value Changed to %d\n", m_bFaultListFaultOnly);
+
+ 	// 바뀐모드로 Fault Grid를 다시 그린다.
+	DisplayGridFault(m_nCombo_CurrLot, m_nCombo_CurrDate);
+ 	UpdateData(FALSE);
+	
+	
+}
+
+void CFrRankDialog::OnButtonSaveFrListCsv() 
+{
+	// TODO: Add your control notification handler code here
+	
+}
+
+void CFrRankDialog::OnButtonViewFrListCsv() 
+{
+	// TODO: Add your control notification handler code here
+	
 }

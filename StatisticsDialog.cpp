@@ -247,32 +247,36 @@ BOOL CStatisticsDialog::InitView()
 
 	// Summary Grid header 설정
     m_gridSummary.SetItemText(0, SUM_COL_NET, "Net");
-	//m_gridSummary.SetColumnWidth(SUM_COL_NET, 60);
+//	m_gridSummary.SetColumnWidth(SUM_COL_NET, 60);
 
     m_gridSummary.SetItemText(0, SUM_COL_DATE, "Date");
-	//m_gridSummary.SetColumnWidth(SUM_COL_DATE, 80);
+//	m_gridSummary.SetColumnWidth(SUM_COL_DATE, 80);
+	
+	m_gridSummary.SetItemText(0, SUM_COL_TOTAL, "Total\n(Tuple*Data)");
+//	m_gridSummary.SetColumnWidth(SUM_COL_TOTAL, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_NG, "NG Count");
-	//m_gridSummary.SetColumnWidth(SUM_COL_NG, 70);
+//	m_gridSummary.SetColumnWidth(SUM_COL_NG, 70);
 	
-    m_gridSummary.SetItemText(0, SUM_COL_COUNT, "Count");
-	//m_gridSummary.SetColumnWidth(SUM_COL_COUNT, 70);
+    m_gridSummary.SetItemText(0, SUM_COL_COUNT, "Count\n(Total-NG)");
+//	m_gridSummary.SetColumnWidth(SUM_COL_COUNT, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_AVG, "Average");
-	//m_gridSummary.SetColumnWidth(SUM_COL_AVG, 70);
+//	m_gridSummary.SetColumnWidth(SUM_COL_AVG, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_SIGMA, "Sigma");
-	//m_gridSummary.SetColumnWidth(SUM_COL_SIGMA, 70);
+//	m_gridSummary.SetColumnWidth(SUM_COL_SIGMA, 80);
 
-    m_gridSummary.SetItemText(0, SUM_COL_DATAMIN, "DataMin");
-	//m_gridSummary.SetColumnWidth(SUM_COL_DATAMIN, 70);
+    m_gridSummary.SetItemText(0, SUM_COL_DATAMIN, "Min");
+//	m_gridSummary.SetColumnWidth(SUM_COL_DATAMIN, 80);
 
-    m_gridSummary.SetItemText(0, SUM_COL_DATAMAX, "DataMax");		
-	//m_gridSummary.SetColumnWidth(SUM_COL_DATAMAX, 70);
+    m_gridSummary.SetItemText(0, SUM_COL_DATAMAX, "Max");		
+//	m_gridSummary.SetColumnWidth(SUM_COL_DATAMAX, 80);
 
-    m_gridSummary.SetItemText(0, SUM_COL_FAULT, "Fault Count");		
-	//m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
+    m_gridSummary.SetItemText(0, SUM_COL_FAULT, "Fault\nCount");		
+//	m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
 	
+	m_gridSummary.SetRowHeight(0, 40);	// 헤더에 글자 두줄 표시를 위해 높이 조
 
 	//----------------------------
 	// Data Grid 초기화 
@@ -2089,11 +2093,37 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
 	
+
+	// Calc Total, Count, Avg, Sigma, Min, Max	 ----------------
+	int	   	nTotal=0, nCount=0;
+	double 	dAvg=0, dSigma=0, dMax=0, dMin=0; 
+	CalcSummary_AvgSigmaMinMax(nLot, nNet, nDate, 						// argument 
+							nCount, nTotal, dAvg, dSigma, dMin, dMax);	// reference 
+
+	// Summary Display   ------------------
+	DisplayGrid_Summary(nLot, nNet, nDate, nCount, nTotal, dAvg, dSigma, dMin, dMax, 
+							//nFaultCount);
+							g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][nDate]);
+
+
+	UpdateData(FALSE);		// 변경 data 화면 반영
+	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
+}
+
+
+
+
+// 전역  함수
+// Stat Dlg 외에 FR Dlg, YR Dlg에서도 쓸 수 있도록  
+// CStatisticsDialog 클래스 멤버함수가 아닌 전역함수로 define
+void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
+			int& rnCount, int& rnTotal, double& rdAvg, double& rdSigma, double& rdMin, double& rdMax )	// reference
+{
+	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
+
 	// 1. Calc Count, Avg, Min, Max	 ----------------
 	int		tuple, sample, sampleSize;
-	int	   	nTotal=0, nCount=0; 
 	double  dSum=0;
-	double 	dAvg=0, dMax=0, dMin=0; 
 	int		nMinMaxInitSample = 0;	// Min, Max initial 위치
 	for (tuple=0; tuple < tupleSize; tuple++)
 	{
@@ -2102,57 +2132,30 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 		sampleSize =  g_sLotNetDate_Info.naLotSampleCnt[nLot];
 		for (sample= 0; sample < sampleSize; sample++)
 		{
-			nTotal++;
-		#ifdef DP_SAMPLE
-			if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample] != -1)		// NG가 아니라면
-			{
-				nCount++;
-				dSum += (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample];
-
-				// Min, Max 초기화
-				if (tuple==0 && sample==nMinMaxInitSample)
-				{
-					dMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample];
-					dMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample];
-				}
-				else
-				{
-					// 최대값보다 현재값이 크면 최대값 변경
-					if (dMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample])
-						dMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample];
-
-					// 최소값보다 현재값이 작으면 최소값 변경
-					if (dMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample])
-						dMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample];
-				}
-
-			}
-
-		#else
+			rnTotal++;
 			if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] != -1)		// NG가 아니라면
 			{
-				nCount++;
+				rnCount++;
 				dSum += (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
 
 				// Min, Max 초기화
 				if (tuple==0 && sample==nMinMaxInitSample)
 				{
-					dMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
-					dMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					rdMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					rdMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
 				}
 				else
 				{
 					// 최대값보다 현재값이 크면 최대값 변경
-					if (dMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
-						dMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					if (rdMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
+						rdMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
 
 					// 최소값보다 현재값이 작으면 최소값 변경
-					if (dMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
-						dMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					if (rdMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
+						rdMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
 				}
 
 			}
-		#endif
 			else
 			{
 				// Min Max 초기화 위치의 값이 NG라면 초기화 위치를 하나 증가 시킨다. 
@@ -2163,51 +2166,36 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 	}
 
 	// 2. Calc Sigma   --------------------
-	double 	dDiff = 0, dDiffPowerSum = 0, dVariance=0, dSigma=0;
-	if (nCount)	// check devide by zero!
+	double 	dDiff = 0, dDiffPowerSum = 0, dVariance=0;
+	if (rnCount)	// check devide by zero!
 	{
-		dAvg = dSum / (double)nCount;
+		rdAvg = dSum / (double)rnCount;
 
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
 			sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
 			for (sample= 0; sample < g_sLotNetDate_Info.naLotSampleCnt[nLot]; sample++)
 			{
-			#ifdef DP_SAMPLE
-				if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample] != -1)
-				{
-					dDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].pdaSample[sample] - dAvg;
-					dDiffPowerSum += (dDiff * dDiff);		
-				}
-			#else
 				if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] != -1)
 				{
-					dDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] - dAvg;
+					dDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] - rdAvg;
 					dDiffPowerSum += (dDiff * dDiff);		
 				}
-			#endif
 			}
 		}
-		dVariance = dDiffPowerSum / (double)nCount;		// 분산     : (val-avg)의 제곱의 총합을 n으로 나눈다.
-		dSigma    = sqrt(dVariance);					// 표준편차 : 분산의 제곱근
+		dVariance = dDiffPowerSum / (double)rnCount;		// 분산     : (val-avg)의 제곱의 총합을 n으로 나눈다.
+		rdSigma    = sqrt(dVariance);					// 표준편차 : 분산의 제곱근
 	}
 
-	MyTrace(PRT_BASIC, "nTotal=%d, nCount=%d, dSum=%.2f, dAvg=%.2f, dVar=%.2f, dSigma=%.2f, dMin=%.2f, dMax=%.2f, nFaultCount=%d\n", 
-							nTotal, nCount, dSum, dAvg, dVariance, dSigma, dMin, dMax, 
+	MyTrace(PRT_BASIC, "rnTotal=%d, rnCount=%d, dSum=%.2f, rdAvg=%.2f, dVar=%.2f, rdSigma=%.2f, rdMin=%.2f, rdMax=%.2f, nFaultCount=%d\n", 
+							rnTotal, rnCount, dSum, rdAvg, dVariance, rdSigma, rdMin, rdMax, 
 							g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][nDate]);
 							//nFaultCount);
 
 
-
-	// 3. Summary Display   ------------------
-	DisplayGrid_Summary(nLot, nNet, nDate, nCount, nTotal, dAvg, dSigma, dMin, dMax, 
-							//nFaultCount);
-							g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][nDate]);
-
-
-	UpdateData(FALSE);		// 변경 data 화면 반영
-	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
 }
+
+
 
 // nLot, nNet, NDate에 맞는 모든 data Grid Tuple을 출력한다.
 // return : 마지막으로 출력한  tupleOffset 을 리턴한다.
@@ -2524,33 +2512,37 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 	m_gridSummary.SetItemText(1, SUM_COL_DATE, strTemp);		// col 1:  Date
 	m_GridSnap.Summary.strDate = strTemp;
 
+	strTemp.Format("%d", nTotal);
+	m_gridSummary.SetItemText(1, SUM_COL_TOTAL, strTemp);		// col 2:  Total 
+	m_GridSnap.Summary.strNgCount = strTemp;
+
 	strTemp.Format("%d", (nTotal - nCount));
-	m_gridSummary.SetItemText(1, SUM_COL_NG, strTemp);			// col 2:  N/G Count
+	m_gridSummary.SetItemText(1, SUM_COL_NG, strTemp);			// col 3:  N/G Count
 	m_GridSnap.Summary.strNgCount = strTemp;
 
 	strTemp.Format("%d", nCount);
-	m_gridSummary.SetItemText(1, SUM_COL_COUNT, strTemp);		// col 3:  Count
+	m_gridSummary.SetItemText(1, SUM_COL_COUNT, strTemp);		// col 4:  Count
 	m_GridSnap.Summary.strCount = strTemp;
 
 
 	strTemp.Format("%.2f", dAvg);
-	m_gridSummary.SetItemText(1, SUM_COL_AVG, strTemp);			// col 4:  Average
+	m_gridSummary.SetItemText(1, SUM_COL_AVG, strTemp);			// col 5:  Average
 	m_GridSnap.Summary.strAvg = strTemp;
 
 	strTemp.Format("%.2f", dSigma);
-	m_gridSummary.SetItemText(1, SUM_COL_SIGMA, strTemp);		// col 5:  Sigma (표준편차)
+	m_gridSummary.SetItemText(1, SUM_COL_SIGMA, strTemp);		// col 6:  Sigma (표준편차)
 	m_GridSnap.Summary.strSigma = strTemp;
 
 	strTemp.Format("%.2f", dMin);
-	m_gridSummary.SetItemText(1, SUM_COL_DATAMIN, strTemp);		// col 6:  Min
+	m_gridSummary.SetItemText(1, SUM_COL_DATAMIN, strTemp);		// col 7:  Min
 	m_GridSnap.Summary.strMin = strTemp;
 
 	strTemp.Format("%.2f", dMax);
-	m_gridSummary.SetItemText(1, SUM_COL_DATAMAX, strTemp);		// col 7:  Max
+	m_gridSummary.SetItemText(1, SUM_COL_DATAMAX, strTemp);		// col 8:  Max
 	m_GridSnap.Summary.strMax = strTemp;
 
 	strTemp.Format("%d", nFaultCount); 
-	m_gridSummary.SetItemText(1, SUM_COL_FAULT, strTemp);		// col 8:  FaultCount
+	m_gridSummary.SetItemText(1, SUM_COL_FAULT, strTemp);		// col 9:  FaultCount
 	m_GridSnap.Summary.strFault = strTemp;
 
 	// Fault가 1개라도 있으면 Summary의 FaultCount를 붉은색으로, net Icon도 붉은색으로 변경한다.
