@@ -166,7 +166,7 @@ BOOL CPChartDialog::InitView()
 	
 	//            0     1        2      3       4                       5           6                      7                  8                     9                         10        11      12
 	char oocHeader[NUM_OOC_GRID_COL][30] = 
-				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Fault", "Normal\n(Count-Fault)",  "YR\n(Normal/Count)",   "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
+				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\(Total-NG)",  "Fault", "Normal\n(Count-Fault)",  "YR\n(Normal/Count)",   "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
 
 	int oocColWidth[NUM_OOC_GRID_COL] =    
 				{ 40,    80,     70,    50,     80,                     70,         80,                   70,                 85,                  100,                       70,     70,     80 };
@@ -810,7 +810,7 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 				(m_waCount[net] + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]),
 																			// Total (nCount + NG)
 				g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// NG Count
-				m_waCount[net], 											// n(Total-NG) Count
+				m_waCount[net], 											// Total-NG => Count
 				g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate],	// Fault Count
 				m_waNormal[net], 											// Normal Count (Count-Fault)
 				m_daYR[net],												// YR (Normal / Count)
@@ -865,7 +865,7 @@ void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet
 	m_gridOOC.SetItemText(nRow, OOC_COL_NGCOUNT, strTemp);				// col 5: NG Count
 
 	strTemp.Format("%d", nCount);
-	m_gridOOC.SetItemText(nRow, OOC_COL_COUNT, strTemp);				// col 6: n(Total-NG) Count
+	m_gridOOC.SetItemText(nRow, OOC_COL_COUNT, strTemp);				// col 6: Total-NG Count
 
 	strTemp.Format("%d", nFault);
 	m_gridOOC.SetItemText(nRow, OOC_COL_FAULT, strTemp);				// col 7: Fault Count
@@ -960,7 +960,7 @@ void CPChartDialog::SavePChart_CsvFile(int nLot, int nDate)
 
 	MyTrace(PRT_BASIC, "SavePCahrt_CsvFile(): nLot=%d, nDate=%d\n", nLot, nDate);
 
-	// 디버깅을 위한 파일 프린트 출력.
+	// CSV 파일 출력.
 	::ZeroMemory(&fName, sizeof(fName));
 	strTemp.Format(".\\Data\\%s_%s_PChartOut.csv", 
 			g_sLotNetDate_Info.strLot[nLot], g_sLotNetDate_Info.strLotDate[nLot][nDate]);
@@ -981,8 +981,10 @@ void CPChartDialog::SavePChart_CsvFile(int nLot, int nDate)
 	// 헤더 출력
 	fprintf(fp, "NetCount =, %d, ,OocNetCnt=, %d, ,FaultNetCnt=, %d\n\n",  m_nNetCount, m_nOocNetCount, m_nFaultNetCount );
 
-	fprintf(fp, "Lot=%d, Date=%d, Net, Total, NgCount, Count, Fault, Normal, YR, Center, LCL, OOC Alarm\n", 
+	fprintf(fp, "No, Lot=%d, Date=%d, Net, Total, NgCount, Count, Fault, Normal, YR, Center, LCL, OOC Alarm\n", 
 				nLot, nDate);
+
+	int nRow = 0;
 
 	// Data  출력
 	for (int net =0; net <= g_sLotNetDate_Info.naLotNetCnt[nLot]; net++)
@@ -994,14 +996,27 @@ void CPChartDialog::SavePChart_CsvFile(int nLot, int nDate)
 		if(g_pvsaNetData[nLot][net][nDate] == NULL)			// 없는 date면 skip
 			continue;
 
-		fprintf(fp, "%s, %s, %d, %d, %d, %d, %d, %d, %.4f, %.4f, %.4f, %s\n", 
+		// OOC = TRUE 인 net만 출력하기
+		if (m_bOocListOocOnly == TRUE 
+				&& m_baOOC[net] == FALSE)		
+			continue;
+
+		// FALUT 인 net만 출력하기
+		if (m_bOocListFaultOnly == TRUE 
+				&&  g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate] == 0)
+			continue;
+
+		nRow++;
+
+		fprintf(fp, "%d, %s, %s, %d, %d, %d, %d, %d, %d, %.4f, %.4f, %.4f, %s\n", 
+						nRow,														// 0: No
 						g_sLotNetDate_Info.strLot[nLot], 							// 1: Lot Str
 						g_sLotNetDate_Info.strLotDate[nLot][nDate], 				// 2: Date Str
 						net, 														// 3: Net No
 						(m_waCount[net] + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]), 	
 																					// 4: Total Count
 						g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// 5: NG Count
-						m_waCount[net], 											// 6: n(Total-NG) Count
+						m_waCount[net], 											// 6: Total-NG => Count
 						g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate], // 7: Fault Count
 						m_waNormal[net], 											// 8: Normal Count
 						m_daYR[net],												// 9: YR

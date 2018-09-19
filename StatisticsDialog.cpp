@@ -276,7 +276,7 @@ BOOL CStatisticsDialog::InitView()
     m_gridSummary.SetItemText(0, SUM_COL_FAULT, "Fault\nCount");		
 //	m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
 	
-	m_gridSummary.SetRowHeight(0, 40);	// 헤더에 글자 두줄 표시를 위해 높이 조
+	m_gridSummary.SetRowHeight(0, 40);	// 헤더에 글자 두줄 표시를 위해 높이 조정
 
 	//----------------------------
 	// Data Grid 초기화 
@@ -3023,6 +3023,10 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 
 	//-----------------------------------
 	//  Summary Grid Data 출력
+	
+	// 4w Data의 Net, Data별 Avg, Sigma는 특정 Net, Date 클릭시에 생성되므로 따로 저장되어 있지 않음. 
+	// 화면 출력을 위해서는 아래와 같이 별도로 저장해두 snap data를 이용해서 출력한다. 
+	// snap이 아니라면 화면출력을 위해서 다시 계산을 해야 함.  
 
 	// 헤더 출력
 	fprintf(fp, "Net, Date, NgCount, Count, Average, Sigma, DataMin, DataMax, FaultCount, , ,TimeTuple#, Data#\n" );

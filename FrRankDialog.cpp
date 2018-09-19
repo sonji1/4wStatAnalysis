@@ -639,10 +639,94 @@ void CFrRankDialog::OnButtonSaveFrListCsv()
 {
 	// TODO: Add your control notification handler code here
 	
+	if (m_vsFrData.empty())	
+		return;
+	
+	int nLot = m_nCombo_CurrLot;
+	int nDate = m_nCombo_CurrDate;
+	MyTrace(PRT_BASIC, "SaveFrListCsv(): nLot=%d, nDate=%d\n", nLot, nDate);
+	
+
+
+	// CSV 파일 출력.
+	FILE 	*fp; 
+	char  	fName[200]; 
+	CString strTemp;
+
+	::ZeroMemory(&fName, sizeof(fName));
+	strTemp.Format(".\\Data\\%s_%s_FaultRankOut.csv", 
+			g_sLotNetDate_Info.strLot[nLot], g_sLotNetDate_Info.strLotDate[nLot][nDate]);
+	strcat(fName, strTemp);
+
+	fp=fopen(fName,"wt");
+	if(fp == NULL)
+	{ 	
+		strTemp.Format("fName=%s, err=%s", fName, strerror( errno ));
+		ERR.Set(FLAG_FILE_CANNOT_OPEN, strTemp); 
+		return; 
+	}
+
+
+	//----------------------------
+	// Fault Rank CSV 출력
+	
+	
+	// 헤더 출력
+	fprintf(fp, "No, Lot=%d, Date=%d, Net, Total, NgCount, Count, Average, Sigma, Min, Max, Fault, FR\n", 
+				nLot, nDate);
+
+	int nRow = 0;
+
+	// Data 출력
+	for (int i =0; i < m_vsFrData.size(); i++)
+	{
+
+		int net = m_vsFrData[i].wNet;
+
+		// FR Only Check가 On이면, FALUT 인 net만 출력하기 (Fault 아닌 net은 출력 안 함)
+		if (m_bFaultListFaultOnly == TRUE	
+				&& g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate] == 0)
+			continue;
+
+		nRow++;
+
+		fprintf(fp, "%d, %s, %s, %d, %d, %d, %d, %.2f, %.2f, %.2f, %.2f, %d, %.4f\n", 
+				nRow,														// 0: No
+				g_sLotNetDate_Info.strLot[nLot], 							// 1: Lot Str
+				g_sLotNetDate_Info.strLotDate[nLot][nDate], 				// 2: Date Str
+				net, 														// 3: Net No
+				(m_vsFrData[i].wCount + g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate]), 	
+																			// 4: Total Count
+				g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate], 	// 5: NG Count
+				m_vsFrData[i].wCount, 										// 6: (Total-NG) Count
+				m_vsFrData[i].dAvg, 										// 7: Average 
+				m_vsFrData[i].dSigma, 										// 8: Sigma 
+				m_vsFrData[i].dMin, 										// 9: Min 
+				m_vsFrData[i].dMax, 										// 10:Max 
+
+
+				g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate], // 11: Fault Count
+				m_vsFrData[i].dFR ); 										// 12: FR(Fault Rate)
+	}
+
+	fclose(fp);
+
+	strTemp.Format("\'Save to CSV\' completed. \n(%s)", fName);
+	AfxMessageBox(strTemp, MB_ICONINFORMATION);
+	MyTrace(PRT_BASIC, strTemp);
 }
 
 void CFrRankDialog::OnButtonViewFrListCsv() 
 {
 	// TODO: Add your control notification handler code here
 	
+
+	CString strTemp;
+	
+	strTemp.Format(".\\Data\\%s_%s_FaultRankOut.csv", 
+			g_sLotNetDate_Info.strLot[m_nCombo_CurrLot], 
+			g_sLotNetDate_Info.strLotDate[m_nCombo_CurrLot][m_nCombo_CurrDate]);
+
+	::ShellExecute(NULL,"open","EXCEl.EXE",strTemp,"NULL",SW_SHOWNORMAL);	
+
 }
