@@ -321,6 +321,7 @@ BOOL CStatisticsDialog::InitView()
 		m_gridData.SetItemText(0, i, dataHeader[i]);
 	}
 
+	ClearGrid_Data();	
 
 
 	//----------------------------
@@ -364,7 +365,34 @@ void CStatisticsDialog::OnButtonLoad4wData()
 {
 	Load_Log4wDir();
 
+	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
+	DisplayGrid_DefaultLotNet();
+
 }
+
+// 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
+void CStatisticsDialog::DisplayGrid_DefaultLotNet() 
+{
+	// Lot의 갯수가 1개 이상인지 확인
+	if (g_sLotNetDate_Info.nLotCnt <= 0)			
+		return;
+
+   	// Lot_0의 Net 갯수가 1개 이상인지 확인
+    if (g_sLotNetDate_Info.naLotNetCnt[0] <= 0)		
+    	return;
+
+	// Root에서 Lot_0의 item을 먼저 찾고, Net_1을 그 밑에서 찾아서 클릭한 것으로 처리해 준다.
+	HTREEITEM 	hLotItem = NULL, hNetItem = NULL;
+	hLotItem = Tree_FindLotItem(&m_treeCtrl, m_hRoot, g_sLotNetDate_Info.strLot[0]);	// Lot_0
+	if (hLotItem == NULL) 		
+		return;
+
+	// Found: 존재하는 Lot
+	hNetItem = Tree_FindStrItem(&m_treeCtrl, hLotItem, "Net_1"); 
+	if (hNetItem != NULL)
+		_SelChangedTree(hNetItem);
+}
+
 void CStatisticsDialog::Load_Log4wDir() 
 {
 	// TODO: Add your control notification handler code here
@@ -740,7 +768,9 @@ HTREEITEM CStatisticsDialog::Tree_FindLotItem2(CTreeCtrl* pTree, HTREEITEM hItem
 // 2018.05.28 이 함수를 여러번 호출시에 stack over flow로 죽는 현상 있었음.  
 // 불필요하게  Net 하위에서 Lot의 str를 검색하는 부분을 삭제하기 위해 
 // 이 함수는 사용하지 않고  Tree_FindLotStrItem()을 사용하기로 한다.
-/*
+//
+// 2018.09.19 Lot_0, Net_1의 hItem 위치를 찾기위해 다시 부활시킴. Lot을 찾는데 말고 
+//            Net을 찾는데에만 사용한다.
 HTREEITEM CStatisticsDialog::Tree_FindStrItem(CTreeCtrl* pTree, HTREEITEM hItem, LPCTSTR pStr)
 {
 	HTREEITEM hItemFind, hItemChild, hItemSibling;
@@ -783,7 +813,7 @@ HTREEITEM CStatisticsDialog::Tree_FindStrItem(CTreeCtrl* pTree, HTREEITEM hItem,
 
 	return hItemFind;
 }
-*/
+
 
 
 /*
@@ -1748,6 +1778,10 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	MyTrace(PRT_BASIC, "OnButtonLoad4wData_SingleLot() for\"%s\" Completed. \n", dirPath);
 	
 
+	
+	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
+	DisplayGrid_DefaultLotNet();
+
 }
 
 
@@ -1759,15 +1793,24 @@ void CStatisticsDialog::OnSelchangedTree(NMHDR* pNMHDR, LRESULT* pResult)
 	
 
 	NM_TREEVIEW* pNMTreeView = (NM_TREEVIEW*)pNMHDR;
+
+	_SelChangedTree(pNMTreeView->itemNew.hItem);
+
+	*pResult = 0;
+}
+
+// 2018.09.19 실제 click 없이도 default로 Lot_0, Net_1을 클릭시켜 주기 위해 이렇게 인터페이스를 분리함.
+void CStatisticsDialog::_SelChangedTree(HTREEITEM  hSelItem)
+{
+
 	HTREEITEM	hParent;
 	CString		strTemp;
 	CString		parentName = ""; 
 	CString		selectedName = "";
 
-	
 	// 현재 선택한 아이템의 핸들 값을 멤버변수에 저장한다.
-	m_hSelectedNode = pNMTreeView->itemNew.hItem;
-	hParent 		= m_treeCtrl.GetParentItem(m_hSelectedNode);
+	m_hSelectedNode = hSelItem;
+	hParent			= m_treeCtrl.GetParentItem(m_hSelectedNode);
 
 	// test
 	//m_treeCtrl.SetItemImage(m_hSelectedNode, 2, 3);		// item에 빨강색 장애 아이콘 설정  테스트
@@ -1861,9 +1904,7 @@ void CStatisticsDialog::OnSelchangedTree(NMHDR* pNMHDR, LRESULT* pResult)
 	// 대화상자의 Edit컨트롤에 m_strSelect 를 출력한다.
 	UpdateData(FALSE);
 	
-	*pResult = 0;
 }
-
 
 // 현재 combo의 date data를 Lot에 맞게 바꾸어 준다.  m_nCombo_CurrDate도 0(ALL)로 설정. 
 // m_nTree_CurrLot 의 값을 바꿀때에는 반드시 먼저 Combo_UpdateDateContents(nLot)을 호출한다.
@@ -2436,6 +2477,9 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_MAX, strTemp);	
 	m_GridSnap.saData[nPrtTuple].strTupleMax = strTemp;
 
+	// LSL, USL은 Fault의 기준이므로 default 분홍색으로 눈에 띄게 표시한다.
+	m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_LSL, RGB(0xFF, 0xC0, 0xCB));	// pink 
+	m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_USL, RGB(0xFF, 0xC0, 0xCB));	// pink 
 
 
 	// 4. Display Tuple 4W Data   ------------------------
@@ -2607,6 +2651,7 @@ void CStatisticsDialog::ClearGrid_Data()
 		for (int col = 0; col < m_gridData.GetColumnCount(); col++)
 		{
 			m_gridData.SetItemText(row, col, "                 ");
+
 
 			// 혹시 배경을 fault처리한 cell이 있다면 다음번 display를 위해 원상복구 한다.
 			m_gridData.SetItemBkColour(row, col, RGB(0xFF, 0xFF, 0xE0));	// 연노랑색 
@@ -3025,7 +3070,7 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 	//  Summary Grid Data 출력
 	
 	// 4w Data의 Net, Data별 Avg, Sigma는 특정 Net, Date 클릭시에 생성되므로 따로 저장되어 있지 않음. 
-	// 화면 출력을 위해서는 아래와 같이 별도로 저장해두 snap data를 이용해서 출력한다. 
+	// 화면 출력을 위해서는 아래와 같이 별도로 저장해둔 snap data를 이용해서 출력한다. 
 	// snap이 아니라면 화면출력을 위해서 다시 계산을 해야 함.  
 
 	// 헤더 출력

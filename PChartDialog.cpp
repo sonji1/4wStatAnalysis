@@ -164,12 +164,12 @@ BOOL CPChartDialog::InitView()
 
 	// OOC Grid Header 설정
 	
-	//            0     1        2      3       4                       5           6                      7                  8                     9                         10        11      12
+	//            0     1        2      3        4                    5           6                   7             8                    9                   10        11      12
 	char oocHeader[NUM_OOC_GRID_COL][30] = 
-				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\(Total-NG)",  "Fault", "Normal\n(Count-Fault)",  "YR\n(Normal/Count)",   "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
+				{"No", "Lot", "Date", "Net", "Total\n(Tuple*Data)", "NgCount", "Count\n(Total-NG)", "Fault", "Normal\n(Count-Fault)", "YR\n(Normal/Count)", "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
 
 	int oocColWidth[NUM_OOC_GRID_COL] =    
-				{ 40,    80,     70,    50,     80,                     70,         80,                   70,                 85,                  100,                       70,     70,     80 };
+				{ 40,    80,     70,    50,     80,                   70,         80,                70,            85,                 100,                 70,       70,     80 };
 
 	int i;
 	for (i=0; i < NUM_OOC_GRID_COL; i++)
@@ -897,6 +897,8 @@ void CPChartDialog::DisplayGrid_OOCTuple(int nRow, int nLot, int nDate, int nNet
 	if (nFault > 0)
     	m_gridOOC.SetItemBkColour(nRow, OOC_COL_FAULT, RGB(0xff, 0x63, 0x47));	// tomato : 진한 주황
 			
+	// LCL은 OOC Alarm의 기준이므로 default로 분홍색 배경 표시
+	m_gridOOC.SetItemBkColour(nRow, OOC_COL_LCL, RGB(0xFF, 0xC0, 0xCB));	// pink 
 
 }
 

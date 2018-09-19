@@ -754,7 +754,7 @@ public:
 	HTREEITEM 	Tree_InsertLotItem(LPCTSTR pStrInsert, LPCTSTR pStrPath, int nLot, int nDate); 
 	HTREEITEM 	Tree_FindLotItem(CTreeCtrl* pTree, HTREEITEM hParent, LPCTSTR pStr);
 	HTREEITEM 	Tree_FindLotItem2(CTreeCtrl* pTree, HTREEITEM hItem, LPCTSTR pStr);
-	//HTREEITEM Tree_FindStrItem(CTreeCtrl* pTree, HTREEITEM hItem, LPCTSTR pStr);
+	HTREEITEM 	Tree_FindStrItem(CTreeCtrl* pTree, HTREEITEM hItem, LPCTSTR pStr);
 	//HTREEITEM Tree_FindData(CTreeCtrl* pTree, HTREEITEM hItem, DWORD dwData);
 	int 		Tree_GetCurrentLevel(HTREEITEM hItem);
 	void		Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hParentLot,  int nLot, int nDate);
@@ -770,9 +770,11 @@ public:
 	void		Tree_Check_LotNetFaults(HTREEITEM hItem, int nLot);
 														// 해당 Lot에 속한  모든 Net의 Fault 여부를 판단한다.
 	void 		Tree_CheckNetFault(HTREEITEM hNetItem, int nLot);
+	void 		_SelChangedTree(HTREEITEM  hSelItem);
 
 	void  		Combo_UpdateDateContents(int nLot);
 	void		DisplayGrid(int nLot, int nNet, int nComboDate); 
+	void 		DisplayGrid_DefaultLotNet();
 	void		Display_SumupLotNetDate(int nLot, int nNet, int nDate);
 	void		Display_SumupLotNet(int nLot, int nNet);
 	void		Display_SumupLotDate(int nLot, int nDate);
