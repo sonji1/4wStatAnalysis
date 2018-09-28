@@ -11,9 +11,9 @@
 #include <functional>
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
+#define new DEBUG_NEW
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,8 @@ CFrRankDialog::CFrRankDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CFrRankDialog)
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
-	m_bFaultListFrRank = TRUE;
 	m_bFaultListFaultOnly = TRUE;
+	m_bFaultListFrRank = TRUE;
 	//}}AFX_DATA_INIT
 }
 
@@ -41,8 +41,8 @@ void CFrRankDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, 		IDC_EDIT_FR_NET_CNT, 		m_nNetCount);
 	DDX_Text(pDX, 		IDC_EDIT_FR_FAULT_CNT2, 	m_nFaultNetCount);
 	DDX_Control(pDX, 	IDC_GRID_FR_LIST, 			m_gridFault);
-	DDX_Check(pDX, 		IDC_CHECK_SORT_FAULT_RATE, 	m_bFaultListFrRank);
 	DDX_Check(pDX, 		IDC_CHECK_FR_FAULT_ONLY, 	m_bFaultListFaultOnly);
+	DDX_Check(pDX, 		IDC_CHECK_SORT_FAULT_RATE, 	m_bFaultListFrRank);
 	//}}AFX_DATA_MAP
 }
 
@@ -116,8 +116,8 @@ BOOL CFrRankDialog::InitMember()
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
 
-	m_bFaultListFrRank = TRUE;
 	m_bFaultListFaultOnly = TRUE;
+	m_bFaultListFrRank = FALSE;
 
 	//----------------------------
 	// Grid 관련 멤버 변수 초기화

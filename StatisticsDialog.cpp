@@ -1,16 +1,17 @@
 // StatisticsDialog.cpp : implementation file
 //
 
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+
 #include "stdafx.h"
 #include "ACE400Statistics.h"
 #include "StatisticsDialog.h"
 #include "math.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
 
 
 //---------------------
@@ -64,7 +65,6 @@ BEGIN_MESSAGE_MAP(CStatisticsDialog, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA, 		OnButtonLoad4wData)
 	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA_SINGLE, OnButtonLoad4wData_SingleLot)
 	ON_EN_CHANGE(IDC_EDIT_USL, 					OnChangeEditUsl)
-	ON_BN_CLICKED(IDC_BUTTON_CLEAR_GRID, 		OnButtonClearGrid)
 	ON_BN_CLICKED(IDC_CHECK_DATA_FAULT_ONLY, 	OnCheckDataFaultOnly)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_STAT_CSV, 	OnButtonSaveStatCsv)
 	ON_BN_CLICKED(IDC_BUTTON_VIEW_STAT_CSV, 	OnButtonViewStatCsv)
@@ -115,7 +115,7 @@ BOOL CStatisticsDialog::OnInitDialog()
 #endif
 
 	
-	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Started...\n\n" );
+	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Started...\n" );
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -247,34 +247,34 @@ BOOL CStatisticsDialog::InitView()
 
 	// Summary Grid header 설정
     m_gridSummary.SetItemText(0, SUM_COL_NET, "Net");
-//	m_gridSummary.SetColumnWidth(SUM_COL_NET, 60);
+	m_gridSummary.SetColumnWidth(SUM_COL_NET, 60);
 
     m_gridSummary.SetItemText(0, SUM_COL_DATE, "Date");
-//	m_gridSummary.SetColumnWidth(SUM_COL_DATE, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_DATE, 80);
 	
 	m_gridSummary.SetItemText(0, SUM_COL_TOTAL, "Total\n(Tuple*Data)");
-//	m_gridSummary.SetColumnWidth(SUM_COL_TOTAL, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_TOTAL, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_NG, "NG Count");
-//	m_gridSummary.SetColumnWidth(SUM_COL_NG, 70);
+	m_gridSummary.SetColumnWidth(SUM_COL_NG, 70);
 	
     m_gridSummary.SetItemText(0, SUM_COL_COUNT, "Count\n(Total-NG)");
-//	m_gridSummary.SetColumnWidth(SUM_COL_COUNT, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_COUNT, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_AVG, "Average");
-//	m_gridSummary.SetColumnWidth(SUM_COL_AVG, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_AVG, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_SIGMA, "Sigma");
-//	m_gridSummary.SetColumnWidth(SUM_COL_SIGMA, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_SIGMA, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_DATAMIN, "Min");
-//	m_gridSummary.SetColumnWidth(SUM_COL_DATAMIN, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_DATAMIN, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_DATAMAX, "Max");		
-//	m_gridSummary.SetColumnWidth(SUM_COL_DATAMAX, 80);
+	m_gridSummary.SetColumnWidth(SUM_COL_DATAMAX, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_FAULT, "Fault\nCount");		
-//	m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
+	m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
 	
 	m_gridSummary.SetRowHeight(0, 40);	// 헤더에 글자 두줄 표시를 위해 높이 조정
 
@@ -387,10 +387,13 @@ void CStatisticsDialog::DisplayGrid_DefaultLotNet()
 	if (hLotItem == NULL) 		
 		return;
 
-	// Found: 존재하는 Lot
+	// Found: 존재하는 Lot이면 그 밑에서 Net_1을 찾는다.
 	hNetItem = Tree_FindStrItem(&m_treeCtrl, hLotItem, "Net_1"); 
 	if (hNetItem != NULL)
+	{
 		_SelChangedTree(hNetItem);
+		m_treeCtrl.SelectItem(hNetItem);		// Tree에서 해당 item을 선택된 것으로 표시
+	}
 }
 
 void CStatisticsDialog::Load_Log4wDir() 
@@ -400,7 +403,7 @@ void CStatisticsDialog::Load_Log4wDir()
 	MyTrace(PRT_BASIC, "Load 4wData...\n" );
 
 	CString strTemp;
-	strTemp.Format("Load \"%s\" files.\n\nIt may take a few minutes. Please wait.\n\n\nYou can load up to maximum 850MB files.", g_sFile.ACE400_4WDataDir);
+	strTemp.Format("Load \"%s\" files.\n\nIt may take a few minutes. Please wait.\n\n\nYou can load up to maximum 850MB files.\n", g_sFile.ACE400_4WDataDir);
 	int ret = AfxMessageBox(strTemp, MB_OKCANCEL|MB_ICONINFORMATION);
 	MyTrace(PRT_BASIC, strTemp);
 
@@ -512,8 +515,8 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 			//               맨뒤의 숫자 네개 떼어내는 기능을 위와 같이 막아서  다른 lot으로 처리하기로 함.
 			lotName = dirName.Mid(9, (length -9));
 #endif
-
-			// 빈 lot이 추가되는 것을 막기 위해 Insert할 디렉토리가 빈 디렉토리인지 검사한다.  (자원절약)
+	
+			// 빈 lot이 추가되는 것을 막기 위해 Insert할 디렉토리가 빈 디렉토리인지 검사한다.  (시간, 자원절약)
 			if(CheckEmptyDirectory(dirPath) == TRUE)		
 			{
 				strTemp.Format("Load_Log4wDir(): %s is Empty Directory. Can't do InsertItem.\n\n", dirPath);
@@ -521,6 +524,7 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 				ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
 				continue;
 			}
+	
 
 			// Lot 정보, 날짜 정보를 저장.
 			//CString lotName = dirName;
@@ -542,8 +546,8 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 			dateId = g_sLotNetDate_Info.getLotDateId(lotId, dateName);
 			if (dateId == -1)	// date range를 넘어선다면 load하지 않는다. 
 			{
-				strTemp.Format("Load_Log4wDir(): getLotDateId(%s/%s) Failed! naLotDateCnt[%d]=%d Range(<%d)!\n\n Can't do InsertItem", 
-						lotName, dateName, lotId, g_sLotNetDate_Info.naLotDateCnt[lotId], MAX_DATE);
+				strTemp.Format("Load_Log4wDir(): getLotDateId(%s_%s) Failed! naLotDateCnt[%d]=%d Range(<%d)!\n\n Can't do InsertItem", 
+						dateName, lotName, lotId, g_sLotNetDate_Info.naLotDateCnt[lotId], MAX_DATE);
 				ERR.Set(RANGE_OVER, strTemp); 
 				ErrMsg();  ERR.Reset(); 
 
@@ -554,15 +558,48 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 			}
 
 
-			// Tree에 'Lot' item을 추가한다.  
-			// 기존재하는 item이라면 hItem이 NULL일 수 있음.
-			HTREEITEM  hItemInserted;
-			hItemInserted = Tree_InsertLotItem(lotName, dirPath, lotId, dateId);			
-			if (hItemInserted != NULL)		 
+			// Tree에서 해당 'Lot' item을  찾거나, 새로 insert 한다.
+			HTREEITEM	hLotItem;
+			BOOL		bLotInserted = FALSE;
+			hLotItem = Tree_GetLotItem(lotName, dirPath, lotId, dateId, bLotInserted);			
+												// bInserted: 호출후에 Lot이 insert 됐는지 여부 확인용도
+												
+			if (hLotItem == NULL)	// logic 오류 케이스로 이미 에러메시지 박스  출력했으므로 contiune처리만 한다.
+				continue;
+
+
+			// Lot 디렉토리라면 하위의 Net Data File을 Open해서 Load ( Lot이 아니면 pass)
+			int nLevel = Tree_GetCurrentLevel(hLotItem);
+			if (nLevel != 2)	
+				continue;
+
+			// 신규 Node, 기존재하는 Node 모두 하위 디렉토리의 Net Data를 Load를 수행한다.
+			// 만약 time file이 하나도 로딩이 안 되었다면 다음을 수행하고 continue
+			if (Tree_LoadLot_4WFiles(dirPath, hLotItem, lotId, dateId) < 0) 
 			{
-				// 추가된 item
-				MyTrace(PRT_BASIC, _T("%s: Inserted to Tree.\n"), (LPCTSTR)lotName);
+				strTemp.Format("Load_Log4wDir(): %s is Empty Directory(Tree_LoadLot_4WFiles()< 0). Delete Inserted Lot & Date.\n\n", dirPath);
+				ERR.Set(USER_ERR, strTemp); 
+				ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
+				
+				// LOT이 tree에 추가 됐다면,  
+				if (bLotInserted == TRUE)
+				{
+					m_treeCtrl.DeleteItem(hLotItem); 		// Lot tree item 삭제, 
+					g_sLotNetDate_Info.putBackLotId(lotId); // 추가된 lot str, 추가된 date str 모두 삭제
+				}
+
+				// 기존 Lot이라면  
+				else
+				{	
+					// 추가된 date str만 삭제 
+					g_sLotNetDate_Info.strLotDate[lotId][dateId] = "";
+					g_sLotNetDate_Info.naLotDateCnt[lotId]--;
+				}
+				
+				continue;
 			}
+
+
 
 			// 현재 디렉토리 밑에 sub 디렉토리가 있다면 Load_Log4wDir()를 재귀적으로 또 수행한다. 
 			// 이 코드는 수행해서는 안됨. 3 Level 이상 더 내려갈 일이 없음.
@@ -624,12 +661,11 @@ BOOL CStatisticsDialog::CheckEmptyDirectory(CString dirPath)
 }
 
 
-// CTreeCtrl에 입력받은 string의 Tree Item을 추가한다.
-HTREEITEM CStatisticsDialog::Tree_InsertLotItem(LPCTSTR pStrInsert, LPCTSTR pStrPath, int nLot, int nDate)
+// Tree에서 해당 'Lot' item을  찾거나, 새로 insert 한다.
+HTREEITEM CStatisticsDialog::Tree_GetLotItem(LPCTSTR pStrInsert, LPCTSTR pStrPath, int nLot, int nDate, int& rbInserted)
 {
 	// TODO: Add your control notification handler code here
 	HTREEITEM 	hItemFind= NULL, hLotItem = NULL;
-	int			nLevel;
 	CString		strTemp;
 
 	HTREEITEM   hItemGet = NULL;	// return 값
@@ -637,7 +673,7 @@ HTREEITEM CStatisticsDialog::Tree_InsertLotItem(LPCTSTR pStrInsert, LPCTSTR pStr
 	// Insert할  텍스트가 비어있나 검사한다.
 	if(pStrInsert == "")
 	{
-		strTemp.Format("Tree_InsertLotItem(): pStrInsert is NULL, Can't do InsertItem.");
+		strTemp.Format("Tree_GetLotItem(): pStrInsert is NULL, Can't do InsertItem.");
 		ERR.Set(SW_LOGIC_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 
 		return NULL;
@@ -650,7 +686,7 @@ HTREEITEM CStatisticsDialog::Tree_InsertLotItem(LPCTSTR pStrInsert, LPCTSTR pStr
 	// 새로운 Lot Name이라면 지정한 정보의 Lot 노드를 추가한다.
 	//if ((hItemFind = Tree_FindStrItem(&m_treeCtrl, m_hRoot, pStrInsert)) == NULL)	// 새로운 Node(Lot) 
 	
-	// 새로운 Lot인지 체크
+	// 기존 Lot이면 기존의 Lot의 tree Item을 획득
 	hItemFind = Tree_FindLotItem(&m_treeCtrl, m_hRoot, pStrInsert);
 	if (hItemFind != NULL) 				// Found: 기존에 존재하는 노드(Lot)
 	{
@@ -658,59 +694,28 @@ HTREEITEM CStatisticsDialog::Tree_InsertLotItem(LPCTSTR pStrInsert, LPCTSTR pStr
 		hItemGet = NULL;		
 		hLotItem = hItemFind;	// Found이므로 찾아낸 hItemFind을 hLotItem으로 할당.
 
-		MyTrace(PRT_BASIC, "%s Node already exist! use existing one.\n\n", pStrInsert);
+		MyTrace(PRT_BASIC, "%s Lot already exist! use existing one.\n\n", pStrInsert);
 
+		rbInserted = FALSE;
 	}
-	else	//if (hItemFind == NULL)	// Not Found:
+
+	// 새로운 Lot이면 tree에 Lot item을 추가 
+	else	// Not Found:
 	{
 		// Tree InsertItem을 그대로 이용하여 root에 새로운 Lot Node를 추가
 		hItemGet = m_treeCtrl.InsertItem(pStrInsert, m_hRoot); 
 		m_treeCtrl.Expand(m_hRoot, TVE_EXPAND);
 		hLotItem = hItemGet;	// 새로 생성한 hItemGet을 hLotItem으로 할당.
 
+		MyTrace(PRT_BASIC, _T("%s Lot: Inserted to Tree.\n"), (LPCTSTR)pStrInsert);
 		// 이 지점에서 Insert된 dir의 dirName, dirPath, hLotItem handle 값을 저장해야 할 수 있다.
 		// 추후 진짜 필요하다면 저장하자. 
 
+		rbInserted = TRUE;
 	}
 
-
-#if 0
-	// Lot번호가 이전의 Lot과 다르다면, 지금까지 저장한 lot정보를 파일로 이동하여 저장하고  메모리를 clear한다.
-	// 새로운 Lot번호의 파일이 이미 존재한다면 메모리에 해당 파일을 Open해서 메모리에 새로운 Lot의 데이터를 로드한다.
-	if (nLot != m_nLoad_CurrLot)
-	{
-		Save_StatLotDataFile(m_nLoad_CurrLot);
-
-		//Load_StatLotDataFile(nLot);	
-		m_nLoad_CurrLot = nLot;		
-
-	}
-
-	// Lot 번호가 이전 Lot과 같은데, 새로운 노드인 경우 체크.
-	else 
-	{ 	
-		// 첫번째 Lot이라면 새노드라도 nLot과 m_nLoad_CurrLot이 같을 수 있음.
-		// 그 외의 경우는 새노드라면 nLot을 이전 단계에서 새로 받아 왔어야 함.
-		if (hItemFind == NULL && nLot != 0)
-		{
-			strTemp.Format("Tree_InsertLotItem(): pStrInsert=%s is New Node in Tree, But Not New LotId(%d). Check SW Logic!\n",
-									pStrInsert, nLot);
-			ERR.Set(SW_LOGIC_ERR, strTemp); 
-			ErrMsg();  ERR.Reset(); return NULL; 
-		}
-	}
-#endif
-
-	// 신규 Node, 기존재하는 Node 모두 하위 디렉토리의 Net Data를 Load한다.
-	nLevel = Tree_GetCurrentLevel(hLotItem);
-	if (nLevel == 2)	// Lot 디렉토리라면 하위의 Net Data File을 Open해서 Load
-	{
-		Tree_LoadLot_4WFiles(pStrPath, hLotItem, nLot, nDate);
-		MyTrace(PRT_BASIC, "%s nLot=%d, nDate=%d: Tree_LoadLot_4WFiles... \n\n", pStrPath, nLot, nDate);
-
-	}
 	
-	return hItemGet;
+	return hLotItem;
 }
 
 // 입력받은 Tree Item의 Child 노드들 중에서 해당 str에 맡는 item을 찾아 리턴한다.
@@ -738,7 +743,7 @@ HTREEITEM CStatisticsDialog::Tree_FindLotItem2(CTreeCtrl* pTree, HTREEITEM hItem
 	if ( strcmp(hItemName, pStr) == 0)	
 	{
 		hItemFind = hItem;
-		MyTrace(PRT_BASIC, "Tree_FindLotItem2(): hItem=%s, pStr=%s Found!  return hItem! \n",  hItemName, pStr);
+		//MyTrace(PRT_BASIC, "Tree_FindLotItem2(): hItem=%s, pStr=%s Found!  return hItem! \n",  hItemName, pStr);
 	}
 
 	// 못 찾았으면 
@@ -872,9 +877,11 @@ int CStatisticsDialog::Tree_GetCurrentLevel(HTREEITEM hItem)
 }
 
 // Lot 디렉토리 하위의 모든 Net Data File을 Open해서 memory에 Load한다.
-void CStatisticsDialog::Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hParentLot, int nLot, int nDate)
+int CStatisticsDialog::Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hParentLot, int nLot, int nDate)
 {
 	CFileFind 	finder;
+
+	MyTrace(PRT_BASIC, "%s nLot=%d, nDate=%d: Tree_LoadLot_4WFiles... \n\n", pParentPath, nLot, nDate);
 
 	// build a string with wildcard
 	CString 	strWildcard(pParentPath);
@@ -906,7 +913,8 @@ void CStatisticsDialog::Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hPar
 		
 		CString	dataFileName = finder.GetFileName();
 		CString dataFilePath = finder.GetFilePath();
-		Load_4wDataFile(dataFilePath, dataFileName, hParentLot, nLot, nDate);
+		if (Load_4wDataFile(dataFilePath, dataFileName, hParentLot, nLot, nDate) < 0) 
+			continue;
 
 		nFile++;
 	
@@ -914,14 +922,17 @@ void CStatisticsDialog::Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hPar
 
 	finder.Close();
 
-	return;
+	if (nFile == 0)
+		return -1;
+
+	return 0;
 
 }
 
 #define 	MAX_NETFILE_COL		20
 // 1. 4W Data File을 Open하고 Net별 Data를 read하여 메모리 구조체에 Load
 // 2. 새로운 Net 번호인지 확인하고 새로운 Net 번호라면, hParentLot Tree에 Net Item을 Insert 
-void CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileName, HTREEITEM hParentLot, int nLot, int nDate)
+int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileName, HTREEITEM hParentLot, int nLot, int nDate)
 {
 
 	FILE 	*fp; 
@@ -933,7 +944,7 @@ void CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNa
 	if (dataFileName.Find("Sample") != -1)
 	{
 		MyTrace(PRT_BASIC, "Skip %s\n", dataFilePath );
-		return;
+		return -1;
 	}
 
 
@@ -942,12 +953,12 @@ void CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNa
 
 	if(!FileExists(fName)) 
 	{ 	ERR.Set(FLAG_FILE_NOT_FOUND, fName); 
-		ErrMsg();  ERR.Reset(); return; }
+		ErrMsg();  ERR.Reset(); return -1; }
 
 	fp=fopen(fName,"rt");
 	if(fp == NULL)
 	{ 	ERR.Set(FLAG_FILE_CANNOT_OPEN, fName); 
-		ErrMsg();  ERR.Reset(); return; }
+		ErrMsg();  ERR.Reset(); return -1; }
 
 
 
@@ -987,7 +998,7 @@ void CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNa
 					nFileSample, nLot, g_sLotNetDate_Info.naLotSampleCnt[nLot]);
 			ERR.Set(SW_LOGIC_ERR, strTemp); 
 			ErrMsg(-1, TRUE);  ERR.Reset(); 
-			return;
+			return -1;
 		}
 
 	}
@@ -1214,20 +1225,21 @@ void CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNa
 #endif
 
 
+	return 0;
 }
 
 
 
 // Stat Data를 메모리에 추가 한다. 
-void CStatisticsDialog::Stat_insertNetData(int nLot, int nNet, int nDate, statNetData netData)
+int CStatisticsDialog::Stat_insertNetData(int nLot, int nNet, int nDate, statNetData netData)
 {
 
 	if (m_nNetDataCount >= MAX_NET_DATA)
-		return;
+		return -1;
 
 	int ret = Stat_insertNetVector(nLot, nNet, nDate);
 	if (ret < 0)
-		return;
+		return -1;
 
 	// 2K를 넘는다면 vector 공간을 더 확보한다.  
 	// 2018.06.19: 2048이 되는 시점에 1회성으로 수행하면,  
@@ -1265,6 +1277,8 @@ void CStatisticsDialog::Stat_insertNetData(int nLot, int nNet, int nDate, statNe
 		AfxMessageBox(strTemp, MB_ICONINFORMATION);
 		MyTrace(PRT_BASIC, strTemp);
 	}
+
+	return 0;
 }
 
 int CStatisticsDialog::Stat_insertNetVector(int nLot, int nNet, int nDate)
@@ -1479,7 +1493,7 @@ void CStatisticsDialog::Tree_Check_LotNetFaults(HTREEITEM hItem, int nLot)
 // date 하나에 fault가 없다고 fault를 클리어하면 안되고, 다른 모든 date를 체크한다.
 void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 {
-	CString	itemName; 
+	CString	itemName, strTemp; 
 	int 	nNet;
 	
 	
@@ -1508,6 +1522,15 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 	g_sLotNetDate_Info.waNetTotalCount[nLot][nNet] = 0;
 	for (int date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)	
 	{
+		if (g_pvsaNetData[nLot][nNet][date] == NULL)
+		{
+			strTemp.Format("Tree_CheckNetFault(): g_pvsaNetData[%d][%d][%d] is NULL! \n", nLot, nNet, date );
+			ERR.Set(SW_NO_INIT_VAR, strTemp); 
+			ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
+			continue;
+		}
+
+
 		tupleSize = g_pvsaNetData[nLot][nNet][date]->size();
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
@@ -1800,6 +1823,7 @@ void CStatisticsDialog::OnSelchangedTree(NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 // 2018.09.19 실제 click 없이도 default로 Lot_0, Net_1을 클릭시켜 주기 위해 이렇게 인터페이스를 분리함.
+//            실제 click인 OnSelchangedTree()도 이 함수를 사용한다. (동일 효과)
 void CStatisticsDialog::_SelChangedTree(HTREEITEM  hSelItem)
 {
 
@@ -2160,6 +2184,16 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 			int& rnCount, int& rnTotal, double& rdAvg, double& rdSigma, double& rdMin, double& rdMax )	// reference
 {
+	CString strTemp;
+
+	if (g_pvsaNetData[nLot][nNet][nDate] == NULL)
+	{
+		strTemp.Format("CalcSummary_AvgSigmaMinMax(): g_pvsaNetData[%d][%d][%d] is NULL! \n", nLot, nNet, nDate );
+		ERR.Set(SW_NO_INIT_VAR, strTemp); 
+		ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
+		return;
+	}
+
 	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 
 	// 1. Calc Count, Avg, Min, Max	 ----------------
@@ -2228,9 +2262,9 @@ void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 		rdSigma    = sqrt(dVariance);					// 표준편차 : 분산의 제곱근
 	}
 
-	MyTrace(PRT_BASIC, "rnTotal=%d, rnCount=%d, dSum=%.2f, rdAvg=%.2f, dVar=%.2f, rdSigma=%.2f, rdMin=%.2f, rdMax=%.2f, nFaultCount=%d\n", 
-							rnTotal, rnCount, dSum, rdAvg, dVariance, rdSigma, rdMin, rdMax, 
-							g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][nDate]);
+	//MyTrace(PRT_BASIC, "rnTotal=%d, rnCount=%d, dSum=%.2f, rdAvg=%.2f, dVar=%.2f, rdSigma=%.2f, rdMin=%.2f, rdMax=%.2f, nFaultCount=%d\n", 
+	//						rnTotal, rnCount, dSum, rdAvg, dVariance, rdSigma, rdMin, rdMax, 
+	//						g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][nDate]);
 							//nFaultCount);
 
 
@@ -2242,10 +2276,18 @@ void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 // return : 마지막으로 출력한  tupleOffset 을 리턴한다.
 int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tuplePrtStart)
 {
+	CString strTemp;
 
 	//-------------------
 	// data Grid 출력
 
+	if (g_pvsaNetData[nLot][nNet][nDate] == NULL)
+	{
+		strTemp.Format("DisplayGrid_4wData(): g_pvsaNetData[%d][%d][%d] is NULL! \n", nLot, nNet, nDate );
+		ERR.Set(SW_NO_INIT_VAR, strTemp); 
+		ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
+		return tuplePrtStart;
+	}
 
 	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 
@@ -2610,7 +2652,7 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
 }
 
-
+/*
 void CStatisticsDialog::OnButtonClearGrid() 
 {
 	// TODO: Add your control notification handler code here
@@ -2619,6 +2661,7 @@ void CStatisticsDialog::OnButtonClearGrid()
 	ClearGrid();
 
 }
+*/
 
 
 void CStatisticsDialog::ClearGrid() 
@@ -2736,7 +2779,6 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 
 
 
-
 	//-------------------------
 	// Summary Grid 출력
 	
@@ -2754,6 +2796,14 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	int		nMinMaxInitSample = 0;	// Min, Max initial 위치
 	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
 	{
+		if (g_pvsaNetData[nLot][nNet][date] == NULL)
+		{
+			strTemp.Format("Display_SumupLotNet(): g_pvsaNetData[%d][%d][%d] is NULL! \n", nLot, nNet, date );
+			ERR.Set(SW_NO_INIT_VAR, strTemp); 
+			ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
+			continue;
+		}
+
 		tupleSize = g_pvsaNetData[nLot][nNet][date]->size();
 		m_editTupleNum += tupleSize;
 		for (tuple=0; tuple < tupleSize; tuple++)
@@ -2829,6 +2879,9 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 		// 2. Calc Sigma   --------------------
 		for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
 		{
+			if (g_pvsaNetData[nLot][nNet][date] == NULL)
+				continue;
+
 			tupleSize = g_pvsaNetData[nLot][nNet][date]->size();	// date마다 tupleSize가 다름!
 			for (tuple=0; tuple < tupleSize; tuple++)
 			{
@@ -3028,7 +3081,7 @@ void CStatisticsDialog::OnButtonViewStatCsv()
 	
 	strTemp.Format(".\\Data\\%s_%s_Net%d_StatDataOut.csv", 
 			g_sLotNetDate_Info.strLot[nLot], 
-			(m_nCombo_CurrDate == DATE_ALL) ? "DATE_ALL" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
+			(m_nCombo_CurrDate == DATE_ALL) ? "_" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
 			nNet); 					
 
 	::ShellExecute(NULL,"open","EXCEl.EXE",strTemp,"NULL",SW_SHOWNORMAL);	
@@ -3053,7 +3106,7 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 	::ZeroMemory(&fName, sizeof(fName));
 	strTemp.Format(".\\Data\\%s_%s_Net%d_StatDataOut.csv", 
 			g_sLotNetDate_Info.strLot[nLot], 
-			(nComboDate == DATE_ALL) ? "DATE_ALL" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
+			(nComboDate == DATE_ALL) ? "_" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
 			nNet);
 	strcat(fName, strTemp);
 

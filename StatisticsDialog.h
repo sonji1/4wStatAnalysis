@@ -129,7 +129,7 @@ public:
 // 4w 파일 하나에서 해당 net의 데이터 1개를 lot>net>date>tuple 구조의 tuple로 처리한다
 // 날짜당 300개 정도의 파일을 다 분석하면 각 net별로 날짜수 * 300개 정도의 tuple이 생김.
 
-#define MAX_LOT				3	
+#define MAX_LOT				5	
 #define MAX_NET_PER_LOT		5000			// 원래는 10000 
 #define MAX_DATE			5				
 #define	MAX_TIME_FILE		3000			// 원래는 1200  
@@ -319,6 +319,15 @@ public:
 
 		strLot[lot] = "";
 		nLotCnt--;
+
+		// 해당 lot 관련 date data, net data도 모두 초기화
+		int date;
+		for (date=0; date < MAX_DATE; date++)
+			strLotDate[lot][date] = "";
+		naLotDateCnt[lot] = 0;
+		naLotSampleCnt[lot] = 0;
+		naLotNetCnt[lot] = 0;
+
 		return 0;
 	}
 
@@ -355,7 +364,7 @@ public:
 			return -1;
 
 		// 기존 LotDateStr 중에서 해당 str이 없는 경우 새로 할당.
-		date = naLotDateCnt[nLot];		// 현재 count값이 다음번 id.
+		date = naLotDateCnt[nLot];		// 현재 date count값이 다음번 date id.
 		strLotDate[nLot][date] = dateStr;
 		naLotDateCnt[nLot]++;
 
@@ -636,7 +645,6 @@ protected:
 	afx_msg void OnButtonLoad4wData();
 	afx_msg void OnButtonLoad4wData_SingleLot();
 	afx_msg void OnChangeEditUsl();
-	afx_msg void OnButtonClearGrid();
 	afx_msg void OnCheckDataFaultOnly();
 	afx_msg void OnButtonSaveStatCsv();
 	afx_msg void OnButtonViewStatCsv();
@@ -732,7 +740,18 @@ public:
 	// 2018.07.18 4W p-chart에서도 활용하기 위해 다음 m_sLotNetDate_Info 정보를 전역변수(g_sLotNetDate_Info)로 변경함. 
 	//LotNetDate_Info		m_sLotNetDate_Info;		// lot, net, date 기준 key 값과 각종 Net별 정보를 관리하는 클래스
 
-	int			m_nNetDataCount;			// Stat_insertNetData 호출 횟수
+	int			m_nNetDataCount;			// Stat_insertNetData 호출 횟수 (vector 갯수, sample 수 상관없는 time tuple의 수)
+											// vector의 갯수를 8000000(MAX_NET_DATA)개로 제한하기 위한 변수
+											//
+											// Multi Load 하고 MAX_NET_DATA 때문에 종료되었다면,  맨 마지막 Lot, 
+											// 날짜 디렉토리는 중간에 중단되었으므로 뒤쪽 net이 tuple이 하나씩 모자름
+											// 각 Lot, 날짜별 time tuple의 수를 다 더하면 8000000이어야 한다.
+											//  ex) lot 0 date1의 1~512 net은 2371 tuple인데,  513~2604 net은 2370 tuple이라면
+											//
+											//      lot 0 date 0 : 2604 net * 702 tuple = 1828008 tuple
+											//      lot 0 date 1 : 512 net  * 2371 tuple = 1213952 tuple
+											//                     2092 net * 2370 tuple = 4958040 tuple
+											//  1828008+ 1213952 + 4958040 = 8000000 tuple
 
 	//--------------------------
 	// Display Snap
@@ -751,18 +770,18 @@ public:
 
 	BOOL		CheckEmptyDirectory(CString dirPath);
 
-	HTREEITEM 	Tree_InsertLotItem(LPCTSTR pStrInsert, LPCTSTR pStrPath, int nLot, int nDate); 
+	HTREEITEM 	Tree_GetLotItem(LPCTSTR pStrInsert, LPCTSTR pStrPath, int nLot, int nDate, int& rbInserted); 
 	HTREEITEM 	Tree_FindLotItem(CTreeCtrl* pTree, HTREEITEM hParent, LPCTSTR pStr);
 	HTREEITEM 	Tree_FindLotItem2(CTreeCtrl* pTree, HTREEITEM hItem, LPCTSTR pStr);
 	HTREEITEM 	Tree_FindStrItem(CTreeCtrl* pTree, HTREEITEM hItem, LPCTSTR pStr);
 	//HTREEITEM Tree_FindData(CTreeCtrl* pTree, HTREEITEM hItem, DWORD dwData);
 	int 		Tree_GetCurrentLevel(HTREEITEM hItem);
-	void		Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hParentLot,  int nLot, int nDate);
-	void		Load_4wDataFile(CString dataFilePath, CString dataFileName, 
+	int			Tree_LoadLot_4WFiles(LPCTSTR pParentPath, HTREEITEM hParentLot,  int nLot, int nDate);
+	int			Load_4wDataFile(CString dataFilePath, CString dataFileName, 
 														HTREEITEM hParentLot, int nLot, int nDate); 
-														// RawData Director의 CSV 파일을 Lot별로 메모리에 로드
+														// RawData Director의 time CSV 파일을 Lot별로 메모리에 로드
 															
-	void 		Stat_insertNetData(int nLot, int nNet, int nDate, statNetData netData);
+	int 		Stat_insertNetData(int nLot, int nNet, int nDate, statNetData netData);
 	int 		Stat_insertNetVector(int nLot, int nNet, int nDate);
 	void 		Stat_deleteAllNetData();
 

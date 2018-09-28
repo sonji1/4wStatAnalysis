@@ -54,6 +54,7 @@
 #define IDC_BUTTON_VIEW_FR_LIST_CSV     1035
 #define IDC_GRID_FR_LIST                1036
 #define IDC_CHECK_FR_FAULT_ONLY         1037
+#define IDC_CHECK1                      1037
 #define IDC_CHECK_PRT_BASIC             1085
 #define IDC_CHECK_PRT_LEVEL1            1086
 #define IDC_CHECK_PRT_Level2            1087
@@ -68,7 +69,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1037
+#define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
