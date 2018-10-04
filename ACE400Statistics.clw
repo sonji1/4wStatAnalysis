@@ -19,12 +19,12 @@ Class7=CPChartDialog
 Class8=CStatisticsDialog
 
 ResourceCount=6
-Resource1=IDD_ABOUTBOX
-Resource2=IDD_MAIN_DIALOG
-Resource3=IDD_PCHART_DIALOG
+Resource1=IDD_MAIN_DIALOG
+Resource2=IDD_PCHART_DIALOG
+Resource3=IDD_ABOUTBOX
 Resource4=IDD_CONFIG_DIALOG
-Resource5=IDD_FR_RANK_DIALOG
-Resource6=IDD_STATISTICS_DIALOG
+Resource5=IDD_STATISTICS_DIALOG
+Resource6=IDD_FR_RANK_DIALOG
 
 [CLS:CAboutDlg]
 Type=0
@@ -81,7 +81,7 @@ Type=0
 BaseClass=CDialog
 HeaderFile=StatisticsDialog.h
 ImplementationFile=StatisticsDialog.cpp
-LastObject=CStatisticsDialog
+LastObject=IDC_COMBO_DATE
 Filter=D
 VirtualFilter=dWC
 
@@ -168,7 +168,7 @@ Control19=IDC_BUTTON_VIEW_PCHART_CSV,button,1342242816
 [DLG:IDD_STATISTICS_DIALOG]
 Type=1
 Class=CStatisticsDialog
-ControlCount=24
+ControlCount=25
 Control1=IDC_STATIC,static,1342308352
 Control2=IDC_GRID_DATA,MFCGridCtrl,1342242816
 Control3=IDC_TREE,SysTreeView32,1350631479
@@ -188,9 +188,10 @@ Control16=IDC_CHECK_DATA_FAULT_ONLY,button,1342242819
 Control17=IDC_BUTTON_SAVE_STAT_CSV,button,1342242816
 Control18=IDC_BUTTON_VIEW_STAT_CSV,button,1342242816
 Control19=IDC_STATIC,static,1342308352
-Control20=IDC_EDIT_LSL,edit,1350633600
+Control20=IDC_EDIT_LSL,edit,1350631552
 Control21=IDC_STATIC,static,1342308352
-Control22=IDC_EDIT_USL,edit,1350633600
+Control22=IDC_EDIT_USL,edit,1350631552
 Control23=IDC_STATIC,button,1342177287
-Control24=IDC_CHECK1,button,1342251011
+Control24=IDC_CHECK_APPLY_ULSL,button,1342255107
+Control25=IDC_CHECK_SIMUL_ULSL,button,1342242819
 

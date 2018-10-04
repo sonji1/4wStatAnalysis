@@ -191,6 +191,18 @@ public:
 	//            Fault 처리는 netData의 tuple별 dLsl, dUsl을 사용하기로 함. 
 	//double	daLotNetUsl[MAX_LOT][MAX_NET_PER_LOT];		// Net 별 USL(Upper Spec Limit) 정보. Fault 기준값
 	//double	daLotNetLsl[MAX_LOT][MAX_NET_PER_LOT];		// Net 별 LSL(Lower Spec Limit) 정보. Fault 기준값
+	
+	// 2018.10.01 Simulate USL, LSL 관련 
+	//            현재 '4w Stat'화면에 선택된 Lot, Net, Date에 대해서만 Simulate한다.
+	//            Simulate On 이 된 시점의 현재 Lot, Net, Date에 대해 SimulLSL, SimulUSL 기준으로 Fault를 계산하고
+	//            Grid UI와 CSV에도 출력, FR Rank, YR p-chart에도 반영하도록 한다. 
+	//            Simul On이 되는 순간에 statNetData.dLSL, statNetData.dUsl은 사용하지 않고, dSimulLsl, dSimulLsl을 사용하여
+	//            Fault 계산을 다시 하고, grid UI, csv 파일 출력에 반영한다.  Fault 계산을 다시하면 YR, FR 화면에는 자동 반영이 된다.
+	//            Simulate On 시점의 USL, LSL data는 Simulation Off되면 삭제되고 다시 원래의 dLSL, uLSL값으로 돌아가서 
+	//            Fault계산을 다시해야 한다. Simulation 값이 저장되어야 한다면, 위의 daLotNetUsl[][]를 살려야 하는데 큰 의미 없어 보임.
+	double		dSimulUsl;		// Simulation On 상태에서 USL(Upper Spec Limit). statNetData.dUsl 대체
+	double		dSimulLsl;		// Simulation On 상태에서 LSL(Lower Spec Limit). statNetData.dLSL 대체
+	
 
 	// Date별 종합 data
 	short		waLotNetDate_FaultCnt[MAX_LOT][MAX_NET_PER_LOT][MAX_DATE];	// 해당 date의 time*sample별 Fault sumup
@@ -220,6 +232,7 @@ public:
 			naLotSampleCnt[lot] = 0;
 			naLotNetCnt[lot] = 0;
 
+
 			int net;
 			for (net=0; net < MAX_NET_PER_LOT; net++)
 			{
@@ -245,6 +258,9 @@ public:
 				waNetNgCount[lot][net] = 0;
 			}
 		}
+
+		dSimulUsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
+		dSimulLsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
 	}
 
 	void InitMember() 
@@ -286,6 +302,9 @@ public:
 				waNetNgCount[lot][net] = 0;
 			}
 		}
+		
+		dSimulUsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
+		dSimulLsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
 	}
 
 
@@ -621,6 +640,10 @@ public:
 	int			m_editTupleNum;
 	int			m_editSampleNum;
 	BOOL		m_bDataGridFaultOnly;
+	BOOL		m_bSimulateULSL;
+	BOOL		m_bApplyULSL;
+	CString		m_editStrUSL;	// double 값으로 바꾸어서 g_sLotNetDate_Info.dSimulUsl에 저장한다.
+	CString		m_editStrLSL;	// double 값으로 바꾸어서 g_sLotNetDate_Info.dSimulLsl에 저장한다.
 	//}}AFX_DATA
 
 // Overrides
@@ -644,10 +667,11 @@ protected:
 	afx_msg void OnSelchangeComboDate();
 	afx_msg void OnButtonLoad4wData();
 	afx_msg void OnButtonLoad4wData_SingleLot();
-	afx_msg void OnChangeEditUsl();
 	afx_msg void OnCheckDataFaultOnly();
 	afx_msg void OnButtonSaveStatCsv();
 	afx_msg void OnButtonViewStatCsv();
+	afx_msg void OnCheckSimulUlsl();
+	afx_msg void OnCheckApplyUlsl();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -763,6 +787,8 @@ public:
 	
 	BOOL 		InitMember();
 	BOOL 		InitView();
+	void		Display_SummaryGridHeader();
+	void 		Display_DataGridHeader();
 	void 		InitTree();
 
 	void 		Load_Log4wDir();

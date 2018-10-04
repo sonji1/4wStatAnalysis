@@ -34,6 +34,10 @@ CStatisticsDialog::CStatisticsDialog(CWnd* pParent /*=NULL*/)
 	m_editTupleNum = 0;
 	m_editSampleNum = 0;
 	m_bDataGridFaultOnly = FALSE;
+	m_bSimulateULSL = FALSE;
+	m_bApplyULSL = FALSE;
+	m_editStrUSL = _T("");
+	m_editStrLSL = _T("");
 	//}}AFX_DATA_INIT
 	
 
@@ -52,6 +56,10 @@ void CStatisticsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_TUPLE_NUM, 			m_editTupleNum);
 	DDX_Text(pDX, IDC_EDIT_SAMPLE_NUM, 			m_editSampleNum);
 	DDX_Check(pDX, IDC_CHECK_DATA_FAULT_ONLY, 	m_bDataGridFaultOnly);
+	DDX_Check(pDX, IDC_CHECK_SIMUL_ULSL, 		m_bSimulateULSL);
+	DDX_Check(pDX, IDC_CHECK_APPLY_ULSL, 		m_bApplyULSL);
+	DDX_Text(pDX, IDC_EDIT_USL, 				m_editStrUSL);
+	DDX_Text(pDX, IDC_EDIT_LSL, 				m_editStrLSL);
 	//}}AFX_DATA_MAP
 }
 
@@ -64,10 +72,11 @@ BEGIN_MESSAGE_MAP(CStatisticsDialog, CDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO_DATE, 			OnSelchangeComboDate)
 	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA, 		OnButtonLoad4wData)
 	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA_SINGLE, OnButtonLoad4wData_SingleLot)
-	ON_EN_CHANGE(IDC_EDIT_USL, 					OnChangeEditUsl)
 	ON_BN_CLICKED(IDC_CHECK_DATA_FAULT_ONLY, 	OnCheckDataFaultOnly)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_STAT_CSV, 	OnButtonSaveStatCsv)
 	ON_BN_CLICKED(IDC_BUTTON_VIEW_STAT_CSV, 	OnButtonViewStatCsv)
+	ON_BN_CLICKED(IDC_CHECK_SIMUL_ULSL, 		OnCheckSimulUlsl)
+	ON_BN_CLICKED(IDC_CHECK_APPLY_ULSL, 		OnCheckApplyUlsl)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -212,7 +221,6 @@ BOOL CStatisticsDialog::InitMember()
 
 BOOL CStatisticsDialog::InitView()
 {
-	int i;
 
 	UpdateData(TRUE);
 
@@ -245,7 +253,73 @@ BOOL CStatisticsDialog::InitView()
 	}
     END_CATCH	
 
-	// Summary Grid header 설정
+	Display_SummaryGridHeader(); 	// Summary Grid header 설정
+
+
+	//----------------------------
+	// Data Grid 초기화 
+
+	m_gridData.SetEditable(m_bEditable);				// FALSE 설정
+	//m_gridData.SetListMode(m_bListMode);
+	//m_gridData.EnableDragAndDrop(TRUE);
+	m_gridData.SetTextBkColor(RGB(0xFF, 0xFF, 0xE0));	// 연노랑색 back ground
+
+
+	TRY {
+		m_gridData.SetRowCount(m_nRows);
+		m_gridData.SetColumnCount(m_nCols);
+		m_gridData.SetFixedRowCount(m_nFixRows);
+		m_gridData.SetFixedColumnCount(m_nFixCols);
+	}
+	CATCH (CMemoryException, e)
+	{
+		e->ReportError();
+		e->Delete();
+		return FALSE;
+	}
+    END_CATCH	
+
+
+	Display_DataGridHeader(); 	// Data Grid Header 설정
+
+	ClearGrid_Data();	
+
+
+	//----------------------------
+	// tree 초기화 
+	
+	InitTree();
+
+	// Tree 이미지리스트 설정
+	m_ImageList.Create(IDB_BITMAP1, 16, 	// 이미지의 가로, 세로 길이
+									2,		// 이미지 관리 메모리 부족시 늘려야 할 메모리크기 
+					RGB(255,255,255));		// 화면 출력 컬러 (투명)
+	m_treeCtrl.SetImageList(&m_ImageList, TVSIL_NORMAL);
+
+
+	// Simulate 관련 컨트롤 초기화
+	if (m_bSimulateULSL)
+	{
+		GetDlgItem(IDC_EDIT_USL)->EnableWindow(TRUE);
+		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_APPLY_ULSL)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_EDIT_USL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_APPLY_ULSL)->EnableWindow(FALSE);
+	}
+
+
+	UpdateData(FALSE);
+
+	return TRUE;
+}
+
+// Summary Grid header 설정
+void CStatisticsDialog::Display_SummaryGridHeader()
+{
     m_gridSummary.SetItemText(0, SUM_COL_NET, "Net");
 	m_gridSummary.SetColumnWidth(SUM_COL_NET, 60);
 
@@ -277,31 +351,11 @@ BOOL CStatisticsDialog::InitView()
 	m_gridSummary.SetColumnWidth(SUM_COL_FAULT, 70);
 	
 	m_gridSummary.SetRowHeight(0, 40);	// 헤더에 글자 두줄 표시를 위해 높이 조정
+}
 
-	//----------------------------
-	// Data Grid 초기화 
-
-	m_gridData.SetEditable(m_bEditable);				// FALSE 설정
-	//m_gridData.SetListMode(m_bListMode);
-	//m_gridData.EnableDragAndDrop(TRUE);
-	m_gridData.SetTextBkColor(RGB(0xFF, 0xFF, 0xE0));	// 연노랑색 back ground
-
-
-	TRY {
-		m_gridData.SetRowCount(m_nRows);
-		m_gridData.SetColumnCount(m_nCols);
-		m_gridData.SetFixedRowCount(m_nFixRows);
-		m_gridData.SetFixedColumnCount(m_nFixCols);
-	}
-	CATCH (CMemoryException, e)
-	{
-		e->ReportError();
-		e->Delete();
-		return FALSE;
-	}
-    END_CATCH	
-
-	// Data Grid Header 설정
+// Data Grid Header 설정
+void CStatisticsDialog::Display_DataGridHeader()
+{
 	
 	// 0     1      2     3     4     5     6     7     8     9     10    11    12    13     14      ....   25
 	// No,  Date, Time,  Pin1, Pin2, Pin3, Pin4,  R,   LSL,  USL,  Avg, Sigma, Min, Max,  Data1, .... Data12
@@ -310,36 +364,23 @@ BOOL CStatisticsDialog::InitView()
 													"Data1", "Data2", "Data3", "Data4", "Data5", "Data6",
 													"Data7", "Data8", "Data9", "Data10", "Data11", "Data12" };
 
-	int dataColWidth[NUM_DATA_GRID_COL] =    {40,    68,     60,   45,     45,     45,     45,     70,    70,    70,
+	int dataColWidth[NUM_DATA_GRID_COL] =    {40,    68,     60,   45,     45,     45,     45,     70,    70,    72,
 													 70,         70,         70,        70,
 													 70,         70,         70,        70,         70,       70,
 		                                             70,         70,         70,        70,         70,       70 };
 
-	for (i=0; i < NUM_DATA_GRID_COL; i++)
+	for (int i=0; i < NUM_DATA_GRID_COL; i++)
 	{
 		m_gridData.SetColumnWidth(i, dataColWidth[i]);
 		m_gridData.SetItemText(0, i, dataHeader[i]);
+
+		if (m_bApplyULSL == TRUE && i == DATA_COL_LSL)
+			m_gridData.SetItemText(0, i, "LSL (simul)");
+
+		if (m_bApplyULSL == TRUE && i == DATA_COL_USL)
+			m_gridData.SetItemText(0, i, "USL (simul)");
 	}
-
-	ClearGrid_Data();	
-
-
-	//----------------------------
-	// tree 초기화 
-	
-	InitTree();
-
-	// Tree 이미지리스트 설정
-	m_ImageList.Create(IDB_BITMAP1, 16, 	// 이미지의 가로, 세로 길이
-									2,		// 이미지 관리 메모리 부족시 늘려야 할 메모리크기 
-					RGB(255,255,255));		// 화면 출력 컬러 (투명)
-	m_treeCtrl.SetImageList(&m_ImageList, TVSIL_NORMAL);
-
-	UpdateData(FALSE);
-
-	return TRUE;
 }
-
 
 void CStatisticsDialog::InitTree()
 {
@@ -519,7 +560,7 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 			// 빈 lot이 추가되는 것을 막기 위해 Insert할 디렉토리가 빈 디렉토리인지 검사한다.  (시간, 자원절약)
 			if(CheckEmptyDirectory(dirPath) == TRUE)		
 			{
-				strTemp.Format("Load_Log4wDir(): %s is Empty Directory. Can't do InsertItem.\n\n", dirPath);
+				strTemp.Format("%s is Empty Directory. Can't do InsertItem. \n : Load_Log4wDir()\n\n", dirPath);
 				ERR.Set(USER_ERR, strTemp); 
 				ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
 				continue;
@@ -577,7 +618,7 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 			// 만약 time file이 하나도 로딩이 안 되었다면 다음을 수행하고 continue
 			if (Tree_LoadLot_4WFiles(dirPath, hLotItem, lotId, dateId) < 0) 
 			{
-				strTemp.Format("Load_Log4wDir(): %s is Empty Directory(Tree_LoadLot_4WFiles()< 0). Delete Inserted Lot & Date.\n\n", dirPath);
+				strTemp.Format("%s is Empty Directory(Tree_LoadLot_4WFiles()< 0). Delete Inserted Lot & Date.\n : OnCheckSimulUlsl()\n", dirPath);
 				ERR.Set(USER_ERR, strTemp); 
 				ErrMsg(-1, TRUE);  ERR.Reset(); 		// 메시지박스 출력은 안하기.
 				
@@ -1517,10 +1558,15 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 	// 상기 두가지 방법에 따라 fault의 최종 결과가 다를 수 있다.
 	
 	//int		nNetFaultCount = 0;
+	int date;
 	g_sLotNetDate_Info.waNetFaultCount[nLot][nNet] = 0;
 	g_sLotNetDate_Info.waNetNgCount[nLot][nNet] = 0;
 	g_sLotNetDate_Info.waNetTotalCount[nLot][nNet] = 0;
-	for (int date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)	
+	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)	
+		g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][date] = 0;
+
+
+	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)	
 	{
 		if (g_pvsaNetData[nLot][nNet][date] == NULL)
 		{
@@ -1534,9 +1580,18 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 		tupleSize = g_pvsaNetData[nLot][nNet][date]->size();
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
-			// 2018.05.31  tuple별 Lsl, Usl 사용
-			dLsl = (*g_pvsaNetData[nLot][nNet][date])[tuple].dLsl;
-			dUsl = (*g_pvsaNetData[nLot][nNet][date])[tuple].dUsl;
+			if ( m_bApplyULSL && 
+				(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
+			{
+				dLsl = g_sLotNetDate_Info.dSimulLsl;
+				dUsl = g_sLotNetDate_Info.dSimulUsl;
+			}
+			else
+			{
+				// 2018.05.31  tuple별 Lsl, Usl 사용
+				dLsl = (*g_pvsaNetData[nLot][nNet][date])[tuple].dLsl;
+				dUsl = (*g_pvsaNetData[nLot][nNet][date])[tuple].dUsl;
+			}
 
 			sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
 		#ifdef DP_SAMPLE
@@ -1661,7 +1716,7 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	// d:\log4w 디렉토리 아래의 디렉토리인지 확인한다. ---------------
  	if (dirPath.Find("D:\\log4w\\") == -1)	
 	{
-		strTemp.Format("OnButtonLoad4wData_SingleLot(): %s is not 4W Data Directory. Can't do InsertItem.\n\n", dirPath);
+		strTemp.Format("%s is not 4W Data Directory. Can't do InsertItem. :OnButtonLoad4wData_SingleLot()\n\n", dirPath);
 		ERR.Set(USER_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 		
 		return;
@@ -1683,7 +1738,7 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	CString dateExclu = dateName.SpanExcluding("0123456789"); 
 	if (!dateExclu.IsEmpty())	// "0123456789"에 해당하지 않는 문자만 선택. Empty가 아니면 글자포함이란 얘기
 	{
-		strTemp.Format("OnButtonLoad4wData_SingleLot(): \"%s\" \n '4w Data' Directory has not proper DateName. Can't do InsertItem.\n\n", dirPath);
+		strTemp.Format("\"%s\" \n '4w Data' Directory has not proper DateName. Can't do InsertItem.: OnButtonLoad4wData_SingleLot(): \n\n", dirPath);
 		ERR.Set(USER_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 		
 		return;
@@ -1716,7 +1771,7 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 
 	if(bFileFound == FALSE)		
 	{
-		strTemp.Format("OnButtonLoad4wData_SingleLot(): Any proper '4w Data File' was not Selected. Can't do InsertItem.\n\n", dirPath);
+		strTemp.Format("Any proper '4w Data File' was not Selected. Can't do InsertItem. : OnButtonLoad4wData_SingleLot()\n\n", dirPath);
 		ERR.Set(USER_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 		
 		return;
@@ -2009,7 +2064,7 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nComboDate)
 	// Tree에 Root만 있다면 Load 버튼을 눌러야 한다는 메시지 출력.
 	if (m_treeCtrl.GetCount() == 1)
 	{
-		strTemp.Format("DisplayGrid(): Execute \"Load 4W Data to Tree\" button, First.\n And select any Tree item and Date item please.");
+		strTemp.Format("Execute \"Load 4W Data to Tree\" button, First.\n And select any Tree item and Date item please. \n :DisplayGrid()");
 		ERR.Set(USER_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 
 		return;
@@ -2018,7 +2073,7 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nComboDate)
 	// 클릭한 item이 없다면  아무 item이나 클릭하라는 메시지 출력.
 	if (m_hSelectedNode == NULL)
 	{
-		strTemp.Format("DisplayGrid(): Select any Tree item and Date item please.");
+		strTemp.Format("Select any Tree item and Date item please.\n: DisplayGrid()");
 		ERR.Set(USER_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 
 		return;
@@ -2431,14 +2486,27 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	// 2018.05.31  Net tuple 공통 Lsl, Usl은 코멘트처리하고 tuple별 Lsl, Usl을 사용하기로 함.
 	//dLsl = g_sLotNetDate_Info.daLotNetLsl[nLot][nNet];
 	//dUsl = g_sLotNetDate_Info.daLotNetUsl[nLot][nNet];
-	double 	dLsl = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dLsl;
-	double 	dUsl = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dUsl;
+
+	// 2018.10.02 추가 : ULSL Simulattion On일 때에는 dLsl, dUsl을 Simul값으로 보여준다.
+	//           m_GridSnap에도 여기에서 반영이 되므로 csv 파일에 대해서는 따로 simul관련 처리할 필요 없음
+	double dLsl, dUsl;		
+	if ( m_bApplyULSL && 
+		(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
+	{
+		dLsl = g_sLotNetDate_Info.dSimulLsl;
+		dUsl = g_sLotNetDate_Info.dSimulUsl;
+	}
+	else
+	{
+		dLsl = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dLsl;
+		dUsl = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dUsl;
+	}
 
 
 	// 0     1      2     3     4     5     6     7     8     9     10    11    12    13     14      ....   25
 	// No,  Date, Time,  Pin1, Pin2, Pin3, Pin4,  R,   LSL,  USL,  Avg, Sigma, Min, Max,  Data1, .... Data12
 
-	// 1. Check 4W Data Fault  ------------------------
+	// 1. Check 4W Data Fault  in  samples ---------------------
 	int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
 	int nFaultCount = 0;
 	for (sample= 0; sample < sampleSize; sample++) // col 14~25:  Sample1~ Sample12
@@ -2493,11 +2561,12 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_R, strTemp);				// col 7:   RefR
 	m_GridSnap.saData[nPrtTuple].strRefR = strTemp;
 
-	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dLsl);
-	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_LSL, strTemp);			// col 8:   LSL
-	m_GridSnap.saData[nPrtTuple].strLSL = strTemp;
 
-	strTemp.Format("%.2f",  (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].dUsl);
+	strTemp.Format("%.2f",  dLsl);
+	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_LSL, strTemp);			// col 8:   LSL
+	m_GridSnap.saData[nPrtTuple].strLSL = strTemp;		
+
+	strTemp.Format("%.2f",  dUsl);
 	m_gridData.SetItemText(nPrtTuple+1,  DATA_COL_USL, strTemp);			// col 9:   USL
 	m_GridSnap.saData[nPrtTuple].strUSL = strTemp;
 
@@ -2569,17 +2638,10 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 {
 	CString strTemp;
 
-	//----------------------------
-	// Net Info Edit 박스값 설정
-	
 	
 	// double형은 값이 변형되어 출력되므로 CString으로 관리하여 아래와 같이 출력한다.
 	// => double형인 경우 8.6이 8.59로 변형되는 현상이 있었음.
 	
-	//sprintf((char*)m_editStrLSL.GetBuffer(10), "%.2f", g_sLotNetDate_Info.daLotNetLsl[nLot][nNet]);
-	//m_editStrLSL.ReleaseBuffer();
-	//sprintf((char*)m_editStrUSL.GetBuffer(10), "%.2f", g_sLotNetDate_Info.daLotNetUsl[nLot][nNet]);
-	//m_editStrUSL.ReleaseBuffer();
 
 
 	//----------------------------
@@ -2672,8 +2734,6 @@ void CStatisticsDialog::ClearGrid()
 	// Grid와 함께 Grid Sub Edit 박스도 초기화한다.
 	m_editTupleNum = 0;
 	m_editSampleNum = 0;
-	//m_editStrLSL = _T("");
-	//m_editStrUSL = _T("");
 
 	// data를 업데이트하기 전에 지우기. 
 	ClearGrid_Summary();	
@@ -3017,37 +3077,6 @@ BOOL CStatisticsDialog::DestroyWindow()
 
 
 
-void CStatisticsDialog::OnChangeEditUsl() 
-{
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-	
-	// TODO: Add your control notification handler code here
-/*	
-	UpdateData(TRUE);		// 화면 data 가져오기 
-
-	CString strTemp;
-
-	// Lot 존재해야 하고, Net 존재해야 한다. 
-	if ( (m_nTree_CurrLot < 0 || m_nTree_CurrLot >= MAX_LOT) 
-			|| (m_nTree_CurrNet < 0 || m_nTree_CurrNet >= MAX_NET_PER_LOT ) )
-	{
-		strTemp.Format("OnChangeEditUsl(): Lot=%d(0<= Lot <%d), Net=%d(0<= Lot <%d) Range Over!\nPlease select any Net# in tree.", 
-					m_nTree_CurrNet, MAX_LOT, m_nTree_CurrNet, MAX_NET_PER_LOT );
-		ERR.Set(RANGE_OVER, strTemp); 
-		ErrMsg();  ERR.Reset(); 
-		return;
-	}
-	
-	g_sLotNetDate_Info.daLotNetUsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrUSL.GetBuffer(10));
-	m_editStrUSL.ReleaseBuffer();
-
-	UpdateData(FALSE);		// 변경 data 화면 반영
-*/
-}
-
 
 void CStatisticsDialog::OnCheckDataFaultOnly() 
 {
@@ -3147,8 +3176,13 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 	//-----------------------------------
 	//  Data Grid Data 출력
 
+
 	fprintf(fp, "\n\n");
-	fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL, USL, Avg, Sigma, Min, Max, "); 
+	if (m_bApplyULSL)
+		fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL(simul), USL(simul), Avg, Sigma, Min, Max, "); 
+	else
+		fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL, USL, Avg, Sigma, Min, Max, "); 
+
 	fprintf(fp, "Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12\n");
 
 	for (int row=0; row < m_GridSnap.dataCount; row++)
@@ -3388,4 +3422,116 @@ void CStatisticsDialog::Load_StatLotDataFile(int nLot)
 
 }
 #endif
+
+
+void CStatisticsDialog::OnCheckSimulUlsl() 
+{
+	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+
+	// 선택된 Net이 없으면 무효처리한다.  
+	CString strTemp;
+	if (  m_hSelectedNode == NULL			// 선택한 Tree Node가 있는지 체크
+			|| (m_nTree_CurrLot < 0 || m_nTree_CurrLot >= MAX_LOT)  			// Lot 존재하는지 체크
+			|| (m_nTree_CurrNet < 0 || m_nTree_CurrNet >= MAX_NET_PER_LOT ) ) 	// Net 존재하는지 체크
+	{
+		strTemp.Format("Please select any Net# in the tree.\n : OnCheckSimulUlsl()", 
+					m_nTree_CurrNet, MAX_LOT, m_nTree_CurrNet, MAX_NET_PER_LOT );
+		ERR.Set(USER_ERR, strTemp); 
+		ErrMsg();  ERR.Reset(); 
+
+		// m_bSimulateULSL should be FALSE
+		m_bSimulateULSL = FALSE;
+		UpdateData(FALSE);
+		return;
+	}
+
+
+	// Simulate 관련 컨트롤 상태 변경 
+	if (m_bSimulateULSL)
+	{
+		GetDlgItem(IDC_EDIT_USL)->EnableWindow(TRUE);
+		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_APPLY_ULSL)->EnableWindow(TRUE);
+
+		UpdateData(FALSE);
+	}
+	else
+	{
+		GetDlgItem(IDC_EDIT_USL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_APPLY_ULSL)->EnableWindow(FALSE);
+		m_bApplyULSL = FALSE;
+		m_editStrLSL = _T("");
+		m_editStrUSL = _T("");
+		g_sLotNetDate_Info.dSimulUsl = -1;
+		g_sLotNetDate_Info.dSimulLsl = -1;
+
+		UpdateData(FALSE);
+	
+		//------------------------------------------------------------------
+		// Simul Off 일 경우에는 Apply Off와 동일한 action을 취해줘야 한다.
+
+
+		// 현재 Tree에 선택된 Lot, Net에 대해 Fault 체크를 다시 한다.
+		Tree_CheckNetFault(m_hSelectedNode, m_nTree_CurrLot);
+
+		// LSL(simul), USL(simul)로 바뀐 data grid 헤더를 다시 LSL, USL로 원상복구한다.
+		Display_DataGridHeader();		
+	
+		// 원상복구된  Fault 기준으로 다시 Display한다.
+	 	DisplayGrid(m_nTree_CurrLot, m_nTree_CurrNet, m_nCombo_CurrDate );		
+	}
+
+}
+
+
+
+void CStatisticsDialog::OnCheckApplyUlsl() 
+{
+	// TODO: Add your control notification handler code here
+	
+	UpdateData(TRUE);
+	
+	// Apply On 상태에서는 더 이상 USL/LSL edit가 안되게 disable한다.
+	if (m_bApplyULSL)
+	{
+		//g_sLotNetDate_Info.daLotNetUsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrUSL.GetBuffer(10));
+		g_sLotNetDate_Info.dSimulUsl = (double)atof((char*)m_editStrUSL.GetBuffer(10));
+		m_editStrUSL.ReleaseBuffer();
+
+		//g_sLotNetDate_Info.daLotNetLsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrLSL.GetBuffer(10));
+		g_sLotNetDate_Info.dSimulLsl = (double)atof((char*)m_editStrLSL.GetBuffer(10));
+		m_editStrLSL.ReleaseBuffer();
+
+		GetDlgItem(IDC_EDIT_USL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(FALSE);
+	}
+
+	// Apply Off가 되면 edit 박스와 simul 값을 모두 초기화한다.
+	else
+	{
+		m_editStrLSL = _T("");
+		m_editStrUSL = _T("");
+		g_sLotNetDate_Info.dSimulUsl = -1;
+		g_sLotNetDate_Info.dSimulLsl = -1;
+
+
+		// Simul Off시와 동일하게 설정 (OnCheckSimulUlsl(): m_bSimulateULSL는 FALSE 일 때)
+		m_bSimulateULSL = FALSE;
+		GetDlgItem(IDC_CHECK_APPLY_ULSL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_EDIT_USL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(FALSE);
+	}
+	UpdateData(FALSE);
+
+	// 현재 Tree에 선택된 Lot, Net에 대해 Fault 체크를 다시 한다.
+	Tree_CheckNetFault(m_hSelectedNode, m_nTree_CurrLot);
+
+	// LSL(simul), USL(simul)로 data grid 헤더도 바꿔준다.
+	Display_DataGridHeader();		
+
+	// 다시 체크한 Fault 기준으로 다시 Display한다.
+ 	DisplayGrid(m_nTree_CurrLot, m_nTree_CurrNet, m_nCombo_CurrDate );		
+}
 

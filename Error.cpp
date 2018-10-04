@@ -113,7 +113,7 @@ int ErrMsg(int nMboxType, BOOL bTraceOn)
 	CString strMsg="", strTemp="";
 	strMsg.Format("%s error. [ No. %d ]", title, ERR.Get());
 
-	if(state != "") strTemp.Format("\n\nState : %s", state);
+	if(state != "") strTemp.Format("\n\n%s", state);
 	strMsg += strTemp;
 	if(sol != "") strTemp.Format("\n\nSolution : %s", sol), strMsg += strTemp;
 
