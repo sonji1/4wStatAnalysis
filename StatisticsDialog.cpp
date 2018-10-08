@@ -139,7 +139,7 @@ void CStatisticsDialog::OnTimer(UINT nIDEvent)
 		KillTimer(0);		// 1회성으로 쓰기 위해  Timer 받자 마자 해당 Timer Id를 반환한다.
 
 		//CString strTemp;
-		//strTemp.Format("The 'Load 4W Data to Tree' button will launch automatically to load \"%s\" files.", g_sFile.ACE400_4WDataDir);
+		//strTemp.Format("The 'Load 4W Data' button will launch automatically to load \"%s\" files.", g_sFile.ACE400_4WDataDir);
 		//AfxMessageBox(strTemp, MB_ICONINFORMATION);
 
 		// 이미 측정완료된 raw data 파일을 read한다.
@@ -169,6 +169,17 @@ void CStatisticsDialog::OnShowWindow(BOOL bShow, UINT nStatus)
 }
 
 
+BOOL CStatisticsDialog::DestroyWindow() 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	Stat_deleteAllNetData();
+	
+	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Destroyed...\n\n\n\n\n" );
+	return CDialog::DestroyWindow();
+}
+
+
+
 
 BOOL CStatisticsDialog::InitMember()
 {
@@ -179,6 +190,11 @@ BOOL CStatisticsDialog::InitMember()
 	m_nTree_CurrNet = -1;	
 	m_nCombo_CurrDate = DATE_ALL;	
 	m_bDataGridFaultOnly = FALSE;
+
+	m_bSimulateULSL = FALSE;
+	m_bApplyULSL = FALSE;
+	m_editStrUSL = _T("");
+	m_editStrLSL = _T("");
 
 	//----------------------------
 	// 4WData Load 관련 초기화
@@ -283,6 +299,7 @@ BOOL CStatisticsDialog::InitView()
 	Display_DataGridHeader(); 	// Data Grid Header 설정
 
 	ClearGrid_Data();	
+	m_GridSnap.InitMember();
 
 
 	//----------------------------
@@ -409,6 +426,11 @@ void CStatisticsDialog::OnButtonLoad4wData()
 	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
 	DisplayGrid_DefaultLotNet();
 
+
+	// LOAD LOG4W가 완료되었음을 FR Rank Dlg에 알린다.
+	//::SendMessage(m_hwnd_FrRankDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
+	::PostMessage(m_hwnd_FrRankDlg,   UWM_LOAD_LOG4W_DATA, 0, 0);
+	::PostMessage(m_hwnd_YrPChartDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
 }
 
 // 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
@@ -456,6 +478,8 @@ void CStatisticsDialog::Load_Log4wDir()
 
 	Stat_deleteAllNetData();
 	InitMember();
+
+	Display_DataGridHeader(); 	// Data Grid Header 다시 설정 (simul이 on이었다면 off로 바꾸고 헤더를 다시 그려줘야함)
 	InitTree();					// root부터 Tree를 다시 생성.	
 	
 
@@ -1794,6 +1818,8 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 
 	Stat_deleteAllNetData();	// 기존 netData를 모두 메모리에서 지운다.
 	InitMember();				// CStatisticsDialog 멤버 변수를 모두 초기화 한다.
+	
+	Display_DataGridHeader(); 	// Data Grid Header 다시 설정 (simul이 on이었다면 off로 바꾸고 헤더를 다시 그려줘야함)
 	InitTree();					// root부터 Tree를 다시 생성.	
 
 
@@ -1860,6 +1886,10 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
 	DisplayGrid_DefaultLotNet();
 
+	// LOAD LOG4W가 완료되었음을 FR Rank Dlg에 알린다.
+	//::SendMessage(m_hwnd_FrRankDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
+	::PostMessage(m_hwnd_FrRankDlg,   UWM_LOAD_LOG4W_DATA, 0, 0);
+	::PostMessage(m_hwnd_YrPChartDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
 }
 
 
@@ -2064,7 +2094,7 @@ void CStatisticsDialog::DisplayGrid(int nLot, int nNet, int nComboDate)
 	// Tree에 Root만 있다면 Load 버튼을 눌러야 한다는 메시지 출력.
 	if (m_treeCtrl.GetCount() == 1)
 	{
-		strTemp.Format("Execute \"Load 4W Data to Tree\" button, First.\n And select any Tree item and Date item please. \n :DisplayGrid()");
+		strTemp.Format("Execute \"Load 4W Data\" button, First.\n And select any Tree item and Date item please. \n :DisplayGrid()");
 		ERR.Set(USER_ERR, strTemp); 
 		ErrMsg();  ERR.Reset(); 
 		return;
@@ -2186,6 +2216,8 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 	
 	// data를 업데이트하기 전에 지우기. 지워야 하므로 UpdateDate(True)는 필요 없음.
 	ClearGrid_Data();	
+	ClearGrid_Summary();	
+	m_GridSnap.InitMember();
 
 
 
@@ -2210,8 +2242,6 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 
 	//-------------------
 	// Summary Grid 출력
-
-	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
 	
 
 	// Calc Total, Count, Avg, Sigma, Min, Max	 ----------------
@@ -2490,7 +2520,7 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	// 2018.10.02 추가 : ULSL Simulattion On일 때에는 dLsl, dUsl을 Simul값으로 보여준다.
 	//           m_GridSnap에도 여기에서 반영이 되므로 csv 파일에 대해서는 따로 simul관련 처리할 필요 없음
 	double dLsl, dUsl;		
-	if ( m_bApplyULSL && 
+	if ( m_bApplyULSL && 				// if USL/LSL Simulation on
 		(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
 	{
 		dLsl = g_sLotNetDate_Info.dSimulLsl;
@@ -2536,8 +2566,7 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	strTemp.Format("%d", (nPrtTuple+1));
 	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_NO, strTemp);				// col 0:  No
 
-	//m_GridSnap.saData[nTuple].nTuple = nTuple; 	 // Save data snap for csv
-	m_GridSnap.saData[nTuple].nPrtTuple = nPrtTuple; // Save data snap for csv
+	m_GridSnap.saData[nPrtTuple].nPrtTuple = nPrtTuple; // Save data snap for csv
 
 
 	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATE, 
@@ -2588,9 +2617,20 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	m_gridData.SetItemText(nPrtTuple+1, DATA_COL_MAX, strTemp);	
 	m_GridSnap.saData[nPrtTuple].strTupleMax = strTemp;
 
-	// LSL, USL은 Fault의 기준이므로 default 분홍색으로 눈에 띄게 표시한다.
+	// LSL, USL은 Fault의 기준이므로 분홍색 배경으로 눈에 띄게 표시한다.
 	m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_LSL, RGB(0xFF, 0xC0, 0xCB));	// pink 
 	m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_USL, RGB(0xFF, 0xC0, 0xCB));	// pink 
+
+	// 만약 Simulation LSL, USL이면 보라색 배경으로 표시한다.
+	if ( m_bApplyULSL && 				// if USL/LSL Simulation on
+		(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
+	{
+		//m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_LSL, RGB(0xDD, 0xA0, 0xDD));	// plum (연보라) 
+		//m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_USL, RGB(0xDD, 0xA0, 0xDD));	// plum (연보라) 
+
+		m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_LSL, RGB(0x93, 0x70, 0xDB));	// medium purple (보라)
+		m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_USL, RGB(0x93, 0x70, 0xDB));	// medium purple (보라)
+	}
 
 
 	// 4. Display Tuple 4W Data   ------------------------
@@ -2738,7 +2778,6 @@ void CStatisticsDialog::ClearGrid()
 	// data를 업데이트하기 전에 지우기. 
 	ClearGrid_Summary();	
 	ClearGrid_Data();	
-
 	m_GridSnap.InitMember();
 
 	UpdateData(FALSE);		// 변경 data 화면 반영
@@ -2817,7 +2856,9 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	int date;
 	
 	// data를 업데이트하기 전에 지우기. 지워야 하므로 UpdateDate(True)는 필요 없음.
+	ClearGrid_Summary();	
 	ClearGrid_Data();	
+	m_GridSnap.InitMember();
 
 
 	// nLot, nNet, nDate에 맞는 모든 data Grid Tuple을 출력한다.
@@ -2843,7 +2884,6 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	// Summary Grid 출력
 	
 
-	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
 
 	
 	
@@ -2932,7 +2972,7 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	}
 
 	double 	dDiff = 0, dDiffPowerSum = 0, dVariance=0, dSigma=0;
-	if (nCount)
+	if (nCount)		// check device by zero
 	{
 		dAvg = dSum / (double)nCount;
 
@@ -3004,8 +3044,10 @@ void CStatisticsDialog::Display_SumupLotDate(int nLot, int nDate)
 	// data를 업데이트하기 전에 지우기. 지워야 하므로 UpdateDate(True)는 필요 없음.
 	m_editTupleNum = 0;
 	m_editSampleNum = 0;
-	ClearGrid_Data();	
+
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
+	ClearGrid_Data();	
+	m_GridSnap.InitMember();
 
 	UpdateData(FALSE);		// 변경 data 화면 반영
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
@@ -3036,6 +3078,7 @@ void CStatisticsDialog::Display_SumupLot(int nLot)
 	m_editSampleNum = 0;
 	ClearGrid_Data();	
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
+	m_GridSnap.InitMember();
 
 	UpdateData(FALSE);		// 변경 data 화면 반영
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
@@ -3056,6 +3099,7 @@ void CStatisticsDialog::Display_SumupTotal()
 	m_editSampleNum = 0;
 	ClearGrid_Data();	
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
+	m_GridSnap.InitMember();
 
 
 	UpdateData(FALSE);		// 변경 data 화면 반영
@@ -3065,17 +3109,6 @@ void CStatisticsDialog::Display_SumupTotal()
 	MyTrace(PRT_BASIC, _T("Display_SumupTotal()\n"));
 
 }
-
-BOOL CStatisticsDialog::DestroyWindow() 
-{
-	// TODO: Add your specialized code here and/or call the base class
-	Stat_deleteAllNetData();
-	
-	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Destroyed...\n\n\n\n\n" );
-	return CDialog::DestroyWindow();
-}
-
-
 
 
 void CStatisticsDialog::OnCheckDataFaultOnly() 

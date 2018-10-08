@@ -55,6 +55,7 @@ void CPChartDialog::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CPChartDialog, CDialog)
 	//{{AFX_MSG_MAP(CPChartDialog)
 	ON_WM_SHOWWINDOW()
+	ON_MESSAGE(UWM_LOAD_LOG4W_DATA, 				OnStatLoad4wData)		// 사용자 지정 메시지
 	ON_CBN_SELCHANGE(IDC_COMBO_LOT, 				OnSelchangeComboLot)
 	ON_CBN_SELCHANGE(IDC_COMBO_DATE2, 				OnSelchangeComboDate)
 	ON_BN_CLICKED(IDC_BUTTON_DIS_PCHART, 			OnButtonDisPchart)
@@ -199,6 +200,17 @@ BOOL CPChartDialog::OnInitDialog()
 	
 	// TODO: Add extra initialization here
 	//
+	// 멤버 초기화
+	if (InitMember() == FALSE)
+		return FALSE;
+
+
+	// View 초기화 
+	if (InitView() == FALSE)
+		return FALSE;	
+
+	DisplayPchart_ALL();
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -213,6 +225,7 @@ void CPChartDialog::OnShowWindow(BOOL bShow, UINT nStatus)
 	// TODO: Add your message handler code here
 	if(bShow == TRUE)
 	{
+/*
 		// 멤버 초기화
 		if (InitMember() == FALSE)
 			return;
@@ -223,8 +236,37 @@ void CPChartDialog::OnShowWindow(BOOL bShow, UINT nStatus)
 			return;	
 
 		DisplayPchart_ALL();
+*/
 	}	
 	
+}
+
+
+// Stat 창에서  Load를 새로 했을 때 (Load 완료 메시지 수신시) 에만 InitMember(), InitView()를 수행한다. 
+// Load를 새로 하지 않았을 때에는 P-chart 같은 다른 창을 갔다 와도 이전에 선택된 Lot, Date가 유지 되도록 
+// OnShowWindow()가 아니라 여기서 InitMember(), InitView() 를 수행한다.
+LRESULT CPChartDialog::OnStatLoad4wData(WPARAM wParam, LPARAM lParam)
+{
+
+/*	// message recv test print
+	CString strTemp;
+	strTemp.Format("PChartDlg:: OnStatLoad4wData(): Recv \"UWM_LOAD_LOG4W_DATA\".\n");
+	AfxMessageBox(strTemp, MB_ICONINFORMATION);
+	MyTrace(PRT_BASIC, strTemp);
+*/
+	
+	// 멤버 초기화
+	if (InitMember() == FALSE)
+		return FALSE;
+
+
+	// View 초기화 
+	if (InitView() == FALSE)
+		return FALSE;	
+
+	DisplayPchart_ALL();
+
+	return TRUE;
 }
 
 // g_sLotNetDate_Info를 활용하여 Statistics 창에서 초기화된 Lot data 기준으로 Lot combo를 채운다. 
@@ -388,14 +430,20 @@ void CPChartDialog::CalcPChart(int nLot, int nDate)
 		int tupleSize  = g_pvsaNetData[nLot][net][nDate]->size();
 		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
 		int nTotal  = tupleSize * sampleSize; 
+		int nFault  = g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate];
 		m_waCount[net]  = nTotal - g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate];	// Total - NG
-		m_waNormal[net] = m_waCount[net] - g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate]; // Count - Fault
+		m_waNormal[net] = m_waCount[net] - nFault; 		// Count - Fault
 
 		m_nNetSum_Normal += m_waNormal[net];
 		m_nNetSum_Count += m_waCount[net];
 
 		// YR(수율): 그래프의 측정 대상
-		m_daYR[net]  = m_waNormal[net] / (double)m_waCount[net];		
+		if (nFault == 0 && m_waCount[net] == 0) // Fault=0 이면, FR이 0이므로, YR은 1이 되는게 논리상 맞다.
+			m_daYR[net] = 1.0;		
+
+		if (m_waCount[net] > 0)							// check devide by zero
+			m_daYR[net]  = m_waNormal[net] / (double)m_waCount[net];		
+
 
 		// m_dMaxYR, m_dMinYR 계산
 		if (net == 1)		// net은 1부터 시작.
@@ -415,7 +463,8 @@ void CPChartDialog::CalcPChart(int nLot, int nDate)
 	}
 
 	// Center 계산: 그래프 중심축
-	m_dCenter =  m_nNetSum_Normal / (double)m_nNetSum_Count;
+	if (m_nNetSum_Count > 0)		// check device by zero
+		m_dCenter =  m_nNetSum_Normal / (double)m_nNetSum_Count;
 
 	// LCL, OOC 계산 
 	//for (net =0; net < MAX_NET_PER_LOT; net++)
@@ -428,9 +477,11 @@ void CPChartDialog::CalcPChart(int nLot, int nDate)
 		if(g_pvsaNetData[nLot][net][nDate] == NULL)			// 없는 date면 skip
 			continue;
 
+
 		// LCL: OOC(Out Of Control) 기준
 		//      Center - 3 * SQRT(Center* (1-Center) / Count)
-		m_daLCL[net] = m_dCenter - (3 * sqrt((m_dCenter * (1 - m_dCenter)) / m_waCount[net])); 	
+		if ( m_waCount[net] > 0 )									// check devide by zero
+			m_daLCL[net] = m_dCenter - (3 * sqrt((m_dCenter * (1 - m_dCenter)) / m_waCount[net])); 	
 
 		// OOC 판단 
 		//if (m_daYR[net] <= m_daLCL[net])	 //2018.07.31  Fault가 전혀 없는 경우, 모든 data에 대해
@@ -923,7 +974,8 @@ void CPChartDialog::OnButtonSavePchart()
 {
 	// TODO: Add your control notification handler code here
 	
-	
+/*	
+	m_nNetSum_Normal 은 모든 data가 NG 라면 data 로딩을 했어도 0일 수 있음.
 	if (m_nNetSum_Normal == 0)	// P-Chart Calc가 되지 않은 경우
 	{
 		CString strTemp;
@@ -932,6 +984,7 @@ void CPChartDialog::OnButtonSavePchart()
 		MyTrace(PRT_BASIC, strTemp);
 		return;
 	}
+*/
 	
 	SavePChart_CsvFile(m_nCombo_CurrLot, m_nCombo_CurrDate);
 	

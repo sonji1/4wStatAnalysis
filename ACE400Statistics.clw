@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CStatisticsDialog
+LastClass=CFrRankDialog
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "ace400statistics.h"
@@ -19,11 +19,11 @@ Class7=CPChartDialog
 Class8=CStatisticsDialog
 
 ResourceCount=6
-Resource1=IDD_MAIN_DIALOG
-Resource2=IDD_PCHART_DIALOG
-Resource3=IDD_ABOUTBOX
-Resource4=IDD_CONFIG_DIALOG
-Resource5=IDD_STATISTICS_DIALOG
+Resource1=IDD_PCHART_DIALOG
+Resource2=IDD_STATISTICS_DIALOG
+Resource3=IDD_CONFIG_DIALOG
+Resource4=IDD_MAIN_DIALOG
+Resource5=IDD_ABOUTBOX
 Resource6=IDD_FR_RANK_DIALOG
 
 [CLS:CAboutDlg]
@@ -66,7 +66,7 @@ Type=0
 BaseClass=CDialog
 HeaderFile=FrRankDialog.h
 ImplementationFile=FrRankDialog.cpp
-LastObject=IDC_CHECK_SORT_FAULT_RATE
+LastObject=IDC_BUTTON_SAVE_FR_LIST_CSV
 Filter=D
 VirtualFilter=dWC
 
@@ -123,7 +123,7 @@ Control9=IDC_CHECK_PRT_DEV_D64,button,1342246915
 [DLG:IDD_FR_RANK_DIALOG]
 Type=1
 Class=CFrRankDialog
-ControlCount=16
+ControlCount=18
 Control1=IDC_EDIT_FR_NET_CNT,edit,1350633600
 Control2=IDC_STATIC,static,1342308352
 Control3=IDC_EDIT_FR_FAULT_CNT2,edit,1350633600
@@ -140,6 +140,8 @@ Control13=IDC_STATIC,static,1342308352
 Control14=IDC_GRID_FR_LIST,MFCGridCtrl,1342242816
 Control15=IDC_STATIC,button,1342177287
 Control16=IDC_CHECK_FR_FAULT_ONLY,button,1342242819
+Control17=IDC_EDIT_FR_FAULT_TOTAL,edit,1350633600
+Control18=IDC_STATIC,static,1342308352
 
 [DLG:IDD_PCHART_DIALOG]
 Type=1

@@ -216,28 +216,31 @@ BEGIN
     EDITTEXT        IDC_EDIT_FR_NET_CNT,61,65,48,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     LTEXT           "Net Count",IDC_STATIC,7,65,31,8
-    EDITTEXT        IDC_EDIT_FR_FAULT_CNT2,61,90,48,14,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_FR_FAULT_CNT2,61,88,48,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Fault Net Count",IDC_STATIC,7,90,49,8
+    LTEXT           "Fault Net Count",IDC_STATIC,7,88,49,8
     COMBOBOX        IDC_COMBO_FR_LOT,34,7,75,68,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_COMBO_FR_DATE,34,32,75,57,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Lot",IDC_STATIC,7,7,10,8
     LTEXT           "Date",IDC_STATIC,7,33,15,8
-    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,7,230,96,
+    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,7,247,96,
                     17
-    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,173,102,32
+    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,190,102,32
     CONTROL         "Rank in FR (Fault Rate)",IDC_CHECK_SORT_FAULT_RATE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,189,86,10
-    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,256,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,206,86,10
+    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,273,
                     96,17
     LTEXT           "Fault",IDC_STATIC,130,13,45,10
     CONTROL         "Custom1",IDC_GRID_FR_LIST,"MFCGridCtrl",WS_TABSTOP,130,
                     24,545,352
-    GROUPBOX        "Fault List Mode",IDC_STATIC,7,128,102,32
+    GROUPBOX        "Fault List Mode",IDC_STATIC,7,145,102,32
     CONTROL         "Fault Net Only",IDC_CHECK_FR_FAULT_ONLY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,144,61,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,161,61,10
+    EDITTEXT        IDC_EDIT_FR_FAULT_TOTAL,61,111,48,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Total Fault",IDC_STATIC,7,111,34,8
 END
 
 

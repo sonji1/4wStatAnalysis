@@ -26,9 +26,13 @@ CFrRankDialog::CFrRankDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CFrRankDialog)
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
+	m_nFaultTotal = 0;
 	m_bFaultListFaultOnly = TRUE;
-	m_bFaultListFrRank = TRUE;
+	m_bFaultListFrRank = FALSE;
 	//}}AFX_DATA_INIT
+	
+	m_nCombo_CurrLot = 0;		// 초기화 	
+	m_nCombo_CurrDate = 0; 		// 초기화 
 }
 
 
@@ -39,10 +43,11 @@ void CFrRankDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, 	IDC_COMBO_FR_LOT, 			m_comboFrLot);
 	DDX_Control(pDX, 	IDC_COMBO_FR_DATE, 			m_comboFrDate);
 	DDX_Text(pDX, 		IDC_EDIT_FR_NET_CNT, 		m_nNetCount);
-	DDX_Text(pDX, 		IDC_EDIT_FR_FAULT_CNT2, 	m_nFaultNetCount);
+	DDX_Text(pDX, 		IDC_EDIT_FR_FAULT_CNT2, 	m_nFaultNetCount);	
+	DDX_Text(pDX, 		IDC_EDIT_FR_FAULT_TOTAL, 	m_nFaultTotal);
 	DDX_Control(pDX, 	IDC_GRID_FR_LIST, 			m_gridFault);
-	DDX_Check(pDX, 		IDC_CHECK_FR_FAULT_ONLY, 	m_bFaultListFaultOnly);
 	DDX_Check(pDX, 		IDC_CHECK_SORT_FAULT_RATE, 	m_bFaultListFrRank);
+	DDX_Check(pDX, 		IDC_CHECK_FR_FAULT_ONLY, 	m_bFaultListFaultOnly);
 	//}}AFX_DATA_MAP
 }
 
@@ -50,12 +55,15 @@ void CFrRankDialog::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CFrRankDialog, CDialog)
 	//{{AFX_MSG_MAP(CFrRankDialog)
 	ON_WM_SHOWWINDOW()
+	ON_MESSAGE(UWM_LOAD_LOG4W_DATA, OnStatLoad4wData)			// 사용자 지정 메시지
+
 	ON_CBN_SELCHANGE(IDC_COMBO_FR_LOT, OnSelchangeComboFrLot)
 	ON_CBN_SELCHANGE(IDC_COMBO_FR_DATE, OnSelchangeComboFrDate)
 	ON_BN_CLICKED(IDC_CHECK_SORT_FAULT_RATE, OnCheckSortFaultRate)
 	ON_BN_CLICKED(IDC_CHECK_FR_FAULT_ONLY, OnCheckFrFaultOnly)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_FR_LIST_CSV, OnButtonSaveFrListCsv)
 	ON_BN_CLICKED(IDC_BUTTON_VIEW_FR_LIST_CSV, OnButtonViewFrListCsv)
+
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -69,10 +77,23 @@ BOOL CFrRankDialog::OnInitDialog()
 	
 	// TODO: Add extra initialization here
 	
+	// 멤버 초기화
+	if (InitMember() == FALSE)
+		return FALSE;
+
+
+	// View 초기화 
+	if (InitView() == FALSE)
+		return FALSE;	
+
+	DisplayFrRank();
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
+// 창이 새로 보일때 때마다 초기화해야 하는 멤버들은 다음의 
+// OnShowWindow()의 TODO 밑에 초기화한다. 
 void CFrRankDialog::OnShowWindow(BOOL bShow, UINT nStatus) 
 {
 	CDialog::OnShowWindow(bShow, nStatus);
@@ -82,19 +103,39 @@ void CFrRankDialog::OnShowWindow(BOOL bShow, UINT nStatus)
 	if(bShow == TRUE)
 	{
 		// 멤버 초기화
-		if (InitMember() == FALSE)
-			return;
-
 
 		// View 초기화 
-		if (InitView() == FALSE)
-			return;	
-
-		DisplayFrRank();
-
 	}	
 }
 
+// UWM_LOAD_LOG4W_DATA  메시지 처리기 
+// : Stat 창에서  Load를 새로 했을 때 (Load 완료 메시지 수신시) 에만 InitMember(), InitView()를 수행한다. 
+//   Load를 새로 하지 않았을 때에는 P-chart 같은 다른 창을 갔다 와도 이전에 선택된 Lot, Date가 유지 되도록 
+//   OnShowWindow()가 아니라 여기서 InitMember(), InitView() 를 수행한다.
+LRESULT CFrRankDialog::OnStatLoad4wData(WPARAM wParam, LPARAM lParam)
+{
+
+/*	// message recv test print
+	CString strTemp;
+	strTemp.Format("FrRankDlg:: OnStatLoad4wData(): Recv \"UWM_LOAD_LOG4W_DATA\".\n");
+	AfxMessageBox(strTemp, MB_ICONINFORMATION);
+	MyTrace(PRT_BASIC, strTemp);
+*/
+
+	
+	// 멤버 초기화
+	if (InitMember() == FALSE)
+		return FALSE;
+
+
+	// View 초기화 
+	if (InitView() == FALSE)
+		return FALSE;	
+
+	DisplayFrRank();
+
+	return TRUE;
+}
 
 BOOL CFrRankDialog::DestroyWindow() 
 {
@@ -115,6 +156,7 @@ BOOL CFrRankDialog::InitMember()
 
 	m_nNetCount = 0;
 	m_nFaultNetCount = 0;
+	m_nFaultTotal = 0;
 
 	m_bFaultListFaultOnly = TRUE;
 	m_bFaultListFrRank = FALSE;
@@ -341,6 +383,7 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 
 	m_nNetCount =  g_sLotNetDate_Info.naLotNetCnt[nLot];	// for 'Net Count' edit box
 	m_nFaultNetCount = 0;									// for 'Fault Net count' edit box
+	m_nFaultTotal = 0;
 
 	//------------------------------------------------
 	// FR 계산하기  
@@ -358,7 +401,10 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 
 		int nFault =  g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate];
 		if (nFault > 0) 
-			m_nFaultNetCount++;		// Fault Net 갯수. for 'Fault Net Count' edit box
+		{
+			m_nFaultNetCount++;			// Fault Net 갯수. for 'Fault Net Count' edit box
+			m_nFaultTotal += nFault;	// Total Fault (for Lot_Date) 갯수
+		}
 		
 
 		// Calc Total, Count, Avg, Sigma, Min, Max
@@ -375,7 +421,13 @@ void CFrRankDialog::CalcFrRank(int nLot, int nDate)
 		frData.dSigma  = dSigma;
 		frData.dMin    = dMin;
 		frData.dMax    = dMax;
-		frData.dFR     = nFault / (double)frData.wCount;
+
+		frData.dFR = 0;
+		if (nFault == 0 && frData.wCount == 0)	// Fault가 0이면 FR은 0이어야 한다.
+			frData.dFR = 0;
+
+		if (frData.wCount > 0)		// check devide by zero
+			frData.dFR     = nFault / (double)frData.wCount;
 
 		m_vsFrData.push_back(frData);		// member 변수 vector에 추가
 	}
@@ -492,7 +544,9 @@ void CFrRankDialog::CalcFrRank_Old(int nLot, int nDate)
 		m_waCount[net]  = nTotal - g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate];	// Total - NG
 
 		int nFault =  g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate];
-		m_daFR[net]  = nFault / (double)m_waCount[net];		
+		m_daFR[net] = 0;
+		if (m_waCount[net] > 0)		// check devide by zero 
+			m_daFR[net] = nFault / (double)m_waCount[net];		
 
 		if (nFault > 0)
 			m_nFaultNetCount++;		// Fault Net 갯수. for 'Fault Net Count' edit box
@@ -730,3 +784,4 @@ void CFrRankDialog::OnButtonViewFrListCsv()
 	::ShellExecute(NULL,"open","EXCEl.EXE",strTemp,"NULL",SW_SHOWNORMAL);	
 
 }
+

@@ -76,6 +76,7 @@ protected:
 	//{{AFX_MSG(CPChartDialog)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg LRESULT OnStatLoad4wData(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnSelchangeComboLot();
 	afx_msg void OnSelchangeComboDate();
 	afx_msg void OnButtonDisPchart();

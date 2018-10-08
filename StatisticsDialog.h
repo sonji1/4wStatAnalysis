@@ -601,6 +601,7 @@ public:
 	void InitMember()
 	{
 		Summary.InitMember();
+		dataCount = 0;
 		for (int i = 0; i < MAX_DATA_GRID_ROW; i++)
 			saData[i].InitMember();
 
@@ -622,6 +623,9 @@ extern void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  	// argum
 		int& rnCount, int& rnTotal, double& rdAvg, double& rdSigma, double& rdMin, double& rdMax );	// reference
 
 
+// FR Rank, YR p-chart 다이얼로그에 보낼 User Defined Message
+
+#define	UWM_LOAD_LOG4W_DATA		(WM_USER+1)
 
 class CStatisticsDialog : public CDialog
 {
@@ -677,6 +681,16 @@ protected:
 
 
 public:
+	HWND m_hwnd_FrRankDlg;
+	HWND m_hwnd_YrPChartDlg;
+
+	// StatisticsDlg에서 m_FrRankDlg와, m_PChartDlg로 메시지를 보낼때 사용할 hwnd 를 넘겨 받는다.
+	void DlgHwndSetter(HWND hwFrRank, HWND hwYrPChart)
+  	{
+  		m_hwnd_FrRankDlg   = hwFrRank;
+  		m_hwnd_YrPChartDlg = hwYrPChart;
+  	}
+
 	// 4W Statistics 정보관리를 위해 다음 3가지의 data 구조가 필요함. 
 	
 	// 1. lot * net * date 별로 존재하는 "statNetData" vector pointer의 array 
