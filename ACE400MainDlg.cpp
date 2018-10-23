@@ -213,7 +213,9 @@ BOOL CACE400MainDlg::DestroyWindow()
 	// TODO: Add your specialized code here and/or call the base class
 	m_StatisticsDlg.DestroyWindow();	// vector를 반환
 	m_FrRankDlg.DestroyWindow();		// vector를 반환
+	m_PChartDlg.DestroyWindow();
 
+	MyTrace(PRT_BASIC, "\"4W Statistics SW\" StatDlg Destroyed...\n\n\n\n\n" );
 
 #if 0
 //#ifdef _DEBUG

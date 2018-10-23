@@ -83,6 +83,10 @@ void CConfigDialog::InitView()
 	OnCheckPrtLevel3();
 	OnCheckPrtDevice();
 	OnCheckPrtDevD64();
+
+	CString strTemp;
+	strTemp.Format("%d", GetProcessWorkingSetSize());
+	GetDlgItem(IDC_STATIC_USED_MEM)->SetWindowText(strTemp);
 }
 
 

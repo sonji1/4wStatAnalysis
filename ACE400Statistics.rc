@@ -94,8 +94,8 @@ BEGIN
     PUSHBUTTON      "Exit",IDOK,175,11,37,23
     LTEXT           "To view 4W Data, follow these steps, please. \n\n 1.Click  '4W Statistics -> Load 4W Data' button to select the desired 4W Data file.\n 2. Click Lot to select it and then choose Net on the screen.\n 3. Select the Date.",
                     IDC_STATIC,234,7,218,50
-    LTEXT           "Click '4W Statistics -> Load 4W Data (Multi Lot)' button to load multiple 4W Lot data at once..  It may take a few minutes. Not all files in all Lot directories are loaded, \n\nRestrictions: \nMaxLot = 3, MaxDate = 5, MaxNet = 5000, MaxFileSize = 850MB",
-                    IDC_STATIC,455,5,257,53
+    LTEXT           "Click ''4W Statistics -> Load 4W Data(Multi Lot)' button to load multiple 4W Lot data at once. It may take a few minutes.",
+                    IDC_STATIC,455,5,257,19
     CONTROL         "4W Statistics",IDC_CHECK_STATISTICS,"Button",
                     BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,11,46,23
     CONTROL         "YR p-Chart",IDC_CHECK_PCHART,"Button",BS_AUTOCHECKBOX | 
@@ -104,6 +104,8 @@ BEGIN
                     BS_PUSHLIKE | WS_TABSTOP,134,11,38,23
     CONTROL         "FR Rank",IDC_CHECK_FR_RANK,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | WS_TABSTOP,56,11,35,23
+    LTEXT           "Not all files in all Lot directories are loaded, with the following restrictions.\nRestrictions:  MaxLot = 5, MaxDate = 5, MaxNet = 5000, MaxTimeTuple = 4000, \n                         Total (Net * TimeTuple) = 8000000",
+                    IDC_STATIC,455,24,257,27
 END
 
 IDD_STATISTICS_DIALOG DIALOGEX 5, 65, 710, 398
@@ -152,7 +154,7 @@ END
 
 IDD_CONFIG_DIALOG DIALOGEX 5, 65, 425, 186
 STYLE WS_CHILD
-FONT 10, "Calibri", 0, 0, 0x1
+FONT 10, "Calibri"
 BEGIN
     CONTROL         "Basic",IDC_CHECK_PRT_BASIC,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | WS_TABSTOP,17,34,40,18
@@ -170,6 +172,9 @@ BEGIN
                     WS_EX_CLIENTEDGE
     CONTROL         "Device D64",IDC_CHECK_PRT_DEV_D64,"Button",
                     BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,275,34,40,18
+    LTEXT           "used Memory",IDC_STATIC,21,117,32,22
+    CTEXT           "0",IDC_STATIC_USED_MEM,69,117,63,16,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
 END
 
 IDD_PCHART_DIALOG DIALOG DISCARDABLE  5, 65, 697, 397

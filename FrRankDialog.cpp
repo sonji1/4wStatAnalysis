@@ -144,10 +144,12 @@ BOOL CFrRankDialog::DestroyWindow()
 	// vector를 초기화한다. 
 	if (m_vsFrData.empty() == false)	
 		m_vsFrData.clear();	
-	
+
+//	m_gridFault.DeleteAllItems();
+
+	MyTrace(PRT_BASIC, "FrRankDlg Destroyed...\n" );
 	return CDialog::DestroyWindow();
 }
-
 
 BOOL CFrRankDialog::InitMember()
 {
@@ -360,12 +362,12 @@ void CFrRankDialog::OnSelchangeComboFrDate()
 void CFrRankDialog::DisplayFrRank() 
 {
 	MyTrace(PRT_BASIC, "DisplayFrRank(): nLot=%d, nDate=%d\n", m_nCombo_CurrLot, m_nCombo_CurrDate);
-
+__PrintMemSize(FUNC(DisplayFrRank), __LINE__);
 	CalcFrRank(m_nCombo_CurrLot, m_nCombo_CurrDate);	// DATE_ALL이 combo에 없으므로 comboDate를 그냥 nDate로 사용
-
+__PrintMemSize(FUNC(DisplayFrRank), __LINE__);
 	DisplayGridFault(m_nCombo_CurrLot, m_nCombo_CurrDate);
 	//DisplayGridFault_Old(m_nCombo_CurrLot, m_nCombo_CurrDate);
-	
+__PrintMemSize(FUNC(DisplayFrRank), __LINE__);
 	UpdateData(FALSE);
 
 }
@@ -454,7 +456,7 @@ void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
 {
 	MyTrace(PRT_BASIC, _T("DisplayGridFault(): nLot=%d, nDate=%d\n"), nLot, nDate);
 
-
+__PrintMemSize(FUNC(DisplayGridFault), __LINE__);
 	// CheckBox On이면 FR(Fault Rate) 기준으로 vector를 내림차순(greater) Sort 
 	if (m_bFaultListFrRank == TRUE)		
 		sort( m_vsFrData.begin(), m_vsFrData.end(), FR_FR_COMP() );
@@ -501,7 +503,7 @@ void CFrRankDialog::DisplayGridFault(int nLot, int nDate)
 				m_vsFrData[i].dFR);											// FR (Fault / Count)
 
 	}
-
+__PrintMemSize(FUNC(DisplayGridFault), __LINE__);
 	UpdateData(FALSE);
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
 

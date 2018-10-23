@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CFrRankDialog
+LastClass=CPChartDialog
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "ace400statistics.h"
@@ -19,11 +19,11 @@ Class7=CPChartDialog
 Class8=CStatisticsDialog
 
 ResourceCount=6
-Resource1=IDD_PCHART_DIALOG
+Resource1=IDD_ABOUTBOX
 Resource2=IDD_STATISTICS_DIALOG
-Resource3=IDD_CONFIG_DIALOG
+Resource3=IDD_PCHART_DIALOG
 Resource4=IDD_MAIN_DIALOG
-Resource5=IDD_ABOUTBOX
+Resource5=IDD_CONFIG_DIALOG
 Resource6=IDD_FR_RANK_DIALOG
 
 [CLS:CAboutDlg]
@@ -66,7 +66,7 @@ Type=0
 BaseClass=CDialog
 HeaderFile=FrRankDialog.h
 ImplementationFile=FrRankDialog.cpp
-LastObject=IDC_BUTTON_SAVE_FR_LIST_CSV
+LastObject=CFrRankDialog
 Filter=D
 VirtualFilter=dWC
 
@@ -75,13 +75,16 @@ Type=0
 BaseClass=CDialog
 HeaderFile=PChartDialog.h
 ImplementationFile=PChartDialog.cpp
+Filter=D
+VirtualFilter=dWC
+LastObject=CPChartDialog
 
 [CLS:CStatisticsDialog]
 Type=0
 BaseClass=CDialog
 HeaderFile=StatisticsDialog.h
 ImplementationFile=StatisticsDialog.cpp
-LastObject=IDC_COMBO_DATE
+LastObject=CStatisticsDialog
 Filter=D
 VirtualFilter=dWC
 
@@ -97,7 +100,7 @@ Control4=IDOK,button,1342373889
 [DLG:IDD_MAIN_DIALOG]
 Type=1
 Class=CACE400MainDlg
-ControlCount=7
+ControlCount=8
 Control1=IDOK,button,1342242816
 Control2=IDC_STATIC,static,1342308352
 Control3=IDC_STATIC,static,1342308352
@@ -105,11 +108,12 @@ Control4=IDC_CHECK_STATISTICS,button,1342246915
 Control5=IDC_CHECK_PCHART,button,1342246915
 Control6=IDC_CHECK_CONFIG,button,1342246915
 Control7=IDC_CHECK_FR_RANK,button,1342246915
+Control8=IDC_STATIC,static,1342308352
 
 [DLG:IDD_CONFIG_DIALOG]
 Type=1
 Class=CConfigDialog
-ControlCount=9
+ControlCount=11
 Control1=IDC_CHECK_PRT_BASIC,button,1342246915
 Control2=IDC_STATIC,button,1342177287
 Control3=IDC_CHECK_PRT_LEVEL1,button,1342246915
@@ -119,6 +123,8 @@ Control6=IDC_CHECK_PRT_DEVICE,button,1342246915
 Control7=IDC_STATIC,static,1342308352
 Control8=IDC_STATIC_PRINT_STATE,static,1342308865
 Control9=IDC_CHECK_PRT_DEV_D64,button,1342246915
+Control10=IDC_STATIC,static,1342308352
+Control11=IDC_STATIC_USED_MEM,static,1342308865
 
 [DLG:IDD_FR_RANK_DIALOG]
 Type=1

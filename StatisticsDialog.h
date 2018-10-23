@@ -132,7 +132,7 @@ public:
 #define MAX_LOT				5	
 #define MAX_NET_PER_LOT		5000			// 원래는 10000 
 #define MAX_DATE			5				
-#define	MAX_TIME_FILE		3000			// 원래는 1200  
+#define	MAX_TIME_FILE		4000			// 원래는 1200  
 #define MAX_TUPLE_PER_NET	MAX_TIME_FILE	// 1분주기로 24시간측정이면 60*24= 1440이지만
 											// 실제로는 약 84초 정도로 1000개정도의 파일이 생김
 											// 여분을 고려하여 1200개로 지정
@@ -141,18 +141,23 @@ public:
 											// 2018.06.19 : 실제 현장에서 3000개 수준의  file이 존재할 수 있음.
 											// net당 300개의 기준으로는 처리불가. net당은 3000으로 늘리고, 
 											// 대신 총 sample 갯수(MAX_NET_DATA)를 8백만개로 제한하기로 함.
+											//
+											// 2018.10.10 CCTC의 경우, 3174개 케이스 실제 있음. 약 27초 주기
+											//   4096을 넘으면 vector갯수(4096)문제가 있어 4000으로 결정.
 
 
-// 2018.06.19: m_nNetDataCount가  MAX_NET_DATA 갯수를 넘어서면 4W Data 로딩을 중지하는 기능추가
-//             아래의 측정 data를 토대로  Max Count를 800만으로 지정한다.
-//
-//                memSize = 1085763584
-//        m_nNetDataCount = 6000000 (약, 1 GB 시의 Count 수, file로는 약 650MB, sample2개 기준 file 2200개)
-//
-//sizeof(LotNetDate_Info) = 330100
+// 2018.10.16: m_nNetDataCount가  MAX_NET_DATA 갯수를 넘어서면 4W Data 로딩을 중지하는 기능추가
+//             아래의 측정 data를 토대로  Max Count를 600만으로 지정한다.
+//			   Lot, Date별로 Net* time tuple 수를 다 더한 수를 6000000으로 제한.
+//                memSize = 1461604352
+//        m_nNetDataCount = 6000000 (약, 1.46 GB 시의 Count 수, file로는 약 552MB, cctc Net 4062, sample 1개 기준 file 1980개)
+//sizeof(LotNetDate_Info) = 950200
 //    sizeof(statNetData) = 128   =  4 + 24 + 4 + 12*8
+//
 //                memSize = 1398804480
 //        m_nNetDataCount = 8000000	(약, 1.4GB 시의 Count수, file로는 약 850MB, sample2개 기준 file 3000개)
+//sizeof(LotNetDate_Info) = 330100
+//    sizeof(statNetData) = 128   =  4 + 24 + 4 + 12*8
 
 #define	MAX_NET_DATA		8000000			 
 

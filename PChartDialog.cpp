@@ -56,14 +56,15 @@ BEGIN_MESSAGE_MAP(CPChartDialog, CDialog)
 	//{{AFX_MSG_MAP(CPChartDialog)
 	ON_WM_SHOWWINDOW()
 	ON_MESSAGE(UWM_LOAD_LOG4W_DATA, 				OnStatLoad4wData)		// 사용자 지정 메시지
+
 	ON_CBN_SELCHANGE(IDC_COMBO_LOT, 				OnSelchangeComboLot)
 	ON_CBN_SELCHANGE(IDC_COMBO_DATE2, 				OnSelchangeComboDate)
 	ON_BN_CLICKED(IDC_BUTTON_DIS_PCHART, 			OnButtonDisPchart)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_PCHART, 			OnButtonSavePchart)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_PCHART_CSV, 		OnButtonViewPchartCsv)
 	ON_BN_CLICKED(IDC_CHECK_OOCNET_ONLY, 			OnCheckOocnetOnly)
 	ON_BN_CLICKED(IDC_CHECK_FAULT_ONLY, 			OnCheckFaultOnly)
 	ON_NOTIFY(GVN_SELCHANGED, IDC_GRID_PCHART_OOC, 	OnGridSelChanged)
-	ON_BN_CLICKED(IDC_BUTTON_VIEW_PCHART_CSV, 		OnButtonViewPchartCsv)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -463,7 +464,7 @@ void CPChartDialog::CalcPChart(int nLot, int nDate)
 	}
 
 	// Center 계산: 그래프 중심축
-	if (m_nNetSum_Count > 0)		// check device by zero
+	if (m_nNetSum_Count > 0)		// check devide by zero
 		m_dCenter =  m_nNetSum_Normal / (double)m_nNetSum_Count;
 
 	// LCL, OOC 계산 
@@ -823,8 +824,8 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 	
 	MyTrace(PRT_BASIC, _T("DisplayGrid_OOC(): nLot=%d, nDate=%d, nTrackNet=%d, bScrollBarInit=%d\n"), 
 			nLot, nDate, nTrackNet, bScrollBarInit);
-
 	ClearGrid_OOC();
+__PrintMemSize(FUNC(DisplayGrid_OOC), __LINE__);
 
 	// Scroll Bar 초기화 옵션이 켜져 있으면 초기화 수행.
 	if (bScrollBarInit == TRUE)
@@ -832,6 +833,7 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 		m_gridOOC.SetScrollPos32(SB_VERT, 0);
 		m_gridOOC.SetScrollPos32(SB_HORZ, 0);
 	}
+
 
 	int nRow = 0;
 
@@ -881,6 +883,7 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 		}
 	}
 
+__PrintMemSize(FUNC(DisplayGrid_OOC), __LINE__);
 
 	UpdateData(FALSE);
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
@@ -1142,3 +1145,14 @@ void CPChartDialog::OnGridSelChanged(NMHDR *pNotifyStruct, LRESULT* pResult)
 	
 }
 
+
+
+BOOL CPChartDialog::DestroyWindow() 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	m_gridOOC.DeleteAllItems();	
+
+	MyTrace(PRT_BASIC, "pChartDlg Destroyed...\n" );
+	
+	return CDialog::DestroyWindow();
+}

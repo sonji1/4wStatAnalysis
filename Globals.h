@@ -15,6 +15,14 @@
 #include <stdarg.h>
 
 
+// __func__이나, __FUNCTION__이 VC60에선 사용불가하므로 아래 define을 사용함.
+// 사용예제: 
+//  printf("Func:%s,   Line:%d\n", FUNC(main), __LINE__);
+//   => 콘솔창에 "Func:main,  Line:22" 이렇게 출력됨.  
+//   호출할 때마다 function name을 수동으로 적어주는 idea.
+#define FUNC(fn)	#fn
+
+
 
 
 class CGlobals  
@@ -102,6 +110,7 @@ extern  __int64 	GetMicroSecond();  //sylee
 extern  BOOL		FileExists(CString strFilePath);
 extern  void 		GetDateAndTime(char *datetime);
 extern  SIZE_T 		GetProcessWorkingSetSize();
+extern  void 		__PrintMemSize(char* strFunc, int line);
 
 extern  void 		AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...);
 

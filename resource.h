@@ -64,6 +64,7 @@
 #define IDC_CHECK_PRT_DEVICE            1089
 #define IDC_CHECK_PRT_DEV_D64           1090
 #define IDC_STATIC_PRINT_STATE          1091
+#define IDC_STATIC_USED_MEM             1092
 
 // Next default values for new objects
 // 

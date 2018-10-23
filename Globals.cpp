@@ -261,6 +261,13 @@ SIZE_T GetProcessWorkingSetSize()
 	return pmc.WorkingSetSize;
 }
 
+void __PrintMemSize(char* strFunc, int line)
+{
+	MyTrace(PRT_BASIC, "%s() Line_%d: memsize= %lu\n", 
+			strFunc, line, GetProcessWorkingSetSize());
+
+}
+
 
 //2017.11.06  TRACE의 buffer가 512까지 밖에 허용하지 않아서 아래와 같이 신규 함수 생성
 //  buffer size = 2048
@@ -318,7 +325,8 @@ void AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...)
 
 	t = CTime::GetCurrentTime();
 	CString strTime;
-	strTime.Format( "%02d:%02d:%02d ", t.GetHour(), t.GetMinute(), t.GetSecond() );
+	//strTime.Format( "%02d:%02d:%02d ", t.GetHour(), t.GetMinute(), t.GetSecond());
+	strTime.Format( "%02d:%02d:%02d (%12lu) ", t.GetHour(), t.GetMinute(), t.GetSecond(),  GetProcessWorkingSetSize() );
 
 	f.Write( strTime, strTime.GetLength() );
 
