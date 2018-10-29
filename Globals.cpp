@@ -325,8 +325,8 @@ void AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...)
 
 	t = CTime::GetCurrentTime();
 	CString strTime;
-	//strTime.Format( "%02d:%02d:%02d ", t.GetHour(), t.GetMinute(), t.GetSecond());
-	strTime.Format( "%02d:%02d:%02d (%12lu) ", t.GetHour(), t.GetMinute(), t.GetSecond(),  GetProcessWorkingSetSize() );
+	strTime.Format( "%02d:%02d:%02d ", t.GetHour(), t.GetMinute(), t.GetSecond());
+	//strTime.Format( "%02d:%02d:%02d (%12lu) ", t.GetHour(), t.GetMinute(), t.GetSecond(),  GetProcessWorkingSetSize() );
 
 	f.Write( strTime, strTime.GetLength() );
 

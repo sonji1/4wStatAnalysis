@@ -41,6 +41,17 @@ CStatisticsDialog::CStatisticsDialog(CWnd* pParent /*=NULL*/)
 	m_editStrLSL = _T("");
 	//}}AFX_DATA_INIT
 	
+	m_nTree_CurrLot = -1;	
+	m_nTree_CurrNet = -1;	
+	m_nCombo_CurrDate = DATE_ALL;	
+	m_bDataGridFaultOnly = FALSE;
+
+	m_dSimulUsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
+	m_dSimulLsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
+	m_nPrevSimulLoT = -1;
+	m_nPrevSimulNet = -1;
+	m_nPrevSimulDate = DATE_ALL;
+	m_hPrevSimulSelNode = NULL;
 
 }
 
@@ -195,6 +206,15 @@ BOOL CStatisticsDialog::InitMember()
 	m_nTree_CurrNet = -1;	
 	m_nCombo_CurrDate = DATE_ALL;	
 	m_bDataGridFaultOnly = FALSE;
+
+
+	m_dSimulUsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
+	m_dSimulLsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
+	m_nPrevSimulLoT = -1;
+	m_nPrevSimulNet = -1;
+	m_nPrevSimulDate = DATE_ALL;
+	m_hPrevSimulSelNode = NULL;
+
 
 	m_bSimulateULSL = FALSE;
 	m_bApplyULSL = FALSE;
@@ -1526,19 +1546,19 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 	//dLsl   = g_sLotNetDate_Info.daLotNetLsl[nLot][nNet];	
 	//dUsl   = g_sLotNetDate_Info.daLotNetUsl[nLot][nNet];	
 	
-	
 	// USL, LSL값을 time tuple마다 다른 값으로 처리하려면 Display 단계에서의 fault 체크. 
 	// LSL, USL 값을 모든 time tuple에 공통으로 최종 결과만으로 체크하려면 여기에서 미리 체크한다.  
 	// 상기 두가지 방법에 따라 fault의 최종 결과가 다를 수 있다.
-	
 	//int		nNetFaultCount = 0;
 	int date;
 	g_sLotNetDate_Info.waNetFaultCount[nLot][nNet] = 0;
 	g_sLotNetDate_Info.waNetNgCount[nLot][nNet] = 0;
 	g_sLotNetDate_Info.waNetTotalCount[nLot][nNet] = 0;
 	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)	
+	{
 		g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][date] = 0;
-
+		g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][nNet][date] = 0;
+	}
 
 	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)	
 	{
@@ -1551,14 +1571,14 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 		}
 
 
+
 		tupleSize = g_pvsaNetData[nLot][nNet][date]->size();
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
-			if ( m_bApplyULSL && 
-				(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
+			if ( m_bApplyULSL && (m_dSimulLsl != -1 && m_dSimulLsl != -1) ) 
 			{
-				dLsl = g_sLotNetDate_Info.dSimulLsl;
-				dUsl = g_sLotNetDate_Info.dSimulUsl;
+				dLsl = m_dSimulLsl;
+				dUsl = m_dSimulUsl;
 			}
 			else
 			{
@@ -1995,6 +2015,9 @@ void CStatisticsDialog::_SelChangedTree(HTREEITEM  hSelItem)
 
 	}
 
+	// 혹시 이전에 Simulation 설정상태였다면 해제한다.
+	CheckOff_SimulUlsl();	
+
 	// 선택된 Net이나, Lot의 Summary를 summaryGrid에 출력해 주고,  
 	// Net data와 date까지 상세하게 선택이 되었다면 dataGrid도 출력해 준다.
 	// 2018.05 Display 버튼을 눌렀을 때 출력해 주는 것으로 수정함.
@@ -2055,6 +2078,8 @@ void CStatisticsDialog::OnSelchangeComboDate()
 		return;
 	}
 
+	// 혹시 이전에 Simulation 설정상태였다면 해제한다.
+	CheckOff_SimulUlsl();	
 	
 	// 선택된 Net이나, Lot의 Summary를 summaryGrid에 출력해 준다. 
 	// 2018.05 Display 버튼을 눌렀을 때 출력해 주는 것으로 수정함.
@@ -2480,10 +2505,10 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	//           m_GridSnap에도 여기에서 반영이 되므로 csv 파일에 대해서는 따로 simul관련 처리할 필요 없음
 	double dLsl, dUsl;		
 	if ( m_bApplyULSL && 				// if USL/LSL Simulation on
-		(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
+		(m_dSimulLsl != -1 && m_dSimulLsl != -1) ) 
 	{
-		dLsl = g_sLotNetDate_Info.dSimulLsl;
-		dUsl = g_sLotNetDate_Info.dSimulUsl;
+		dLsl = m_dSimulLsl;
+		dUsl = m_dSimulUsl;
 	}
 	else
 	{
@@ -2578,7 +2603,7 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 
 	// 만약 Simulation LSL, USL이면 보라색 배경으로 표시한다.
 	if ( m_bApplyULSL && 				// if USL/LSL Simulation on
-		(g_sLotNetDate_Info.dSimulLsl != -1 && g_sLotNetDate_Info.dSimulLsl != -1) ) 
+		(m_dSimulLsl != -1 && m_dSimulLsl != -1) ) 
 	{
 		//m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_LSL, RGB(0xDD, 0xA0, 0xDD));	// plum (연보라) 
 		//m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_USL, RGB(0xDD, 0xA0, 0xDD));	// plum (연보라) 
@@ -3390,6 +3415,53 @@ void CStatisticsDialog::Load_StatLotDataFile(int nLot)
 }
 #endif
 
+// 강제로 SimulUsl을 Off 시킨다.  
+// Simulation 도중에 다른 Lot, Net, Date를 선택했을 때에 사용한다.
+void CStatisticsDialog::CheckOff_SimulUlsl() 
+{
+	// 이미 False라면 또 Off 할 필요 없다.
+	if (m_bSimulateULSL == FALSE)
+		return;
+
+	// 같은 net을 또 클릭한 경우라면 Simulation Off 할 필요 없다.
+	if (m_nPrevSimulLoT == m_nTree_CurrLot && 
+		m_nPrevSimulNet == m_nTree_CurrNet && 
+		m_nPrevSimulDate == m_nCombo_CurrDate)
+		return;
+	
+
+	// Lot, Net, Date 중의 하나가 변경되었다.
+	CString strTemp;
+	strTemp.Format("previous Lot=%d, Net=%d, Date=%d was in Simulation Process. Simulation Check Off now.\n", 
+				m_nPrevSimulLoT, m_nPrevSimulNet, m_nPrevSimulDate);
+	AfxMessageBox(strTemp, MB_ICONINFORMATION);
+	MyTrace(PRT_BASIC, strTemp);
+
+	// Current Lot, Net, Date를 keep하고 Current를 일시적으로 prevSimul로 바꾼다음
+	// SimulUsl Off 작업을 진행한다.  
+	int keepedLot = m_nTree_CurrLot;
+	int keepedNet = m_nTree_CurrNet;
+	int keepedDate = m_nCombo_CurrDate;
+	HTREEITEM	keepedNode = m_hSelectedNode;
+
+	m_nTree_CurrLot = m_nPrevSimulLoT;
+	m_nTree_CurrNet = m_nPrevSimulNet;
+	m_nCombo_CurrDate = m_nPrevSimulDate;
+	m_hSelectedNode = m_hPrevSimulSelNode;
+
+
+	m_bSimulateULSL = FALSE;		// Simul Check box 상태를 강제로 off한다.
+	UpdateData(FALSE);				// UI에도 반영
+	OnCheckSimulUlsl();				// simulate ULSL Check box off 기능을 처리한다.
+
+	// Simul Off가 완료되었으므로  원래의 Current Lot, Net, Date로 원상복구한다.
+	m_nTree_CurrLot = keepedLot;
+	m_nTree_CurrNet = keepedNet;
+	m_nCombo_CurrDate = keepedDate;
+	m_hSelectedNode = keepedNode;
+
+
+}
 
 void CStatisticsDialog::OnCheckSimulUlsl() 
 {
@@ -3431,8 +3503,12 @@ void CStatisticsDialog::OnCheckSimulUlsl()
 		m_bApplyULSL = FALSE;
 		m_editStrLSL = _T("");
 		m_editStrUSL = _T("");
-		g_sLotNetDate_Info.dSimulUsl = -1;
-		g_sLotNetDate_Info.dSimulLsl = -1;
+		m_dSimulUsl = -1;
+		m_dSimulLsl = -1;
+		m_nPrevSimulLoT = -1;
+		m_nPrevSimulNet = -1;
+		m_nPrevSimulDate = DATE_ALL;
+		m_hPrevSimulSelNode = NULL;
 
 		UpdateData(FALSE);
 	
@@ -3469,15 +3545,20 @@ void CStatisticsDialog::OnCheckApplyUlsl()
 	if (m_bApplyULSL)
 	{
 		//g_sLotNetDate_Info.daLotNetUsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrUSL.GetBuffer(10));
-		g_sLotNetDate_Info.dSimulUsl = (double)atof((char*)m_editStrUSL.GetBuffer(10));
+		m_dSimulUsl = (double)atof((char*)m_editStrUSL.GetBuffer(10));
 		m_editStrUSL.ReleaseBuffer();
 
 		//g_sLotNetDate_Info.daLotNetLsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrLSL.GetBuffer(10));
-		g_sLotNetDate_Info.dSimulLsl = (double)atof((char*)m_editStrLSL.GetBuffer(10));
+		m_dSimulLsl = (double)atof((char*)m_editStrLSL.GetBuffer(10));
 		m_editStrLSL.ReleaseBuffer();
 
 		GetDlgItem(IDC_EDIT_USL)->EnableWindow(FALSE);
 		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(FALSE);
+
+		m_nPrevSimulLoT = m_nTree_CurrLot;
+		m_nPrevSimulNet = m_nTree_CurrNet;
+		m_nPrevSimulDate = m_nCombo_CurrDate;
+		m_hPrevSimulSelNode = m_hSelectedNode;
 	}
 
 	// Apply Off가 되면 edit 박스와 simul 값을 모두 초기화한다.
@@ -3485,8 +3566,12 @@ void CStatisticsDialog::OnCheckApplyUlsl()
 	{
 		m_editStrLSL = _T("");
 		m_editStrUSL = _T("");
-		g_sLotNetDate_Info.dSimulUsl = -1;
-		g_sLotNetDate_Info.dSimulLsl = -1;
+		m_dSimulUsl = -1;
+		m_dSimulLsl = -1;
+		m_nPrevSimulLoT = -1;
+		m_nPrevSimulNet = -1;
+		m_nPrevSimulDate = DATE_ALL;
+		m_hPrevSimulSelNode = NULL;
 
 
 		// Simul Off시와 동일하게 설정 (OnCheckSimulUlsl(): m_bSimulateULSL는 FALSE 일 때)

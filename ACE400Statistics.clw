@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CPChartDialog
+LastClass=CStatisticsDialog
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "ace400statistics.h"
@@ -19,9 +19,9 @@ Class7=CPChartDialog
 Class8=CStatisticsDialog
 
 ResourceCount=6
-Resource1=IDD_ABOUTBOX
-Resource2=IDD_STATISTICS_DIALOG
-Resource3=IDD_PCHART_DIALOG
+Resource1=IDD_PCHART_DIALOG
+Resource2=IDD_ABOUTBOX
+Resource3=IDD_STATISTICS_DIALOG
 Resource4=IDD_MAIN_DIALOG
 Resource5=IDD_CONFIG_DIALOG
 Resource6=IDD_FR_RANK_DIALOG
@@ -84,7 +84,7 @@ Type=0
 BaseClass=CDialog
 HeaderFile=StatisticsDialog.h
 ImplementationFile=StatisticsDialog.cpp
-LastObject=CStatisticsDialog
+LastObject=IDC_EDIT_LSL
 Filter=D
 VirtualFilter=dWC
 

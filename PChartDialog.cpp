@@ -28,8 +28,8 @@ CPChartDialog::CPChartDialog(CWnd* pParent /*=NULL*/)
 	m_nOocNetCount = 0;
 	m_nFaultNetCount = 0;
 
-	m_bOocListOocOnly = TRUE;		// for check box
-	m_bOocListFaultOnly = FALSE;	// for check box
+	m_bOocListOocOnly = FALSE;		// for check box
+	m_bOocListFaultOnly = TRUE;	// for check box
 	//}}AFX_DATA_INIT
 }
 
@@ -92,8 +92,8 @@ BOOL CPChartDialog::InitMember()
 	m_nOocNetCount = 0;
 	m_nFaultNetCount = 0;
 
-	m_bOocListOocOnly = TRUE;
-	m_bOocListFaultOnly = FALSE;
+	m_bOocListOocOnly = FALSE;
+	m_bOocListFaultOnly = TRUE;
 
 	m_nNetSum_Normal = 0; 
 	m_nNetSum_Count = 0; 

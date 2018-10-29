@@ -232,7 +232,7 @@ BEGIN
     LTEXT           "Date",IDC_STATIC,7,33,15,8
     PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_FR_LIST_CSV,7,247,96,
                     17
-    GROUPBOX        "Fault Rank Mode",IDC_STATIC,7,190,102,32
+    GROUPBOX        "FR Rank Mode",IDC_STATIC,7,190,102,32
     CONTROL         "Rank in FR (Fault Rate)",IDC_CHECK_SORT_FAULT_RATE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,206,86,10
     PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,273,
