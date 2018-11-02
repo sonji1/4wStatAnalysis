@@ -226,7 +226,7 @@ BOOL CFrRankDialog::InitView()
 	
 	//            0     1        2      3       4                       5           6                      7            8       9       10       11        12
 	char faultGridHeader[NUM_FR_GRID_COL][30] = 
-				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Average",  "Sigma",  "Min",  "Max", "Fault", "FR\n(Fault/Count)"  };
+				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Average",  "Sigma\n(StDev)",  "Min",  "Max", "Fault", "FR\n(Fault/Count)"  };
 
 	int faultGridColWidth[NUM_FR_GRID_COL] =    
 				{ 40,    115,     70,    55,     80,                     70,         80,                   70,          70,      70,    70,     60,        90,       }; 
@@ -728,7 +728,7 @@ void CFrRankDialog::OnButtonSaveFrListCsv()
 	
 	
 	// 헤더 출력
-	fprintf(fp, "No, Lot=%d, Date=%d, Net, Total, NgCount, Count, Average, Sigma, Min, Max, Fault, FR\n", 
+	fprintf(fp, "No, Lot=%d, Date=%d, Net, Total, NgCount, Count, Average, Sigma(Stdev), Min, Max, Fault, FR\n", 
 				nLot, nDate);
 
 	int nRow = 0;

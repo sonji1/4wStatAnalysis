@@ -390,7 +390,7 @@ void CStatisticsDialog::Display_SummaryGridHeader()
     m_gridSummary.SetItemText(0, SUM_COL_AVG, "Average");
 	m_gridSummary.SetColumnWidth(SUM_COL_AVG, 80);
 
-    m_gridSummary.SetItemText(0, SUM_COL_SIGMA, "Sigma");
+    m_gridSummary.SetItemText(0, SUM_COL_SIGMA, "Sigma\n(StDev)");
 	m_gridSummary.SetColumnWidth(SUM_COL_SIGMA, 80);
 
     m_gridSummary.SetItemText(0, SUM_COL_DATAMIN, "Min");
@@ -2345,10 +2345,11 @@ void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 
 	// 2. Calc Sigma   --------------------
 	double 	dDiff = 0, dDiffPowerSum = 0, dVariance=0;
-	if (rnCount)	// check devide by zero!
-	{
+	if (rnCount)	// check devide by zero!  : Average
 		rdAvg = dSum / (double)rnCount;
 
+	if (rnCount -1)	// check devide by zero!  : Variance
+	{
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
 			sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
@@ -2361,9 +2362,10 @@ void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 				}
 			}
 		}
-		dVariance = dDiffPowerSum / (double)rnCount;		// 분산     : (val-avg)의 제곱의 총합을 n으로 나눈다.
-		rdSigma    = sqrt(dVariance);					// 표준편차 : 분산의 제곱근
+
+		dVariance = dDiffPowerSum / (double)(rnCount -1);	// 분산     : (val-avg)의 제곱의 총합을 (n - 1)으로 나눈다.
 	}
+	rdSigma    = sqrt(dVariance);						// 표준편차 : 분산의 제곱근
 
 	//MyTrace(PRT_BASIC, "rnTotal=%d, rnCount=%d, dSum=%.2f, rdAvg=%.2f, dVar=%.2f, rdSigma=%.2f, rdMin=%.2f, rdMax=%.2f, nFaultCount=%d\n", 
 	//						rnTotal, rnCount, dSum, rdAvg, dVariance, rdSigma, rdMin, rdMax, 
@@ -2453,11 +2455,11 @@ int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tup
 		dTupleDiffPowerSum = 0; 
 		dTupleVar=0; 
 		dTupleSigma=0;
-		if (nTupleCount)	// check devide by zero!
-		{
+		if (nTupleCount)	// check devide by zero!	: Average
 			dTupleAvg = dTupleSum / (double)nTupleCount;
 
-
+		if (nTupleCount -1)	// check devide by zero!	: Variance
+		{
 			int sampleSize =  g_sLotNetDate_Info.naLotSampleCnt[nLot];
 			for (sample= 0; sample < sampleSize; sample++)
 			{
@@ -2468,10 +2470,9 @@ int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tup
 				}
 			}
 
-			dTupleVar   = dTupleDiffPowerSum / (double)nTupleCount;	// 분산     : (val-avg)의 제곱의 총합을 n으로 나눈다.
-			dTupleSigma = sqrt(dTupleVar);							// 표준편차 : 분산의 제곱근
-
+			dTupleVar   = dTupleDiffPowerSum / (double)(nTupleCount -1);// 분산     : (val-avg)의 제곱의 총합을 (n - 1)으로 나눈다.
 		}
+		dTupleSigma = sqrt(dTupleVar);								// 표준편차 : 분산의 제곱근
 
 
 		// 3. Display 4w Data Tuple  ------------------
@@ -2943,10 +2944,11 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	}
 
 	double 	dDiff = 0, dDiffPowerSum = 0, dVariance=0, dSigma=0;
-	if (nCount)		// check device by zero
-	{
+	if (nCount)		// check device by zero  : Average
 		dAvg = dSum / (double)nCount;
 
+	if (nCount -1)	// check device by zero  : Variance
+	{
 		// 2. Calc Sigma   --------------------
 		for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
 		{
@@ -2967,9 +2969,9 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 				}
 			}
 		}
-		dVariance = dDiffPowerSum / (double)nCount;		// 분산     : (val-avg)의 제곱의 총합을 n으로 나눈다.
-		dSigma    = sqrt(dVariance);					// 표준편차 : 분산의 제곱근
+		dVariance = dDiffPowerSum / (double)(nCount -1);// 분산     : (val-avg)의 제곱의 총합을 (n - 1)으로 나눈다.
 	}
+	dSigma    = sqrt(dVariance);					// 표준편차 : 분산의 제곱근
 
 	MyTrace(PRT_BASIC, "nTotal=%d, nCount=%d, dSum=%.2f, dAvg=%.2f, dVar=%.2f, dSigma=%.2f, dMin=%.2f, dMax=%.2f, waNetFaultCount[%d][%d]=%d\n", 
 						nTotal, nCount, dSum, dAvg, dVariance, dSigma, dMin, dMax, 
@@ -3175,9 +3177,9 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 
 	fprintf(fp, "\n\n");
 	if (m_bApplyULSL)
-		fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL(simul), USL(simul), Avg, Sigma, Min, Max, "); 
+		fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL(simul), USL(simul), Avg, Sigma(StDev), Min, Max, "); 
 	else
-		fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL, USL, Avg, Sigma, Min, Max, "); 
+		fprintf(fp, "No, Date, Time, Pin1, Pin2, Pin3, Pin4, R, LSL, USL, Avg, Sigma(StDev), Min, Max, "); 
 
 	fprintf(fp, "Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12\n");
 
