@@ -134,7 +134,7 @@ BOOL CACE400MainDlg::OnInitDialog()
 	m_FrRankDlg.Create(IDD_FR_RANK_DIALOG, this);		// make Modeless Dialog
 	m_FrRankDlg.ShowWindow(SW_HIDE);
 
-	// StatisticsDlg에서 m_FrRankDlg와, m_PChartDlg로 메시지를 보낼때 사용할 hwnd 를 넘겨준다.
+	// m_FrRankDlg와, m_PChartDlg로 메시지를 보낼때 사용할 hwnd 를 StatisticsDlg에 넘겨준다.
 	m_StatisticsDlg.DlgHwndSetter(m_FrRankDlg.GetSafeHwnd(), m_PChartDlg.GetSafeHwnd());
 
 	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
