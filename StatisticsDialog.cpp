@@ -31,7 +31,7 @@ CStatisticsDialog::CStatisticsDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(CStatisticsDialog::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CStatisticsDialog)
-	m_strSelect = _T("");
+	m_editStrSelect = _T("");
 	m_editTupleNum = 0;
 	m_editSampleNum = 0;
 	m_bDataGridFaultOnly = FALSE;
@@ -64,7 +64,7 @@ void CStatisticsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TREE, 					m_treeCtrl);
 	DDX_Control(pDX, IDC_GRID_SUMMARY, 			m_gridSummary);
 	DDX_Control(pDX, IDC_GRID_DATA, 			m_gridData);
-	DDX_Text(pDX, IDC_EDIT_SELECT, 				m_strSelect);
+	DDX_Text(pDX, IDC_EDIT_SELECT, 				m_editStrSelect);
 	DDX_Text(pDX, IDC_EDIT_TUPLE_NUM, 			m_editTupleNum);
 	DDX_Text(pDX, IDC_EDIT_SAMPLE_NUM, 			m_editSampleNum);
 	DDX_Check(pDX, IDC_CHECK_DATA_FAULT_ONLY, 	m_bDataGridFaultOnly);
@@ -423,8 +423,8 @@ void CStatisticsDialog::Display_DataGridHeader()
 
 	for (int i=0; i < NUM_DATA_GRID_COL; i++)
 	{
-		m_gridData.SetColumnWidth(i, dataColWidth[i]);
 		m_gridData.SetItemText(0, i, dataHeader[i]);
+		m_gridData.SetColumnWidth(i, dataColWidth[i]);
 
 		if (m_bApplyULSL == TRUE && i == DATA_COL_LSL)
 			m_gridData.SetItemText(0, i, "LSL (simul)");
@@ -1082,7 +1082,6 @@ int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNam
 
 
 	CString strTemp, strTime;
-	int 	row=0;
 	int 	nNet, i, nNet2;
 	char	strWord[300];
 	char 	strWord2[3][200];
@@ -1134,6 +1133,7 @@ int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNam
 
 
 	// Net 갯수 만큼 Line을 읽는 동작을 반복
+	int 	row=0;
 	while(!feof(fp))
 	{
 		if (row > MAX_NET_PER_LOT)
@@ -1658,7 +1658,9 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 								// dwFlags :  속성   (HIDEREADONLY : read only 파일은 출력하지 않음.
 					szFilter);	// 대화상자에 출력될 파일을 확장자로 거르기 위한 필터. 
 
-	dlg.m_ofn.lpstrInitialDir = _T("d:\\log4w"); // 오픈할때 초기 경로 지정. 맨앞에 소문자 d: 여야 제대로 동작함..
+
+	// 오픈할때 초기 경로 지정. 맨앞에 소문자 d: 여야 제대로 동작함..
+	dlg.m_ofn.lpstrInitialDir = _T("d:\\log4w"); 
 	
 	// 여기서 버퍼 크기 늘려줘야 함.  안 늘려 주면 6개이상 file 지정이 안 됨.
 	// default 256byte => file 6개 처리 가능.  각 fileName이 약 43문자 정도라는 뜻임.
@@ -1945,9 +1947,9 @@ void CStatisticsDialog::_SelChangedTree(HTREEITEM  hSelItem)
 	int nLevel = Tree_GetCurrentLevel(m_hSelectedNode);
 
 	if (nLevel == 3)			// 선택한 아이템이 Net라면 'lot# - net#'를 설정
-		m_strSelect = parentName + " / " + selectedName;
+		m_editStrSelect = parentName + " / " + selectedName;
 	else
-		m_strSelect = selectedName;
+		m_editStrSelect = selectedName;
 
 
 	// Net인 경우
@@ -1961,14 +1963,14 @@ void CStatisticsDialog::_SelChangedTree(HTREEITEM  hSelItem)
 		if (nLot < 0 || nLot >= MAX_LOT)
 		{
 			strTemp.Format("OnSelchangedTree(): Can't find Lot#(%d) for item=%s, or Range(Lot<%d) Over\n", 
-					nLot, m_strSelect, MAX_LOT);
+					nLot, m_editStrSelect, MAX_LOT);
 			ERR.Set(SW_LOGIC_ERR, strTemp); 
 			ErrMsg();  ERR.Reset(); 
 			return;
 		}
 		if (nNet < 0 || nNet >= MAX_NET_PER_LOT)
 		{
-			strTemp.Format("OnSelchangedTree(): %s Net# Range(0 <= Net < %d) Over\n", m_strSelect, MAX_NET_PER_LOT);
+			strTemp.Format("OnSelchangedTree(): %s Net# Range(0 <= Net < %d) Over\n", m_editStrSelect, MAX_NET_PER_LOT);
 			ERR.Set(RANGE_OVER, strTemp); 
 			ErrMsg();  ERR.Reset(); 
 			return;
@@ -2026,7 +2028,7 @@ void CStatisticsDialog::_SelChangedTree(HTREEITEM  hSelItem)
 
 
 
-	// 대화상자의 Edit컨트롤에 m_strSelect 를 출력한다.
+	// 대화상자의 Edit컨트롤에 m_editStrSelect 를 출력한다.
 	UpdateData(FALSE);
 	
 }
@@ -2741,7 +2743,7 @@ void CStatisticsDialog::OnButtonClearGrid()
 void CStatisticsDialog::ClearGrid() 
 {
 	// Lot/Net 선택사항도 삭제한다.
-	m_strSelect = _T("");
+	m_editStrSelect = _T("");
 	
 	// Grid와 함께 Grid Sub Edit 박스도 초기화한다.
 	m_editTupleNum = 0;

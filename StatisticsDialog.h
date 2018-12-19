@@ -629,7 +629,7 @@ public:
 	CTreeCtrl	m_treeCtrl;
 	CGridCtrl	m_gridSummary;
 	CGridCtrl	m_gridData;
-	CString		m_strSelect;
+	CString		m_editStrSelect;
 	int			m_editTupleNum;
 	int			m_editSampleNum;
 	BOOL		m_bDataGridFaultOnly;
