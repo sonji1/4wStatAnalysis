@@ -87,9 +87,10 @@ BEGIN_MESSAGE_MAP(CACE400MainDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_CHECK_STATISTICS, OnCheckStatistics)
-	ON_BN_CLICKED(IDC_CHECK_PCHART, OnCheckPchart)
-	ON_BN_CLICKED(IDC_CHECK_CONFIG, OnCheckConfig)
-	ON_BN_CLICKED(IDC_CHECK_FR_RANK, OnCheckFrRank)
+	ON_BN_CLICKED(IDC_CHECK_PCHART,     OnCheckPchart)
+	ON_BN_CLICKED(IDC_CHECK_FR_RANK,    OnCheckFrRank)
+	ON_BN_CLICKED(IDC_CHECK_GAGE,       OnCheckGage)
+	ON_BN_CLICKED(IDC_CHECK_CONFIG,     OnCheckConfig)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -133,14 +134,17 @@ BOOL CACE400MainDlg::OnInitDialog()
 	m_PChartDlg.ShowWindow(SW_HIDE);
 	m_FrRankDlg.Create(IDD_FR_RANK_DIALOG, this);		// make Modeless Dialog
 	m_FrRankDlg.ShowWindow(SW_HIDE);
+	m_GageDlg.Create(IDD_GAGE_DIALOG, this);			// make Modeless Dialog
+	m_GageDlg.ShowWindow(SW_HIDE);
 
-	// m_FrRankDlg와, m_PChartDlg로 메시지를 보낼때 사용할 hwnd 를 StatisticsDlg에 넘겨준다.
+	// m_StatisticsDlg에서  m_FrRankDlg와, m_PChartDlg로 메시지를 보낼때 사용할 hwnd 를 StatisticsDlg에 넘겨준다.
 	m_StatisticsDlg.DlgHwndSetter(m_FrRankDlg.GetSafeHwnd(), m_PChartDlg.GetSafeHwnd());
 
 	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_GAGE))->SetCheck(0); 
 
 #if 0
 //#ifdef _DEBUG
@@ -214,6 +218,7 @@ BOOL CACE400MainDlg::DestroyWindow()
 	m_StatisticsDlg.DestroyWindow();	// vector를 반환
 	m_FrRankDlg.DestroyWindow();		// vector를 반환
 	m_PChartDlg.DestroyWindow();
+	m_GageDlg.DestroyWindow();
 
 	MyTrace(PRT_BASIC, "\"4W Statistics SW\" StatDlg Destroyed...\n\n\n\n\n" );
 
@@ -237,11 +242,13 @@ void CACE400MainDlg::OnCheckStatistics()
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_GAGE))->SetCheck(0); 
 
 	m_StatisticsDlg.ShowWindow(SW_SHOW);
 	m_ConfigDlg.ShowWindow(SW_HIDE);
 	m_PChartDlg.ShowWindow(SW_HIDE);
 	m_FrRankDlg.ShowWindow(SW_HIDE);
+	m_GageDlg.ShowWindow(SW_HIDE);
 
 	UpdateData(FALSE);
 	
@@ -256,11 +263,13 @@ void CACE400MainDlg::OnCheckConfig()
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_GAGE))->SetCheck(0); 
 
 	m_StatisticsDlg.ShowWindow(SW_HIDE);
 	m_ConfigDlg.ShowWindow(SW_SHOW);
 	m_PChartDlg.ShowWindow(SW_HIDE);
 	m_FrRankDlg.ShowWindow(SW_HIDE);
+	m_GageDlg.ShowWindow(SW_HIDE);
 	UpdateData(FALSE);
 	
 }
@@ -273,11 +282,13 @@ void CACE400MainDlg::OnCheckPchart()
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(1);	// 해당 check 버튼을 눌린 상태로 유지
 	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_GAGE))->SetCheck(0); 
 
 	m_StatisticsDlg.ShowWindow(SW_HIDE);
 	m_ConfigDlg.ShowWindow(SW_HIDE);
 	m_PChartDlg.ShowWindow(SW_SHOW);
 	m_FrRankDlg.ShowWindow(SW_HIDE);
+	m_GageDlg.ShowWindow(SW_HIDE);
 	UpdateData(FALSE);
 	
 }
@@ -289,11 +300,31 @@ void CACE400MainDlg::OnCheckFrRank()
 	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
 	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);	
 	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(1); // 해당 check 버튼을 눌린 상태로 유지
+	((CButton*)GetDlgItem(IDC_CHECK_GAGE))->SetCheck(0); 
 
 	m_StatisticsDlg.ShowWindow(SW_HIDE);
 	m_ConfigDlg.ShowWindow(SW_HIDE);
 	m_PChartDlg.ShowWindow(SW_HIDE);
 	m_FrRankDlg.ShowWindow(SW_SHOW);
+	m_GageDlg.ShowWindow(SW_HIDE);
+	UpdateData(FALSE);
+	
+}
+
+void CACE400MainDlg::OnCheckGage() 
+{
+	// TODO: Add your control notification handler code here
+	((CButton*)GetDlgItem(IDC_CHECK_STATISTICS))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_CONFIG))->SetCheck(0);
+	((CButton*)GetDlgItem(IDC_CHECK_PCHART))->SetCheck(0);	
+	((CButton*)GetDlgItem(IDC_CHECK_FR_RANK))->SetCheck(0); // 해당 check 버튼을 눌린 상태로 유지
+	((CButton*)GetDlgItem(IDC_CHECK_GAGE))->SetCheck(1); 
+
+	m_StatisticsDlg.ShowWindow(SW_HIDE);
+	m_ConfigDlg.ShowWindow(SW_HIDE);
+	m_PChartDlg.ShowWindow(SW_HIDE);
+	m_FrRankDlg.ShowWindow(SW_HIDE);
+	m_GageDlg.ShowWindow(SW_SHOW);
 	UpdateData(FALSE);
 	
 }

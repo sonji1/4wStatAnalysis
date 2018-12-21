@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "./gridctrl_src/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /ZI /O2 /I "./gridctrl_src/" /I "./ChartDirector/" /I "./XLAutomation/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x412 /d "NDEBUG" /d "_AFXDLL"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 ./chartdir60.lib /nologo /stack:0x200000 /subsystem:windows /incremental:yes /debug /machine:I386
+# ADD LINK32 ./chartdir60.lib /nologo /stack:0x300000 /subsystem:windows /incremental:yes /debug /machine:I386
 
 !ELSEIF  "$(CFG)" == "ACE400Statistics - Win32 Debug"
 
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/" /I "./XLAutomation/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR /Yu"stdafx.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x412 /d "_DEBUG" /d "_AFXDLL"
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ./chartdir60.lib /nologo /stack:0x300000 /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 ./chartdir60.lib /nologo /stack:0x200000 /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -112,7 +112,15 @@ SOURCE=.\Error.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FileSysInfo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\FrRankDialog.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GageDialog.cpp
 # End Source File
 # Begin Source File
 
@@ -149,7 +157,19 @@ SOURCE=.\StdAfx.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TDist.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\gridctrl_src\TitleTip.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\XLAutomation\XLAutomation.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\XLAutomation\XLEzAutomation.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -185,7 +205,15 @@ SOURCE=.\Error.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\FileSysInfo.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\FrRankDialog.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GageDialog.h
 # End Source File
 # Begin Source File
 
@@ -230,6 +258,14 @@ SOURCE=.\StdAfx.h
 # Begin Source File
 
 SOURCE=.\gridctrl_src\TitleTip.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\XLAutomation\XLAutomation.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\XLAutomation\XLEzAutomation.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

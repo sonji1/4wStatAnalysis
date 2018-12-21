@@ -8,6 +8,7 @@
 #include "ConfigDialog.h"		
 #include "PChartDialog.h"		// Added by ClassView
 #include "FrRankDialog.h"		// Added by ClassView
+#include "GageDialog.h"			// Added by ClassView
 
 #if _MSC_VER > 1000
 #pragma once
@@ -27,6 +28,7 @@ public:
 	CConfigDialog		m_ConfigDlg;
 	CPChartDialog		m_PChartDlg;
 	CFrRankDialog 		m_FrRankDlg;
+	CGageDialog			m_GageDlg;
 
 	CACE400MainDlg(CWnd* pParent = NULL);	// standard constructor
 
@@ -61,6 +63,7 @@ protected:
 	afx_msg void OnCheckPchart();
 	afx_msg void OnCheckConfig();
 	afx_msg void OnCheckFrRank();
+	afx_msg void OnCheckGage();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

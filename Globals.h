@@ -114,6 +114,8 @@ extern  void 		__PrintMemSize(char* strFunc, int line);
 
 extern  void 		AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...);
 
+extern  double 		p_tdist(double t, int df);		// TDist.cpp
+
 //extern  int  		AFX_CDECL MyTrace2(PRT_TYPE prtType, char* pStr, int strSize, LPCTSTR lpszFormat, ...);
 //extern  int  		AFX_CDECL MySnprintf(PRT_TYPE prtType, char* pStr, int strSize, LPCTSTR lpszFormat, ...);
 //extern  BOOL		CreateFolder(LPCTSTR szFolder);

@@ -91,21 +91,24 @@ EXSTYLE WS_EX_APPWINDOW
 CAPTION "ACE400Statistics"
 FONT 10, "Calibri"
 BEGIN
-    PUSHBUTTON      "Exit",IDOK,175,11,37,23
+    PUSHBUTTON      "Exit",IDOK,187,12,31,23
     LTEXT           "To view 4W Data, follow these steps, please. \n\n 1.Click  '4W Statistics -> Load 4W Data' button to select the desired 4W Data file.\n 2. Click Lot to select it and then choose Net on the screen.\n 3. Select the Date.",
                     IDC_STATIC,234,7,218,50
     LTEXT           "Click ''4W Statistics -> Load 4W Data(Multi Lot)' button to load multiple 4W Lot data at once. It may take a few minutes.",
                     IDC_STATIC,455,5,257,19
-    CONTROL         "4W Statistics",IDC_CHECK_STATISTICS,"Button",
-                    BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,11,46,23
-    CONTROL         "YR p-Chart",IDC_CHECK_PCHART,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,94,11,37,23
+    CONTROL         "4W\nStatistics",IDC_CHECK_STATISTICS,"Button",
+                    BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_MULTILINE | 
+                    WS_TABSTOP,7,12,33,23
+    CONTROL         "YR\np-Chart",IDC_CHECK_PCHART,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,79,12,31,23
     CONTROL         "Config",IDC_CHECK_CONFIG,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,134,11,38,23
-    CONTROL         "FR Rank",IDC_CHECK_FR_RANK,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,56,11,35,23
+                    BS_PUSHLIKE | WS_TABSTOP,152,12,30,23
+    CONTROL         "FR\nRank",IDC_CHECK_FR_RANK,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,43,12,31,23
     LTEXT           "Not all files in all Lot directories are loaded, with the following restrictions.\nRestrictions:  MaxLot = 5, MaxDate = 5, MaxNet = 5000, MaxTimeTuple = 4000, \n                         Total (Net * TimeTuple) = 8000000",
                     IDC_STATIC,455,24,257,27
+    CONTROL         "4W Gage\nStudy",IDC_CHECK_GAGE,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,115,12,34,23
 END
 
 IDD_STATISTICS_DIALOG DIALOGEX 5, 65, 710, 398
@@ -248,6 +251,62 @@ BEGIN
     LTEXT           "Total Fault",IDC_STATIC,7,111,34,8
 END
 
+IDD_GAGE_DIALOG DIALOG DISCARDABLE  5, 45, 658, 398
+STYLE WS_CHILD | WS_BORDER
+FONT 10, "Calibri"
+BEGIN
+    LTEXT           "File:",IDC_STATIC,317,8,17,8
+    CONTROL         "Gage Grid",IDC_GRID_GAGE,"MFCGridCtrl",WS_TABSTOP,6,24,
+                    639,95
+    EDITTEXT        IDC_EDIT_4W_FILE_PATH,338,6,193,15,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    COMBOBOX        IDC_COMBO_MEAS_TYPE,63,145,60,75,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Measurement\nData Type",IDC_STATIC,14,145,45,19
+    LTEXT           "Reference",IDC_STATIC,15,196,45,13
+    EDITTEXT        IDC_EDIT_REF_INPUT,63,194,60,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Tolerance\n(Upper spec- Lower Spec)",IDC_STATIC,15,214,
+                    45,26
+    EDITTEXT        IDC_EDIT_TOL_INPUT,63,217,39,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "",IDC_CHART_GAGE,"Static",SS_BITMAP,159,125,13,11
+    GROUPBOX        "Basic Statistics",IDC_STATIC,160,293,121,89
+    CONTROL         "Type1 Gage Study - Observation",IDC_STATIC,"Static",
+                    SS_LEFTNOWORDWRAP | WS_GROUP,148,281,110,12
+    GROUPBOX        "Bias",IDC_STATIC,295,293,119,76
+    GROUPBOX        "Capability",IDC_STATIC,428,293,123,49
+    LTEXT           "Measurement Data ",IDC_STATIC,6,9,110,12
+    GROUPBOX        "Type1 Gage Study - Input",IDC_STATIC,6,130,123,141
+    CONTROL         "z",IDC_GRID_GAGE_STAT,"MFCGridCtrl",WS_TABSTOP,168,309,
+                    103,67
+    CONTROL         "Bias",IDC_GRID_BIAS,"MFCGridCtrl",WS_TABSTOP,304,309,
+                    103,48
+    CONTROL         "Capability",IDC_GRID_CAPABILITY,"MFCGridCtrl",
+                    WS_TABSTOP,436,309,103,27
+    LISTBOX         IDC_LIST_MSG,428,377,211,15,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "Load File",IDC_BUTTON_LOAD_MEASDATA,241,5,54,16
+    LTEXT           "x 0.1",IDC_STATIC,103,219,17,8
+    LTEXT           "Measurement\nCount  :",IDC_STATIC,552,5,46,16
+    EDITTEXT        IDC_EDIT_MEASDATA_CNT,603,7,33,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    CONTROL         "Repeatability",IDC_GRID_REPT,"MFCGridCtrl",WS_TABSTOP,
+                    428,346,143,25
+    LTEXT           "Data Count\n to GageStudy",IDC_STATIC,14,169,45,20
+    EDITTEXT        IDC_EDIT_STUDY_CNT,63,170,60,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    PUSHBUTTON      "OK",IDC_BUTTON_DO_STUDY,27,246,87,16
+    PUSHBUTTON      "Save to File",IDC_BUTTON_SAVE_FILE,27,281,87,19
+    PUSHBUTTON      "View saved File",IDC_BUTTON_VIEW_FILE,27,305,87,19
+    PUSHBUTTON      "GageStudy && Save \nfor ALL mohm Type",
+                    IDC_BUTTON_GAGE_SAVE_ALL,27,330,87,25,BS_MULTILINE
+    LTEXT           "Saved\nLocation :",IDC_STATIC,7,367,32,17
+    EDITTEXT        IDC_EDIT_SAVED_PATH,38,364,105,27,ES_MULTILINE | 
+                    ES_READONLY
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -346,6 +405,14 @@ BEGIN
         RIGHTMARGIN, 679
         TOPMARGIN, 7
         BOTTOMMARGIN, 386
+    END
+
+    IDD_GAGE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 651
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 391
     END
 END
 #endif    // APSTUDIO_INVOKED

@@ -3,49 +3,118 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: ACE400Statistics - Win32 Release--------------------
+--------------------Configuration: ACE400Statistics - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP4A07.tmp" with contents
+Creating command line "rc.exe /l 0x412 /fo"Debug/ACE400Statistics.res" /d "_DEBUG" /d "_AFXDLL" "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400Statistics.rc"" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP3FFD.tmp" with contents
 [
-/nologo /MD /W3 /GX /O2 /I "./gridctrl_src/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/ACE400Statistics.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+/nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/" /I "./XLAutomation/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/ACE400Statistics.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400MainDlg.cpp"
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400Statistics.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ChartViewer.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ConfigDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\Error.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\FileSysInfo.cpp"
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\FrRankDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\GageDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\Globals.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\GridCtrl.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\GridDropTarget.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\InPlaceEdit.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\InPlaceList.cpp"
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\PChartDialog.cpp"
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\StatisticsDialog.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\TDist.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\gridctrl_src\TitleTip.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\XLAutomation\XLAutomation.cpp"
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\XLAutomation\XLEzAutomation.cpp"
 ]
-Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP4A07.tmp" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP4A08.tmp" with contents
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP3FFD.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP3FFE.tmp" with contents
 [
-./chartdir60.lib /nologo /stack:0x200000 /subsystem:windows /incremental:yes /pdb:"Release/ACE400Statistics.pdb" /debug /machine:I386 /out:"Release/ACE400Statistics.exe" 
-.\Release\ACE400MainDlg.obj
-.\Release\ACE400Statistics.obj
-.\Release\ChartViewer.obj
-.\Release\ConfigDialog.obj
-.\Release\Error.obj
-.\Release\FrRankDialog.obj
-.\Release\Globals.obj
-.\Release\GridCtrl.obj
-.\Release\GridDropTarget.obj
-.\Release\InPlaceEdit.obj
-.\Release\InPlaceList.obj
-.\Release\PChartDialog.obj
-.\Release\StatisticsDialog.obj
-.\Release\StdAfx.obj
-.\Release\TitleTip.obj
-.\Release\ACE400Statistics.res
+/nologo /MDd /W3 /Gm /GX /ZI /Od /I "./gridctrl_src/" /I "./ChartDirector/" /I "./XLAutomation/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/ACE400Statistics.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\StdAfx.cpp"
 ]
-Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP4A08.tmp"
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP3FFE.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP3FFF.tmp" with contents
+[
+./chartdir60.lib /nologo /stack:0x300000 /subsystem:windows /incremental:yes /pdb:"Debug/ACE400Statistics.pdb" /debug /machine:I386 /out:"Debug/ACE400Statistics.exe" /pdbtype:sept 
+.\Debug\ACE400MainDlg.obj
+.\Debug\ACE400Statistics.obj
+.\Debug\ChartViewer.obj
+.\Debug\ConfigDialog.obj
+.\Debug\Error.obj
+.\Debug\FileSysInfo.obj
+.\Debug\FrRankDialog.obj
+.\Debug\GageDialog.obj
+.\Debug\Globals.obj
+.\Debug\GridCtrl.obj
+.\Debug\GridDropTarget.obj
+.\Debug\InPlaceEdit.obj
+.\Debug\InPlaceList.obj
+.\Debug\PChartDialog.obj
+.\Debug\StatisticsDialog.obj
+.\Debug\StdAfx.obj
+.\Debug\TDist.obj
+.\Debug\TitleTip.obj
+.\Debug\XLAutomation.obj
+.\Debug\XLEzAutomation.obj
+.\Debug\ACE400Statistics.res
+]
+Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP3FFF.tmp"
 <h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
 Compiling...
 ACE400MainDlg.cpp
 ACE400Statistics.cpp
+ChartViewer.cpp
+ConfigDialog.cpp
+Error.cpp
+FileSysInfo.cpp
 FrRankDialog.cpp
+GageDialog.cpp
+Globals.cpp
+GridCtrl.cpp
+GridDropTarget.cpp
+InPlaceEdit.cpp
+InPlaceList.cpp
 PChartDialog.cpp
 StatisticsDialog.cpp
+TDist.cpp
+TitleTip.cpp
+XLAutomation.cpp
+XLEzAutomation.cpp
 Generating Code...
 Linking...
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP484A.tmp" with contents
+[
+/nologo /o"Debug/ACE400Statistics.bsc" 
+.\Debug\StdAfx.sbr
+.\Debug\ACE400MainDlg.sbr
+.\Debug\ACE400Statistics.sbr
+.\Debug\ChartViewer.sbr
+.\Debug\ConfigDialog.sbr
+.\Debug\Error.sbr
+.\Debug\FileSysInfo.sbr
+.\Debug\FrRankDialog.sbr
+.\Debug\GageDialog.sbr
+.\Debug\Globals.sbr
+.\Debug\GridCtrl.sbr
+.\Debug\GridDropTarget.sbr
+.\Debug\InPlaceEdit.sbr
+.\Debug\InPlaceList.sbr
+.\Debug\PChartDialog.sbr
+.\Debug\StatisticsDialog.sbr
+.\Debug\TDist.sbr
+.\Debug\TitleTip.sbr
+.\Debug\XLAutomation.sbr
+.\Debug\XLEzAutomation.sbr]
+Creating command line "bscmake.exe @C:\Users\User\AppData\Local\Temp\RSP484A.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 
