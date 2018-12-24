@@ -455,7 +455,12 @@ void CStatisticsDialog::InitTree()
 // 'Load 4w Data' 버튼 클릭시에 호출.
 void CStatisticsDialog::OnButtonLoad4wData() 
 {
+	BeginWaitCursor();		// 커서를 waiting 모드로 바꾼다.
+
 	Load_Log4wDir();
+
+	EndWaitCursor();		// 커서를 원상복구한다.
+
 	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
 	DisplayGrid_DefaultLotNet();
 __PrintMemSize(FUNC(OnButtonLoad4wData), __LINE__);
@@ -1726,6 +1731,8 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
 __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
+	BeginWaitCursor();			// 커서를 waiting 모드로 바꾼다.
+
 	CString lotName = dirPath;
 	MyTrace(PRT_BASIC, "Load 4wData(Single)...: Lot=%s\n\n\n", lotName);
 	int	length = strlen(lotName);
@@ -1900,6 +1907,8 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	MyTrace(PRT_BASIC, "          m_nNetDataCount = %d\n", m_nNetDataCount);
 	MyTrace(PRT_BASIC, "\n");
+
+	EndWaitCursor();		// 커서를 원상 복구한다.
 
 	// LOAD LOG4W가 완료되었음을 FR Rank Dlg에 알린다.
 	//::SendMessage(m_hwnd_FrRankDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
