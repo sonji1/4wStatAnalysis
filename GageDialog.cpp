@@ -254,8 +254,8 @@ BOOL CGageDialog::InitView()
 	// 4W_Setup_A.txt 파일을 로드한다.  : 4W Meas data
 	CString dataFilePath, dataFileName;
 	dataFilePath = SysInfoView01.m_pStrFilePathBDL;	// ex) "C:\ACE400\QC-JIG-S100-BHFlex\4W\"
-	dataFileName = "\\4W_Setup_A-H-10.txt";	
-	//dataFileName = "\\4W_Setup_A.txt";	
+	//dataFileName = "\\4W_Setup_A-H-10.txt";	
+	dataFileName = "\\4W_Setup_A.txt";	
 	dataFilePath += dataFileName;
 
 	if (Load_4W_MeasData(dataFilePath) < 0)
@@ -1321,7 +1321,9 @@ void CGageDialog::SaveTypeFile(int type, BOOL bDelete)
 	CString strChartPath;
 	strChartPath.Format("%s\\Data\\ChartView_%s.png", 
 						chThisPath, g_MeasInfoTable[type].strMeas);
-	ret = XL.InsertPictureFromFile(strChartPath, 15, 3);	// Column, Row
+	ret = XL.InsertPictureFromFile(strChartPath, 15, 3);	// Column, Row  : 
+				// <- 파일이 insert는 되는데 정해진 위치에는 아니고 항상 왼쪽 상단으로 고정임.
+				
 
 	//------------------------------
 	// WorkSheet에  mohm 값 출력
@@ -1485,9 +1487,10 @@ void CGageDialog::ChangeCurrType(int type, BOOL	bSetGridBlue)
 	// type과 Ref에 맞게 Tol을 변경
 	if (type >= mohm_1 && type <= mohm_10)	// 10mohm 이하 Tol은 무조건 1 
 		m_nTol = 1; 						// 오차율은 mohm_1은 10% ~ mohm_10은 1%까지 변동
+
+	// 20mohm 이상은 오차율을 1%로 =>  Tol값이 Ref *0.1 이어야 한다. 
+	// Tol은 다시 *0.1해서 사용하므로 오차율 1%가 됨
 	else
-		// 20mohm 이상은 오차율을 1%로 =>  Tol값이 Ref *0.1 이어야 한다. 
-		// Tol은 다시 *0.1해서 사용하므로 오차율 1%가 됨
 		m_nTol =  (int)(m_nRef * 0.1);
 	m_edit_nTolInput = m_nTol;
 
