@@ -328,3 +328,20 @@ void CACE400MainDlg::OnCheckGage()
 	UpdateData(FALSE);
 	
 }
+
+// 엔터키, ESC키 메시지를 후킹해서 엔터키나 ESC 키가 눌려도 다이얼로그가 종료되지 않도록 한다.
+BOOL CACE400MainDlg::PreTranslateMessage(MSG* pMsg) 
+{
+	// ESC 키나 리턴키 눌렸을 때 종료 방지
+	if (pMsg->message == WM_KEYDOWN)
+    {
+        if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE)
+        {
+            return TRUE;
+        }
+    }
+
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CDialog::PreTranslateMessage(pMsg);
+}

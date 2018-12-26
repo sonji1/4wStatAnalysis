@@ -42,6 +42,7 @@ public:
 	//{{AFX_VIRTUAL(CACE400MainDlg)
 	public:
 	virtual BOOL DestroyWindow();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//}}AFX_VIRTUAL
