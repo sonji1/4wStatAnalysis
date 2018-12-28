@@ -81,7 +81,7 @@ BEGIN_MESSAGE_MAP(CGageDialog, CDialog)
 	ON_BN_CLICKED   (IDC_BUTTON_DO_STUDY,      OnButtonDoStudy)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_FILE,        OnButtonSaveFile)
 	ON_BN_CLICKED(IDC_BUTTON_VIEW_FILE,        OnButtonViewFile)
-	ON_BN_CLICKED(IDC_BUTTON_GAGE_SAVE_ALL,    OnButtonGageSaveAll)
+	ON_BN_CLICKED(IDC_BUTTON_AUTO_GAGE_SAVE,   OnButtonAutoGageSave)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1435,12 +1435,12 @@ void CGageDialog::OnButtonViewFile()
 }
 
 
-void CGageDialog::OnButtonGageSaveAll() 
+void CGageDialog::OnButtonAutoGageSave() 
 {
 	// TODO: Add your control notification handler code here
 	
 	UpdateData(TRUE);
-	// 각 타입별로 Gage Study를 모두 수행하고 결과를 파일로 저장한다.
+	// 모든 저항 타입에 대해 자동으로 Gage Study를 수행하고 결과를 파일로 저장한다.
 	for (int type = 0; type < (MAX_MEAS_TYPE -1); type++)
 	{
 		// Current Type 변경

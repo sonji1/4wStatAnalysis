@@ -72,7 +72,7 @@
 #define IDC_BUTTON_VIEW_FILE            1034
 #define IDC_BUTTON_VIEW_STAT_CSV        1035
 #define IDC_BUTTON_VIEW_FR_LIST_CSV     1035
-#define IDC_BUTTON_GAGE_SAVE_ALL        1035
+#define IDC_BUTTON_AUTO_GAGE_SAVE       1035
 #define IDC_GRID_FR_LIST                1036
 #define IDC_CHECK_FR_FAULT_ONLY         1037
 #define IDC_CHECK_APPLY_ULSL            1037

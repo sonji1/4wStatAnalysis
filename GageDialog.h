@@ -176,7 +176,7 @@ protected:
 	afx_msg void OnButtonDoStudy();
 	afx_msg void OnButtonSaveFile();
 	afx_msg void OnButtonViewFile();
-	afx_msg void OnButtonGageSaveAll();
+	afx_msg void OnButtonAutoGageSave();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
