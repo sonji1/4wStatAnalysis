@@ -2685,7 +2685,7 @@ void CStatisticsDialog::DisplayGrid_Summary(int nLot, int nNet, int nDate, int n
 
 	strTemp.Format("%d", nTotal);
 	m_gridSummary.SetItemText(1, SUM_COL_TOTAL, strTemp);		// col 2:  Total 
-	m_GridSnap.Summary.strNgCount = strTemp;
+	m_GridSnap.Summary.strTotal = strTemp;
 
 	strTemp.Format("%d", (nTotal - nCount));
 	m_gridSummary.SetItemText(1, SUM_COL_NG, strTemp);			// col 3:  N/G Count
@@ -3165,19 +3165,20 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 	// snap이 아니라면 화면출력을 위해서 다시 계산을 해야 함.  
 
 	// 헤더 출력
-	fprintf(fp, "Net, Date, NgCount, Count, Average, Sigma, DataMin, DataMax, FaultCount, , ,TimeTuple#, Data#\n" );
+	fprintf(fp, "Net, Date, Total, NgCount, Count, Average, Sigma, DataMin, DataMax, FaultCount, , ,TimeTuple#, Data#\n" );
 
-	fprintf(fp, "%s, %s, %s, %s, %s, %s, %s, %s, %s, , ,%d, %d\n",
-				m_GridSnap.Summary.strNetName, 		// 0:
-				m_GridSnap.Summary.strDate, 		// 1:
-				m_GridSnap.Summary.strNgCount, 		// 2:
-				m_GridSnap.Summary.strCount, 		// 3:
+	fprintf(fp, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, , ,%d, %d\n",
+				m_GridSnap.Summary.strNetName, 		// 0: Net Name
+				m_GridSnap.Summary.strDate, 		// 1: Date
+				m_GridSnap.Summary.strTotal, 		// 2: Total
+				m_GridSnap.Summary.strNgCount, 		// 3: N/G Count
+				m_GridSnap.Summary.strCount, 		// 4: Count
 
-				m_GridSnap.Summary.strAvg, 			// 4:
-				m_GridSnap.Summary.strSigma, 		// 5:
-				m_GridSnap.Summary.strMin, 			// 6:
-				m_GridSnap.Summary.strMax, 			// 7:
-				m_GridSnap.Summary.strFault, 		// 8:
+				m_GridSnap.Summary.strAvg, 			// 5: Average
+				m_GridSnap.Summary.strSigma, 		// 6: Sigma
+				m_GridSnap.Summary.strMin, 			// 7: Min
+				m_GridSnap.Summary.strMax, 			// 8: Max
+				m_GridSnap.Summary.strFault, 		// 9: Fault Count
 
 				m_editTupleNum,				// edit box
 				m_editSampleNum);			// edit box
@@ -3557,13 +3558,38 @@ void CStatisticsDialog::OnCheckApplyUlsl()
 	// Apply On 상태에서는 더 이상 USL/LSL edit가 안되게 disable한다.
 	if (m_bApplyULSL)
 	{
+		double dTempUSL, dTempLSL;
+
 		//g_sLotNetDate_Info.daLotNetUsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrUSL.GetBuffer(10));
-		m_dSimulUsl = (double)atof((char*)m_editStrUSL.GetBuffer(10));
+		//g_sLotNetDate_Info.daLotNetLsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrLSL.GetBuffer(10));
+		
+		//m_dSimulUsl = (double)atof((char*)m_editStrUSL.GetBuffer(10));
+		dTempUSL = (double)atof((char*)m_editStrUSL.GetBuffer(10));
 		m_editStrUSL.ReleaseBuffer();
 
-		//g_sLotNetDate_Info.daLotNetLsl[m_nTree_CurrLot][m_nTree_CurrNet] = (double)atof((char*)m_editStrLSL.GetBuffer(10));
-		m_dSimulLsl = (double)atof((char*)m_editStrLSL.GetBuffer(10));
+		//m_dSimulLsl = (double)atof((char*)m_editStrLSL.GetBuffer(10));
+		dTempLSL = (double)atof((char*)m_editStrLSL.GetBuffer(10));
 		m_editStrLSL.ReleaseBuffer();
+
+		if (dTempUSL < dTempLSL)		// 에러  처리 : USL은 LSL보다 작을 수 없다.
+		{
+			CString strTemp;
+			strTemp.Format("USL can not be made smaller than LSL.\n\n");
+			ERR.Set(USER_ERR, strTemp); 
+			ErrMsg();  ERR.Reset();
+
+			// 에러로 입력된 USL, LSL str을 빈칸으로   -> 이건 그냥 놔두자. User가 잘못을 인식하도록
+			//m_editStrLSL = _T("");
+			//m_editStrUSL = _T("");
+			
+			// Apply 버튼을  Off로 되돌리고 리턴.
+			m_bApplyULSL = FALSE;
+			UpdateData(FALSE);
+			return;
+		}
+
+		m_dSimulUsl = dTempUSL;
+		m_dSimulLsl = dTempLSL;
 
 		GetDlgItem(IDC_EDIT_USL)->EnableWindow(FALSE);
 		GetDlgItem(IDC_EDIT_LSL)->EnableWindow(FALSE);

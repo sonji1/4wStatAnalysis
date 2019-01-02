@@ -1463,7 +1463,7 @@ void CGageDialog::OnButtonAutoGageSave()
 
 	// 수행 종료 표시 및 수행위치 알림을 위한 메시지를 띄운다.
 	CString strTemp;
-	strTemp.Format("Type1 Gage Study for all mohm Type finished.\nCheck the result files here.\n\n\"%s\"\n", m_editSavedPath);
+	strTemp.Format("Auto Gage Study for all mohm Type finished.\nCheck the result files here.\n\n\"%s\"\n", m_editSavedPath);
 	int ret = AfxMessageBox(strTemp, MB_OKCANCEL|MB_ICONINFORMATION);
 	MyTrace(PRT_BASIC, strTemp);
 						

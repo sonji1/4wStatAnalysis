@@ -478,6 +478,7 @@ class SumSnapData
 public:
 	CString strNetName;
 	CString strDate;
+	CString strTotal;
 	CString strNgCount;
 	CString strCount;
 
@@ -636,6 +637,8 @@ public:
 	BOOL		m_bSimulateULSL;
 	BOOL		m_bApplyULSL;
 	CString		m_editStrUSL;	// double 값으로 바꾸어서 g_sLotNetDate_Info.dSimulUsl에 저장한다.
+								// double 처리를 위해 str으로 value형 변수를 생성. 
+								// 평상시에는 기본적으로 "" 빈칸을 유지한다.
 	CString		m_editStrLSL;	// double 값으로 바꾸어서 g_sLotNetDate_Info.dSimulLsl에 저장한다.
 	//}}AFX_DATA
 
