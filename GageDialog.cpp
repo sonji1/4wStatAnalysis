@@ -75,9 +75,10 @@ BEGIN_MESSAGE_MAP(CGageDialog, CDialog)
 	//{{AFX_MSG_MAP(CGageDialog)
 	ON_WM_SHOWWINDOW()
 	ON_CBN_SELCHANGE(IDC_COMBO_MEAS_TYPE,      OnSelchangeComboMeasType)
-	ON_EN_CHANGE    (IDC_EDIT_TOL_INPUT,       OnChangeEditTolInput)
 	ON_BN_CLICKED   (IDC_BUTTON_LOAD_MEASDATA, OnButtonLoadMeasdata)
+	ON_EN_CHANGE    (IDC_EDIT_TOL_INPUT,       OnChangeEditTolInput)
 	ON_EN_CHANGE    (IDC_EDIT_STUDY_CNT,       OnChangeEditStudyCnt)
+	ON_EN_CHANGE    (IDC_EDIT_REF_INPUT,       OnChangeEditRefInput)
 	ON_BN_CLICKED   (IDC_BUTTON_DO_STUDY,      OnButtonDoStudy)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_FILE,        OnButtonSaveFile)
 	ON_BN_CLICKED(IDC_BUTTON_VIEW_FILE,        OnButtonViewFile)
@@ -253,8 +254,10 @@ BOOL CGageDialog::InitView()
 
 	// 4W_Setup_A.txt 파일을 로드한다.  : 4W Meas data
 	CString dataFilePath, dataFileName;
-	dataFilePath = SysInfoView01.m_pStrFilePathBDL;	// ex) "C:\ACE400\QC-JIG-S100-BHFlex\4W\"
+	//dataFilePath = SysInfoView01.m_pStrFilePathBDL;	// ex) "C:\ACE400\QC-JIG-S100-BHFlex\4W\"
 	//dataFileName = "\\4W_Setup_A-H-10.txt";	
+	
+	dataFilePath = "C:\\ACE400\\BDL\\QC\\OpenRjig";
 	dataFileName = "\\4W_Setup_A.txt";	
 	dataFilePath += dataFileName;
 
@@ -413,6 +416,8 @@ void CGageDialog::OnButtonLoadMeasdata()
 
 	// 오픈할때 초기 경로 지정. 
 	dlg.m_ofn.lpstrInitialDir = _T(SysInfoView01.m_pStrFilePathBDL); 	// ex) "C:\ACE400\QC-JIG-S100-BHFlex\4W\"
+	dlg.m_ofn.lpstrInitialDir = _T("C:\\ACE400\\BDL\\QC\\OpenRjig"); 	// ex) "C:\ACE400\BDL\QC\OpenRjig\"
+
 	
 	// buffer의 사이즈가 매우 커지면,  stack overflow를 유발할 수 있어 static으로 설정함.
 	static char buffer[60 * MAX_4W_MEAS_FILE] = {0}; 	// 버퍼
@@ -835,29 +840,6 @@ void CGageDialog::ClearGrid_Output()
 	}
 }
 
-void CGageDialog::OnChangeEditTolInput() 
-{
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-	
-	// TODO: Add your control notification handler code here
-	
-	//CString strTemp;	
-	//GetDlgItemText(IDC_EDIT_TOL_INPUT, strTemp);
-	
-	UpdateData(TRUE);
-
-	m_nTol = m_edit_nTolInput;
-
-
-	// 수정된 Tol 에 대한 'type1 gage study' 결과를 출력 
-	//DoGageStudy(m_nCombo_CurrType);		=> Tol이나  StudyCount의 경우에는 OK를 클릭해야 변경이 반영되도록 수정함.
-	
-	UpdateData(FALSE);
-}
-
 
 
 void CGageDialog::DoGageStudy(int type) 
@@ -1204,6 +1186,43 @@ void CGageDialog::DisplayGageStudyOutput(int type)
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
 }
 
+void CGageDialog::OnChangeEditTolInput() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	// TODO: Add your control notification handler code here
+	
+
+	//=> OnButtonDoStudy()  로 이동함.
+/*	
+	CString strTemp;	
+	GetDlgItemText(IDC_EDIT_TOL_INPUT, strTemp);
+	
+	UpdateData(TRUE);
+
+	m_nTol = m_edit_nTolInput;		
+
+	// 수정된 Tol 에 대한 'type1 gage study' 결과를 출력 
+	//DoGageStudy(m_nCombo_CurrType);		=> Tol이나  StudyCount의 경우에는 OK를 클릭해야 변경이 반영되도록 수정함.
+	
+	UpdateData(FALSE);
+*/
+}
+
+void CGageDialog::OnChangeEditRefInput() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	// TODO: Add your control notification handler code here
+
+	
+}
 
 void CGageDialog::OnChangeEditStudyCnt() 
 {
@@ -1214,6 +1233,7 @@ void CGageDialog::OnChangeEditStudyCnt()
 	
 	// TODO: Add your control notification handler code here
 /*
+// 이부분은  OnButtonDoStudy()  로 이동함.
 	UpdateData(TRUE);
 
 	// edit StudyCount값이 range over로 잘못 입력된 경우
@@ -1266,6 +1286,8 @@ void CGageDialog::OnButtonDoStudy()
 	}
 	m_nStudyCount = m_edit_nStudyCnt;
 
+	m_nRef = m_edit_nRefInput;
+	m_nTol = m_edit_nTolInput;
 	
 
 	DoGageStudy(m_nCombo_CurrType);
@@ -1472,6 +1494,7 @@ void CGageDialog::OnButtonAutoGageSave()
 	ChangeCurrType(mohm_1); 
 	DoGageStudy(m_nCombo_CurrType);
 	
+	UpdateData(FALSE);
 }
 
 void CGageDialog::ChangeCurrType(int type, BOOL	bSetGridBlue) 
@@ -1517,3 +1540,4 @@ BOOL CGageDialog::PreTranslateMessage(MSG* pMsg)
 	
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

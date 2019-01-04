@@ -177,6 +177,7 @@ protected:
 	afx_msg void OnButtonSaveFile();
 	afx_msg void OnButtonViewFile();
 	afx_msg void OnButtonAutoGageSave();
+	afx_msg void OnChangeEditRefInput();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

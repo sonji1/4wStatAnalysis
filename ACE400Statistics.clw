@@ -20,12 +20,12 @@ Class8=CPChartDialog
 Class9=CStatisticsDialog
 
 ResourceCount=7
-Resource1=IDD_CONFIG_DIALOG
-Resource2=IDD_FR_RANK_DIALOG
-Resource3=IDD_MAIN_DIALOG
-Resource4=IDD_PCHART_DIALOG
-Resource5=IDD_STATISTICS_DIALOG
-Resource6=IDD_ABOUTBOX
+Resource1=IDD_MAIN_DIALOG
+Resource2=IDD_CONFIG_DIALOG
+Resource3=IDD_FR_RANK_DIALOG
+Resource4=IDD_STATISTICS_DIALOG
+Resource5=IDD_ABOUTBOX
+Resource6=IDD_PCHART_DIALOG
 Resource7=IDD_GAGE_DIALOG
 
 [CLS:CAboutDlg]
@@ -74,6 +74,8 @@ BaseClass=CDialog
 HeaderFile=GageDialog.h
 ImplementationFile=GageDialog.cpp
 LastObject=CGageDialog
+Filter=D
+VirtualFilter=dWC
 
 [CLS:CPChartDialog]
 Type=0
@@ -160,7 +162,7 @@ Control3=IDC_EDIT_4W_FILE_PATH,edit,1350633600
 Control4=IDC_COMBO_MEAS_TYPE,combobox,1344340226
 Control5=IDC_STATIC,static,1342308352
 Control6=IDC_STATIC,static,1342308352
-Control7=IDC_EDIT_REF_INPUT,edit,1350633600
+Control7=IDC_EDIT_REF_INPUT,edit,1350631552
 Control8=IDC_STATIC,static,1342308352
 Control9=IDC_EDIT_TOL_INPUT,edit,1350639744
 Control10=IDC_CHART_GAGE,static,1342177294

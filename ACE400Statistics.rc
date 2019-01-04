@@ -264,8 +264,7 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Resistance Type",IDC_STATIC,14,145,45,19
     LTEXT           "Reference",IDC_STATIC,15,196,45,13
-    EDITTEXT        IDC_EDIT_REF_INPUT,63,194,60,12,ES_AUTOHSCROLL | 
-                    ES_READONLY
+    EDITTEXT        IDC_EDIT_REF_INPUT,63,194,60,12,ES_AUTOHSCROLL
     LTEXT           "Tolerance\n(Upper spec- Lower Spec)",IDC_STATIC,15,214,
                     45,26
     EDITTEXT        IDC_EDIT_TOL_INPUT,63,217,39,12,ES_AUTOHSCROLL | 
