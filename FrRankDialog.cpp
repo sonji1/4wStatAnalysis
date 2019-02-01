@@ -88,6 +88,15 @@ BOOL CFrRankDialog::OnInitDialog()
 
 	DisplayFrRank();
 
+
+	MyTrace(PRT_BASIC, "\"FR Rank Dialog\" Started...\n" );
+
+	CRect m_rectCurHist;
+	this->GetWindowRect(m_rectCurHist);
+	MyTrace(PRT_BASIC, "FR Rank Dialog:   top=%d, bottom=%d, left=%d, right=%d\n\n", 
+							m_rectCurHist.top, m_rectCurHist.bottom,
+							m_rectCurHist.left, m_rectCurHist.right);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -147,7 +156,7 @@ BOOL CFrRankDialog::DestroyWindow()
 
 //	m_gridFault.DeleteAllItems();
 
-	MyTrace(PRT_BASIC, "FrRankDlg Destroyed...\n" );
+	MyTrace(PRT_BASIC, "FrRank Dialog Destroyed...\n" );
 	return CDialog::DestroyWindow();
 }
 
@@ -224,12 +233,12 @@ BOOL CFrRankDialog::InitView()
 
 	// FAULT Grid Header ¼³Á¤
 	
-	//            0     1        2      3       4                       5           6                      7            8       9       10       11        12
+	//            0     1        2      3       4                       5           6                      7            8                9       10       11        12
 	char faultGridHeader[NUM_FR_GRID_COL][30] = 
 				{"No", "Lot", "Date", "Net",  "Total\n(Tuple*Data)",  "NgCount", "Count\n(n:Total-NG)",  "Average",  "Sigma\n(StDev)",  "Min",  "Max", "Fault", "FR\n(Fault/Count)"  };
 
 	int faultGridColWidth[NUM_FR_GRID_COL] =    
-				{ 40,    115,     70,    55,     80,                     70,         80,                   70,          70,      70,    70,     60,        90,       }; 
+				{ 40,    85,     70,    55,     80,                     70,         80,                   70,          70,                70,    70,     50,        90,       }; 
 	int i;
 	for (i=0; i < NUM_FR_GRID_COL; i++)
 	{

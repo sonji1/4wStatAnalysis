@@ -101,16 +101,19 @@ BOOL CStatisticsDialog::OnInitDialog()
 	
 	// TODO: Add extra initialization here
 	
-__PrintMemSize(FUNC(OnInitDialog), __LINE__);
+
+
+	
+//__PrintMemSize(FUNC(OnInitDialog), __LINE__);
 	if (InitMember() == FALSE)
 		return FALSE;
 
 	if (InitView() == FALSE)
 		return FALSE;
-__PrintMemSize(FUNC(OnInitDialog), __LINE__);
+//__PrintMemSize(FUNC(OnInitDialog), __LINE__);
 
 	g_sFile.Init();
-__PrintMemSize(FUNC(OnInitDialog), __LINE__);
+//__PrintMemSize(FUNC(OnInitDialog), __LINE__);
 
 #if 0
 	MyTrace(PRT_BASIC, "       sizeof(sSTAT_TIME) = %d\n", sizeof(sSTAT_TIME));
@@ -139,7 +142,14 @@ __PrintMemSize(FUNC(OnInitDialog), __LINE__);
 #endif
 
 	
-	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Started...\n" );
+	MyTrace(PRT_BASIC, "\"Statistics Dialog\" Started...\n" );
+
+
+	CRect m_rectCurHist;
+	this->GetWindowRect(m_rectCurHist);
+	MyTrace(PRT_BASIC, "Statistics Dialog:   top=%d, bottom=%d, left=%d, right=%d\n\n", 
+							m_rectCurHist.top, m_rectCurHist.bottom,
+							m_rectCurHist.left, m_rectCurHist.right);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -191,7 +201,7 @@ BOOL CStatisticsDialog::DestroyWindow()
 //	m_gridData.DeleteAllItems();		// 이거 시간이 너무 오래 걸림.
 //	m_gridSummary.DeleteAllItems();
 	
-	MyTrace(PRT_BASIC, "StatDlg Destroyed...\n" );
+	MyTrace(PRT_BASIC, "StatDialog Destroyed...\n" );
 	return CDialog::DestroyWindow();
 }
 
@@ -268,7 +278,7 @@ BOOL CStatisticsDialog::InitMember()
 BOOL CStatisticsDialog::InitView()
 {
 
-__PrintMemSize(FUNC(InitView), __LINE__);
+//__PrintMemSize(FUNC(InitView), __LINE__);
 	MyTrace(PRT_BASIC, "\n");
 
 	UpdateData(TRUE);
@@ -363,7 +373,7 @@ __PrintMemSize(FUNC(InitView), __LINE__);
 
 	UpdateData(FALSE);
 
-__PrintMemSize(FUNC(InitView), __LINE__);
+//__PrintMemSize(FUNC(InitView), __LINE__);
 	MyTrace(PRT_BASIC, "\n");
 
 	return TRUE;
@@ -416,7 +426,7 @@ void CStatisticsDialog::Display_DataGridHeader()
 													"Data1", "Data2", "Data3", "Data4", "Data5", "Data6",
 													"Data7", "Data8", "Data9", "Data10", "Data11", "Data12" };
 
-	int dataColWidth[NUM_DATA_GRID_COL] =    {40,    68,     60,   45,     45,     45,     45,     70,    70,    72,
+	int dataColWidth[NUM_DATA_GRID_COL] =    {40,    68,     60,   45,     45,     45,     45,     65,    65,    65,
 													 70,         70,         70,        70,
 													 70,         70,         70,        70,         70,       70,
 		                                             70,         70,         70,        70,         70,       70 };
@@ -463,13 +473,13 @@ void CStatisticsDialog::OnButtonLoad4wData()
 
 	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
 	DisplayGrid_DefaultLotNet();
-__PrintMemSize(FUNC(OnButtonLoad4wData), __LINE__);
+//__PrintMemSize(FUNC(OnButtonLoad4wData), __LINE__);
 
 	// LOAD LOG4W가 완료되었음을 FR Rank Dlg에 알린다.
 	//::SendMessage(m_hwnd_FrRankDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
 	::PostMessage(m_hwnd_FrRankDlg,   UWM_LOAD_LOG4W_DATA, 0, 0);
 	::PostMessage(m_hwnd_YrPChartDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
-__PrintMemSize(FUNC(OnButtonLoad4wData), __LINE__);
+//__PrintMemSize(FUNC(OnButtonLoad4wData), __LINE__);
 }
 
 // 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
@@ -512,27 +522,27 @@ void CStatisticsDialog::Load_Log4wDir()
 	if (ret == IDCANCEL)
 		return;
 
-__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
+//__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 	MyTrace(PRT_BASIC, "          m_nNetDataCount = %d\n", m_nNetDataCount);
 	MyTrace(PRT_BASIC, "\n");
 
 	ClearGrid(); // data Grid, summary Grid, edit박스 등 UI를 초기화한다.
 
-__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
+//__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 
 	Stat_deleteAllNetData();
 
-__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
+//__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 	InitMember();
 
 	Display_DataGridHeader(); 	// Data Grid Header 다시 설정 (simul이 on이었다면 off로 바꾸고 헤더를 다시 그려줘야함)
 
 	InitTree();					// root부터 Tree를 다시 생성.	
-__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
+//__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 
 	// 측정 raw data 파일을 read한다.
 	Load_Log4wDir(g_sFile.ACE400_4WDataDir);
-__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
+//__PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 
 	
 	// Load한 모든 Tree >Lot > Net에 대해 Fault 체크를 수행한다.
@@ -549,7 +559,7 @@ __PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 __PrintMemSize(FUNC(Load_Log4wDir), __LINE__);
 
 	// 2018.04.27 모든 Lot이 read 완료 되었으면  현재  lot정보를 파일로 저장한다. 
-	//Save_StatLotDataFile(m_nLoad_CurrLot);		// lot별로 file을 저장하는 기능은 현재 봉인함.
+	//Save_StatLotDataFile(m_nLoad_CurrLot);		// lot별 data를 file 저장하는 기능은 봉인함. 리스크 크고 시간 많이 잡아먹을 수.
 	
 }
 
@@ -707,7 +717,7 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 				
 				continue;
 			}
-__PrintMemSize(FUNC(Load_Log4wDir_D:log4w), __LINE__);
+//__PrintMemSize(FUNC(Load_Log4wDir_D:log4w), __LINE__);
 
 
 
@@ -1648,7 +1658,7 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 {
 	// TODO: Add your control notification handler code here
 	//
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	
 	CString strTemp;
 
@@ -1698,7 +1708,7 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	}
 
 
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
 	//-----------------------------
 	// Lot Name을 먼저 처리
@@ -1718,8 +1728,11 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	//        nSlashLoc는 27이 리턴됨. 27부터 Left()를 이용해서 왼쪽을 선택하면 폴더Path (dirPath).
 	//        dirPath는 "D:\log4w\20180503_036782A2S"   . 결과적으로 오른쪽 fileName만 삭제됨.
 	dirPath = dataFilePath.Left(nSlashLoc); 
+	MyTrace(PRT_BASIC, "Load 4wData(Single)...: Lot=%s\n\n\n", dirPath);
 
-
+#if 0
+ 	// 2019.01.29 :  D:\\log\\ 이외의 디렉토리도 로딩이 필요하여 아래 코드를 코멘트 처리함
+ 	
 	// d:\log4w 디렉토리 아래의 디렉토리인지 확인한다. ---------------
  	if (dirPath.Find("D:\\log4w\\") == -1)	
 	{
@@ -1729,19 +1742,28 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 		return;
 	}
 
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
-	BeginWaitCursor();			// 커서를 waiting 모드로 바꾼다.
 
+	// 먼저 "D:\log4w\"에 해당하는 첫번째 level을 lotName에서 제외한다.
 	CString lotName = dirPath;
-	MyTrace(PRT_BASIC, "Load 4wData(Single)...: Lot=%s\n\n\n", lotName);
 	int	length = strlen(lotName);
-	lotName = lotName.Mid(9, (length -9));		// 먼저 "D:\log4w\"에 해당하는 첫번째 level을 떼어낸다.
+	lotName = lotName.Mid(9, (length -9));		
 							// 2018.06.28: 잘라내는 위치를 9로 고정하면 D:\log4w이외에 다른 경우를 커버하지 못함.
 							// 			   사용자 실수 이므로 이정도는 용인한다. d:\log4w_2 를 선택한다면 처리는 정상적으로
 							// 			   되는데 date name은 이상하게 출력된다.
 
+#else
+	// ReverseFind()로 뒤에서부터 두번째의 '\' 위치 (D:\log4w\의 마지막 위치)를 찾는다.
+	// log4w가 아니라 log4w_2같은 이름이어도 사용이 가능하게 된다.
+	int nSlashLoc2 = dirPath.ReverseFind('\\');	 
+ 
+	// 2019.01.31: 잘라내는 시작지점을 nSlashLoc2+1로 한다. 원래의 D:\log4w\라면 nSlashLo2+1은 9가 된다.
+	CString lotName = dirPath;
+	int	length = strlen(lotName);
+	lotName = lotName.Mid((nSlashLoc2+1), (length - (nSlashLoc2 + 1)));	
 
+#endif
 
 	// "20170925" 처럼 날짜로 시작하지 않는다면 리턴.  (Lot 디렉토리가 아님) -------------
 	CString dateName  = lotName.Left(8);		// 날짜 str 보관.
@@ -1753,6 +1775,8 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 		ErrMsg();  ERR.Reset(); 		
 		return;
 	}
+
+	BeginWaitCursor();			// 커서를 waiting 모드로 바꾼다.
 
 	// Check Empty Directory     -------------------------
 	// 빈 lot이 추가되는 것을 막기 위해 Insert할 디렉토리가 빈 디렉토리인지 검사한다.  (자원절약)
@@ -1801,17 +1825,17 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	// UI (Tree, Date, Grid )  및 메모리 초기화 
 	
 	ClearGrid(); // data Grid, summary Grid, edit박스 등 UI를 초기화한다.
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
 	Stat_deleteAllNetData();	// 기존 netData를 모두 메모리에서 지운다.
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	InitMember();				// CStatisticsDialog 멤버 변수를 모두 초기화 한다.
 	
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	Display_DataGridHeader(); 	// Data Grid Header 다시 설정 (simul이 on이었다면 off로 바꾸고 헤더를 다시 그려줘야함)
 
 	InitTree();					// root부터 Tree를 다시 생성.	
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
 
 	//-------------------------
@@ -1887,13 +1911,13 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 		nFile++;
 	}
 
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
 	//------------------------------------------
 	// 해당 Lot의 모든 Net의 Fault Check
 	Tree_Check_LotNetFaults(hLotItem, lotId);
 	
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 
 	strTemp.Format("\'Load 4w Data\' for \"%s\" Completed.\n\n To View 4W Data, follow these steps, please.\n 1. Select any Net in the tree.\n 2. Select the Date.", dirPath);
 	AfxMessageBox(strTemp, MB_ICONINFORMATION);
@@ -1904,7 +1928,7 @@ __PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
 	DisplayGrid_DefaultLotNet();
 
-__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	MyTrace(PRT_BASIC, "          m_nNetDataCount = %d\n", m_nNetDataCount);
 	MyTrace(PRT_BASIC, "\n");
 
@@ -2765,7 +2789,7 @@ void CStatisticsDialog::ClearGrid()
 	ClearGrid_Data();	
 
 	m_GridSnap.InitMember();
-__PrintMemSize(FUNC(ClearGrid), __LINE__);
+//__PrintMemSize(FUNC(ClearGrid), __LINE__);
 
 	UpdateData(FALSE);		// 변경 data 화면 반영
 	Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.

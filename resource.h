@@ -78,6 +78,7 @@
 #define IDC_CHECK_APPLY_ULSL            1037
 #define IDC_CHECK_SIMUL_ULSL            1038
 #define IDC_EDIT_FR_FAULT_TOTAL         1038
+#define IDC_LABEL1                      1039
 #define IDC_CHECK_PRT_BASIC             1085
 #define IDC_CHECK_PRT_LEVEL1            1086
 #define IDC_CHECK_PRT_Level2            1087
@@ -91,9 +92,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        137
+#define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

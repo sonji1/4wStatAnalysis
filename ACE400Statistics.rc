@@ -85,17 +85,15 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_MAIN_DIALOG DIALOGEX 0, 0, 719, 469
+IDD_MAIN_DIALOG DIALOGEX 0, 0, 667, 404
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "ACE400Statistics"
 FONT 10, "Calibri"
 BEGIN
     PUSHBUTTON      "Exit",IDOK,187,12,31,23
-    LTEXT           "To view 4W Data, follow these steps, please. \n\n 1.Click  '4W Statistics -> Load 4W Data' button to select the desired 4W Data file.\n 2. Click Lot to select it and then choose Net on the screen.\n 3. Select the Date.",
-                    IDC_STATIC,234,7,218,50
-    LTEXT           "Click ''4W Statistics -> Load 4W Data(Multi Lot)' button to load multiple 4W Lot data at once. It may take a few minutes.",
-                    IDC_STATIC,455,5,257,19
+    LTEXT           "To view 4W Data, follow these steps, please. \n 1.Click  '4W Statistics -> Load 4W Data' button to select the desired 4W Data file.\n 2. Click Lot to select it and then choose Net on the screen.\n 3. Select the Date.",
+                    IDC_STATIC,235,5,332,33
     CONTROL         "4W\nStatistics",IDC_CHECK_STATISTICS,"Button",
                     BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_MULTILINE | 
                     WS_TABSTOP,7,12,33,23
@@ -105,53 +103,51 @@ BEGIN
                     BS_PUSHLIKE | WS_TABSTOP,152,12,30,23
     CONTROL         "FR\nRank",IDC_CHECK_FR_RANK,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,43,12,31,23
-    LTEXT           "Not all files in all Lot directories are loaded, with the following restrictions.\nRestrictions:  MaxLot = 5, MaxDate = 5, MaxNet = 5000, MaxTimeTuple = 4000, \n                         Total (Net * TimeTuple) = 8000000",
-                    IDC_STATIC,455,24,257,27
     CONTROL         "4W Gage\nStudy",IDC_CHECK_GAGE,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,115,12,34,23
 END
 
-IDD_STATISTICS_DIALOG DIALOGEX 5, 65, 710, 398
+IDD_STATISTICS_DIALOG DIALOGEX 5, 50, 658, 342
 STYLE WS_CHILD | WS_BORDER
 FONT 10, "Calibri"
 BEGIN
     LTEXT           "Item",IDC_STATIC,11,39,17,8
     CONTROL         "Statistics Grid",IDC_GRID_DATA,"MFCGridCtrl",WS_TABSTOP,
-                    130,72,573,317
+                    130,72,517,262
     CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
                     TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | 
-                    TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,6,57,115,234
+                    TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,6,57,115,184
     EDITTEXT        IDC_EDIT_SELECT,32,37,90,14,ES_AUTOHSCROLL | ES_READONLY
     CONTROL         "Custom1",IDC_GRID_SUMMARY,"MFCGridCtrl",WS_TABSTOP,130,
                     15,434,41
-    COMBOBOX        IDC_COMBO_DATE,35,297,87,64,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_COMBO_DATE,35,247,87,64,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Date :",IDC_STATIC,12,299,17,8
+    LTEXT           "Date :",IDC_STATIC,12,249,17,8
     PUSHBUTTON      "Load 4W Data (Multi Lot)",IDC_BUTTON_LOAD4W_DATA,66,7,
                     56,22,BS_MULTILINE
-    LTEXT           "Time\nTuple #",IDC_STATIC,577,15,27,17
-    EDITTEXT        IDC_EDIT_TUPLE_NUM,578,34,29,14,ES_AUTOHSCROLL | 
+    LTEXT           "Time\nTuple #",IDC_STATIC,573,14,27,17
+    EDITTEXT        IDC_EDIT_TUPLE_NUM,574,33,29,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Data #",IDC_STATIC,613,23,32,8
-    EDITTEXT        IDC_EDIT_SAMPLE_NUM,613,34,32,14,ES_AUTOHSCROLL | 
+    LTEXT           "Data #",IDC_STATIC,609,22,32,8
+    EDITTEXT        IDC_EDIT_SAMPLE_NUM,609,33,32,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     LTEXT           "Summary",IDC_STATIC,130,3,30,8
     LTEXT           "Data",IDC_STATIC,133,62,15,8
     PUSHBUTTON      "Load 4W Data",IDC_BUTTON_LOAD4W_DATA_SINGLE,7,7,56,22
     CONTROL         "Fault (LSL, USL Over Data) Tuple Only",
                     IDC_CHECK_DATA_FAULT_ONLY,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,574,59,129,10
-    PUSHBUTTON      "Save to CSV",IDC_BUTTON_SAVE_STAT_CSV,7,367,54,18
-    PUSHBUTTON      "View saved CSV",IDC_BUTTON_VIEW_STAT_CSV,67,367,54,18
-    LTEXT           "LSL",IDC_STATIC,14,333,13,8
-    EDITTEXT        IDC_EDIT_LSL,11,342,29,14,ES_AUTOHSCROLL
-    LTEXT           "USL",IDC_STATIC,50,332,21,8
-    EDITTEXT        IDC_EDIT_USL,46,342,30,14,ES_AUTOHSCROLL
-    GROUPBOX        "",IDC_STATIC,7,320,115,41
+                    WS_TABSTOP,511,58,129,10
+    PUSHBUTTON      "Save to CSV",IDC_BUTTON_SAVE_STAT_CSV,7,317,54,18
+    PUSHBUTTON      "View saved CSV",IDC_BUTTON_VIEW_STAT_CSV,67,317,54,18
+    LTEXT           "LSL",IDC_STATIC,14,283,13,8
+    EDITTEXT        IDC_EDIT_LSL,11,292,29,14,ES_AUTOHSCROLL
+    LTEXT           "USL",IDC_STATIC,50,282,21,8
+    EDITTEXT        IDC_EDIT_USL,46,292,30,14,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,7,270,115,41
     CONTROL         "Apply",IDC_CHECK_APPLY_ULSL,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,82,334,35,22
+                    BS_PUSHLIKE | BS_MULTILINE | WS_TABSTOP,82,284,35,22
     CONTROL         "Simulate LSL / USL",IDC_CHECK_SIMUL_ULSL,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,14,319,71,10,
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,269,71,10,
                     WS_EX_TRANSPARENT
 END
 
@@ -180,7 +176,7 @@ BEGIN
                     WS_EX_CLIENTEDGE
 END
 
-IDD_PCHART_DIALOG DIALOG DISCARDABLE  5, 65, 697, 397
+IDD_PCHART_DIALOG DIALOG DISCARDABLE  5, 55, 658, 337
 STYLE WS_CHILD | WS_BORDER
 FONT 10, "Calibri"
 BEGIN
@@ -190,34 +186,34 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Lot",IDC_STATIC,7,7,10,8
     LTEXT           "Date",IDC_STATIC,7,33,15,8
-    CONTROL         "",IDC_CHART,"Static",SS_BITMAP,131,7,13,11
+    CONTROL         "",IDC_CHART,"Static",SS_BITMAP,123,7,13,11
     LTEXT           "YR(Yield Rate)  OOC(Out Of Control) List",IDC_STATIC,
-                    130,170,155,10
+                    123,163,155,10
     PUSHBUTTON      "Diplay p-Chart",IDC_BUTTON_DIS_PCHART,13,58,96,17,NOT 
                     WS_VISIBLE | WS_DISABLED
-    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_PCHART,14,313,96,17
+    PUSHBUTTON      "Save  to CSV file",IDC_BUTTON_SAVE_PCHART,14,257,96,17
     CONTROL         "Custom1",IDC_GRID_PCHART_OOC,"MFCGridCtrl",WS_TABSTOP,
-                    130,183,545,204
-    EDITTEXT        IDC_EDIT_PCAHRT_NET_CNT,67,183,42,14,ES_AUTOHSCROLL | 
+                    123,176,528,152
+    EDITTEXT        IDC_EDIT_PCAHRT_NET_CNT,67,127,42,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Net Count",IDC_STATIC,7,183,31,8
-    EDITTEXT        IDC_EDIT_PCAHRT_OOC_CNT,66,225,42,14,ES_AUTOHSCROLL | 
+    LTEXT           "Net Count",IDC_STATIC,7,127,31,8
+    EDITTEXT        IDC_EDIT_PCAHRT_OOC_CNT,66,169,42,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "OOC Alarm Count",IDC_STATIC,7,225,56,8
-    GROUPBOX        "YR OOC List Mode",IDC_STATIC,7,249,102,52
+    LTEXT           "OOC Alarm Count",IDC_STATIC,7,169,56,8
+    GROUPBOX        "YR OOC List Mode",IDC_STATIC,7,193,102,52
     CONTROL         "OOC Alarm Net Only\n( YR < LCL)",IDC_CHECK_OOCNET_ONLY,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,
-                    278,89,20
+                    222,89,20
     CONTROL         "Fault Net Only",IDC_CHECK_FAULT_ONLY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,263,61,10
-    EDITTEXT        IDC_EDIT_PCAHRT_FAULT_CNT,67,204,42,14,ES_AUTOHSCROLL | 
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,207,61,10
+    EDITTEXT        IDC_EDIT_PCAHRT_FAULT_CNT,67,148,42,14,ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Fault Net Count",IDC_STATIC,7,204,49,8
-    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_PCHART_CSV,14,339,
+    LTEXT           "Fault Net Count",IDC_STATIC,7,148,49,8
+    PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_PCHART_CSV,14,283,
                     96,17
 END
 
-IDD_FR_RANK_DIALOG DIALOG DISCARDABLE  5, 65, 686, 393
+IDD_FR_RANK_DIALOG DIALOG DISCARDABLE  5, 55, 652, 336
 STYLE WS_CHILD | WS_BORDER
 FONT 10, "Calibri"
 BEGIN
@@ -240,9 +236,9 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,206,86,10
     PUSHBUTTON      "View  saved CSV file",IDC_BUTTON_VIEW_FR_LIST_CSV,7,273,
                     96,17
-    LTEXT           "Fault",IDC_STATIC,130,13,45,10
-    CONTROL         "Custom1",IDC_GRID_FR_LIST,"MFCGridCtrl",WS_TABSTOP,130,
-                    24,545,352
+    LTEXT           "Fault",IDC_STATIC,126,13,45,10
+    CONTROL         "Custom1",IDC_GRID_FR_LIST,"MFCGridCtrl",WS_TABSTOP,126,
+                    25,518,303
     GROUPBOX        "Fault List Mode",IDC_STATIC,7,145,102,32
     CONTROL         "Fault Net Only",IDC_CHECK_FR_FAULT_ONLY,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,161,61,10
@@ -251,59 +247,61 @@ BEGIN
     LTEXT           "Total Fault",IDC_STATIC,7,111,34,8
 END
 
-IDD_GAGE_DIALOG DIALOG DISCARDABLE  5, 65, 658, 398
+IDD_GAGE_DIALOG DIALOG DISCARDABLE  5, 50, 648, 342
 STYLE WS_CHILD | WS_BORDER
 FONT 10, "Calibri"
 BEGIN
-    LTEXT           "File:",IDC_STATIC,317,8,17,8
+    LTEXT           "File:",IDC_STATIC,291,9,17,8
     CONTROL         "Gage Grid",IDC_GRID_GAGE,"MFCGridCtrl",WS_TABSTOP,6,24,
-                    639,95
-    EDITTEXT        IDC_EDIT_4W_FILE_PATH,338,6,193,15,ES_AUTOHSCROLL | 
+                    639,70
+    EDITTEXT        IDC_EDIT_4W_FILE_PATH,316,7,193,15,ES_AUTOHSCROLL | 
                     ES_READONLY
-    COMBOBOX        IDC_COMBO_MEAS_TYPE,63,145,60,75,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_COMBO_MEAS_TYPE,63,116,60,75,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Resistance Type",IDC_STATIC,14,145,45,19
-    LTEXT           "Reference",IDC_STATIC,15,196,45,13
-    EDITTEXT        IDC_EDIT_REF_INPUT,63,194,60,12,ES_AUTOHSCROLL
-    LTEXT           "Tolerance\n(Upper spec- Lower Spec)",IDC_STATIC,15,214,
+    LTEXT           "Resistance Type",IDC_STATIC,15,116,45,19
+    LTEXT           "Reference",IDC_STATIC,14,161,45,13
+    EDITTEXT        IDC_EDIT_REF_INPUT,62,159,60,12,ES_AUTOHSCROLL
+    LTEXT           "Tolerance\n(Upper spec- Lower Spec)",IDC_STATIC,14,177,
                     45,26
-    EDITTEXT        IDC_EDIT_TOL_INPUT,63,217,39,12,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_TOL_INPUT,62,180,39,12,ES_AUTOHSCROLL | 
                     ES_NUMBER
-    CONTROL         "",IDC_CHART_GAGE,"Static",SS_BITMAP,159,125,13,11
-    GROUPBOX        "Basic Statistics",IDC_STATIC,160,293,121,89
+    CONTROL         "",IDC_CHART_GAGE,"Static",SS_BITMAP,161,96,13,11
+    GROUPBOX        "Basic Statistics",IDC_STATIC,162,234,121,89
     CONTROL         "Type1 Gage Study - Observation",IDC_STATIC,"Static",
-                    SS_LEFTNOWORDWRAP | WS_GROUP,148,281,110,12
-    GROUPBOX        "Bias",IDC_STATIC,295,293,119,76
-    GROUPBOX        "Capability",IDC_STATIC,428,293,123,49
+                    SS_LEFTNOWORDWRAP | WS_GROUP,162,220,110,12
+    GROUPBOX        "Bias",IDC_STATIC,290,234,119,76
+    GROUPBOX        "Capability",IDC_STATIC,417,234,123,49
     LTEXT           "4W Measurement Data ",IDC_STATIC,6,9,110,12
-    GROUPBOX        "Type1 Gage Study - Input",IDC_STATIC,6,130,123,141
-    CONTROL         "z",IDC_GRID_GAGE_STAT,"MFCGridCtrl",WS_TABSTOP,168,309,
+    GROUPBOX        "Type1 Gage Study - Input",IDC_STATIC,6,101,123,130
+    CONTROL         "z",IDC_GRID_GAGE_STAT,"MFCGridCtrl",WS_TABSTOP,170,250,
                     103,67
-    CONTROL         "Bias",IDC_GRID_BIAS,"MFCGridCtrl",WS_TABSTOP,304,309,
+    CONTROL         "Bias",IDC_GRID_BIAS,"MFCGridCtrl",WS_TABSTOP,299,250,
                     103,48
     CONTROL         "Capability",IDC_GRID_CAPABILITY,"MFCGridCtrl",
-                    WS_TABSTOP,436,309,103,27
-    LISTBOX         IDC_LIST_MSG,428,377,211,15,LBS_SORT | 
+                    WS_TABSTOP,425,250,103,27
+    LISTBOX         IDC_LIST_MSG,417,317,200,15,LBS_SORT | 
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
                     WS_TABSTOP
-    PUSHBUTTON      "Load File",IDC_BUTTON_LOAD_MEASDATA,241,5,54,16
-    LTEXT           "x 0.1",IDC_STATIC,103,219,17,8
-    LTEXT           "Measurement\nCount  :",IDC_STATIC,552,5,46,16
-    EDITTEXT        IDC_EDIT_MEASDATA_CNT,603,7,33,14,ES_AUTOHSCROLL | 
+    PUSHBUTTON      "Load File",IDC_BUTTON_LOAD_MEASDATA,219,7,54,16
+    LTEXT           "x 0.1",IDC_STATIC,102,183,17,8
+    LTEXT           "Measurement\nCount  :",IDC_STATIC,530,7,46,16
+    EDITTEXT        IDC_EDIT_MEASDATA_CNT,581,9,33,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     CONTROL         "Repeatability",IDC_GRID_REPT,"MFCGridCtrl",WS_TABSTOP,
-                    428,346,143,25
-    LTEXT           "Data Count\n to GageStudy",IDC_STATIC,14,169,45,20
-    EDITTEXT        IDC_EDIT_STUDY_CNT,63,170,60,12,ES_AUTOHSCROLL | 
+                    417,286,143,25
+    LTEXT           "Data Count\n to GageStudy",IDC_STATIC,15,137,45,20
+    EDITTEXT        IDC_EDIT_STUDY_CNT,63,138,60,12,ES_AUTOHSCROLL | 
                     ES_NUMBER
-    PUSHBUTTON      "OK",IDC_BUTTON_DO_STUDY,27,246,87,16
-    PUSHBUTTON      "Save to File",IDC_BUTTON_SAVE_FILE,27,281,87,19
-    PUSHBUTTON      "View saved File",IDC_BUTTON_VIEW_FILE,27,305,87,19
+    PUSHBUTTON      "OK",IDC_BUTTON_DO_STUDY,26,206,87,16
+    PUSHBUTTON      "Save to File",IDC_BUTTON_SAVE_FILE,27,235,87,19
+    PUSHBUTTON      "View saved File",IDC_BUTTON_VIEW_FILE,27,258,87,19
     PUSHBUTTON      "Auto GageStudy && Save",IDC_BUTTON_AUTO_GAGE_SAVE,27,
-                    330,87,25,BS_MULTILINE
-    LTEXT           "Saved\nLocation :",IDC_STATIC,7,367,32,17
-    EDITTEXT        IDC_EDIT_SAVED_PATH,38,364,115,27,ES_MULTILINE | 
+                    281,86,19,BS_MULTILINE
+    LTEXT           "Saved\nLocation :",IDC_STATIC,6,308,32,17
+    EDITTEXT        IDC_EDIT_SAVED_PATH,38,305,115,27,ES_MULTILINE | 
                     ES_READONLY
+    CONTROL         "",IDC_LABEL1,"{978C9E23-D4B0-11CE-BF2D-00AA003F40D0}",
+                    0x0,11,11,55,13
 END
 
 
@@ -369,16 +367,16 @@ BEGIN
     IDD_MAIN_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 712
+        RIGHTMARGIN, 660
         TOPMARGIN, 5
-        BOTTOMMARGIN, 464
+        BOTTOMMARGIN, 399
     END
 
     IDD_STATISTICS_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 703
-        BOTTOMMARGIN, 391
+        RIGHTMARGIN, 651
+        BOTTOMMARGIN, 335
     END
 
     IDD_CONFIG_DIALOG, DIALOG
@@ -393,25 +391,25 @@ BEGIN
     IDD_PCHART_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 690
+        RIGHTMARGIN, 651
         TOPMARGIN, 7
-        BOTTOMMARGIN, 391
+        BOTTOMMARGIN, 331
     END
 
     IDD_FR_RANK_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 679
+        RIGHTMARGIN, 645
         TOPMARGIN, 7
-        BOTTOMMARGIN, 386
+        BOTTOMMARGIN, 329
     END
 
     IDD_GAGE_DIALOG, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 651
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 641
         TOPMARGIN, 7
-        BOTTOMMARGIN, 391
+        BOTTOMMARGIN, 335
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -424,6 +422,22 @@ END
 
 IDB_BITMAP1             BITMAP  DISCARDABLE     "res\\tree.bmp"
 IDB_BITMAP2             BITMAP  DISCARDABLE     "res\\Bioptro.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_GAGE_DIALOG DLGINIT
+BEGIN
+    IDC_LABEL1, 0x376, 68, 0
+0x0000, 0x0000, 0x0200, 0x0020, 0x002b, 0x0000, 0x0000, 0x0000, 0xf0f0, 
+0x00f0, 0x0006, 0x8000, 0x614c, 0x6562, 0x316c, 0x0069, 0x09ec, 0x0000, 
+0x027b, 0x0000, 0x0200, 0x0018, 0x0035, 0x0000, 0x0007, 0x8000, 0x00c3, 
+0x0000, 0x2200, 0x0000, 0x6143, 0x696c, 0x7262, 0x0069, 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

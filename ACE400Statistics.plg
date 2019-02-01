@@ -7,7 +7,7 @@
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x412 /fo"Release/ACE400Statistics.res" /d "NDEBUG" /d "_AFXDLL" "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400Statistics.rc"" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSPA10F.tmp" with contents
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP2633.tmp" with contents
 [
 /nologo /MD /W3 /GX /Zi /O2 /I "./gridctrl_src/" /I "./ChartDirector/" /I "./XLAutomation/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/ACE400Statistics.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\ACE400MainDlg.cpp"
@@ -30,14 +30,14 @@ Creating temporary file "C:\Users\User\AppData\Local\Temp\RSPA10F.tmp" with cont
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\XLAutomation\XLAutomation.cpp"
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\XLAutomation\XLEzAutomation.cpp"
 ]
-Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSPA10F.tmp" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSPA110.tmp" with contents
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP2633.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP2634.tmp" with contents
 [
 /nologo /MD /W3 /GX /Zi /O2 /I "./gridctrl_src/" /I "./ChartDirector/" /I "./XLAutomation/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/ACE400Statistics.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
 "C:\sonji\Bioptro\ACE400Statistics\ACE400Statistics\StdAfx.cpp"
 ]
-Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSPA110.tmp" 
-Creating temporary file "C:\Users\User\AppData\Local\Temp\RSPA111.tmp" with contents
+Creating command line "cl.exe @C:\Users\User\AppData\Local\Temp\RSP2634.tmp" 
+Creating temporary file "C:\Users\User\AppData\Local\Temp\RSP2635.tmp" with contents
 [
 ./chartdir60.lib /nologo /stack:0x300000 /subsystem:windows /incremental:yes /pdb:"Release/ACE400Statistics.pdb" /debug /machine:I386 /out:"Release/ACE400Statistics.exe" 
 .\Release\ACE400MainDlg.obj
@@ -62,7 +62,7 @@ Creating temporary file "C:\Users\User\AppData\Local\Temp\RSPA111.tmp" with cont
 .\Release\XLEzAutomation.obj
 .\Release\ACE400Statistics.res
 ]
-Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSPA111.tmp"
+Creating command line "link.exe @C:\Users\User\AppData\Local\Temp\RSP2635.tmp"
 <h3>Output Window</h3>
 Compiling resources...
 Compiling...

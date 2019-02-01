@@ -157,6 +157,14 @@ BOOL CACE400MainDlg::OnInitDialog()
 #endif
 
 
+	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Started...\n" );
+
+	CRect m_rectCurHist;
+	this->GetWindowRect(m_rectCurHist);
+	MyTrace(PRT_BASIC, "4W Statistics SW Main Dialog:   top=%d, bottom=%d, left=%d, right=%d\n\n", 
+							m_rectCurHist.top, m_rectCurHist.bottom,
+							m_rectCurHist.left, m_rectCurHist.right);
+
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -220,7 +228,7 @@ BOOL CACE400MainDlg::DestroyWindow()
 	m_PChartDlg.DestroyWindow();
 	m_GageDlg.DestroyWindow();
 
-	MyTrace(PRT_BASIC, "\"4W Statistics SW\" StatDlg Destroyed...\n\n\n\n\n" );
+	MyTrace(PRT_BASIC, "\"4W Statistics SW\" Destroyed...\n\n\n\n\n" );
 
 #if 0
 //#ifdef _DEBUG

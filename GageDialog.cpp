@@ -106,6 +106,12 @@ BOOL CGageDialog::OnInitDialog()
 	
 
 	MyTrace(PRT_BASIC, "\"4W GageStudy Dialog\" Started...\n" );
+
+	CRect m_rectCurHist;
+	this->GetWindowRect(m_rectCurHist);
+	MyTrace(PRT_BASIC, "4W GageStudy Dialog:   top=%d, bottom=%d, left=%d, right=%d\n\n", 
+							m_rectCurHist.top, m_rectCurHist.bottom,
+							m_rectCurHist.left, m_rectCurHist.right);
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -261,16 +267,23 @@ BOOL CGageDialog::InitView()
 	dataFileName = "\\4W_Setup_A.txt";	
 	dataFilePath += dataFileName;
 
-	if (Load_4W_MeasData(dataFilePath) < 0)
+	// 4W Meas Data Open Fail
+	if (Load_4W_MeasData(dataFilePath) < 0)		
 	{
 		UpdateData(FALSE);
 		Invalidate(TRUE);		// 화면 강제 갱신. UpdateData(False)만으로 Grid 화면 갱신이 되지 않아서 추가함.
-		return FALSE;
+
+		// 2019.01.29  : default 파일이 없더라도 return은 하지 않고 나머지를 진행하도록 수정
+		//return FALSE;
 	}
 
-	// Grid Data  출력
-	//  : 블루로 선택할 data가 있어야 하므로 ChangeCurrType(type)은  Display_mohmGridData() 다음에 호출해야 함.
-	Display_mohmGridData();			
+	// 4W Meas Data Open 성공
+	else
+	{
+		// Grid Data  출력
+		//  : 블루로 선택할 data가 있어야 하므로 ChangeCurrType(type)은  Display_mohmGridData() 다음에 호출해야 함.
+		Display_mohmGridData();			
+	}
 
 
 	// 현재 combo에서 선택된 type#
@@ -710,6 +723,8 @@ BOOL CGageDialog::DestroyWindow()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	
+
+	MyTrace(PRT_BASIC, "GageDialog Destroyed...\n" );
 	return CDialog::DestroyWindow();
 }
 
@@ -753,11 +768,15 @@ void CGageDialog::SetGridBkBlue(int type)
 		m_gridCtrl.SetItemBkColour(meas+1, (GRID_COL_MOHM_BASE + type), 	// row, col
 									RGB(0x00, 0xbf, 0xff));					// deep skyblue : 짙은 하늘파랑 
 
-	// type이 mhom_750이상이면 선택된 mohm가 보이도록, Grid의 가로 스크롤 위치를 바꾼다.
-	if (type >= mohm_750)
-		m_gridCtrl.SetScrollPos32(SB_HORZ, (mohm_750 * 82));
+	// type이 mohm_50000, mhom_200이상이면 선택된 mohm가 보이도록, Grid의 가로 스크롤 위치를 바꾼다.
+/*	if (type >= mohm_50000)
+		m_gridCtrl.SetScrollPos32(SB_HORZ, (mohm_50000 * 82));
+	
+	else*/ 
+	if (type >= mohm_200)
+		m_gridCtrl.SetScrollPos32(SB_HORZ, (mohm_200 * 82));
 
-	// mohm_750이하이면 가로 스크롤 원상복구
+	// mohm_200이하이면 가로 스크롤 원상복구
 	else
 		m_gridCtrl.SetScrollPos32(SB_HORZ, 0);	
 
@@ -881,12 +900,12 @@ void CGageDialog::DisplayGageStudyChart(int type)
 	// 차트 생성 ------
     // Create an XYChart object of size 660 x 280 pixels, with a light blue (EEEEFF) background,
     // black border, 1 pxiel 3D border effect and rounded corners
-    XYChart *c = new XYChart(660, 280, 0xeeeeff, 0x000000, 1);
+    XYChart *c = new XYChart(660, 235, 0xeeeeff, 0x000000, 1);
     //c->setRoundedFrame();
 
     // Set the plotarea at (55:x, 58:y) and of size 580 x 175 pixels, with white background. Turn on
     // both horizontal and vertical grid lines with light grey color (0xcccccc)
-    c->setPlotArea(55, 58, 580, 175, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
+    c->setPlotArea(55, 58, 580, 125, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
 
 
 	// 범례형식 지정  ------- 

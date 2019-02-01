@@ -170,8 +170,9 @@ BOOL CPChartDialog::InitView()
 	char oocHeader[NUM_OOC_GRID_COL][30] = 
 				{"No", "Lot", "Date", "Net", "Total\n(Tuple*Data)", "NgCount", "Count\n(Total-NG)", "Fault", "Normal\n(Count-Fault)", "YR\n(Normal/Count)", "Center", "LCL",  "OOC Alarm\n(YR<LCL)" };
 
+
 	int oocColWidth[NUM_OOC_GRID_COL] =    
-				{ 40,    80,     70,    50,     80,                   70,         80,                70,            85,                 100,                 70,       70,     80 };
+				{ 40,    85,     70,    50,     80,                   70,         80,                45,            80,                 100,                 70,       70,     80 };
 
 	int i;
 	for (i=0; i < NUM_OOC_GRID_COL; i++)
@@ -211,6 +212,14 @@ BOOL CPChartDialog::OnInitDialog()
 		return FALSE;	
 
 	DisplayPchart_ALL();
+
+	MyTrace(PRT_BASIC, "\"YR PChart Dialog\" Started...\n" );
+
+	CRect m_rectCurHist;
+	this->GetWindowRect(m_rectCurHist);
+	MyTrace(PRT_BASIC, "YR PChart Dialog:   top=%d, bottom=%d, left=%d, right=%d\n\n", 
+							m_rectCurHist.top, m_rectCurHist.bottom,
+							m_rectCurHist.left, m_rectCurHist.right);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -571,12 +580,12 @@ void CPChartDialog::DisplayPChart(int nLot, int nDate, int nTrackNet /*= -1*/)
 	// 차트 생성 ------
     // Create an XYChart object of size 950 x 300 pixels, with a light blue (EEEEFF) background,
     // black border, 1 pxiel 3D border effect and rounded corners
-    XYChart *c = new XYChart(950, 300, 0xeeeeff, 0x000000, 1);
+    XYChart *c = new XYChart(850, 270, 0xeeeeff, 0x000000, 1);
     //c->setRoundedFrame();
 
     // Set the plotarea at (55:x, 58:y) and of size 870 x 195 pixels, with white background. Turn on
     // both horizontal and vertical grid lines with light grey color (0xcccccc)
-    c->setPlotArea(55, 58, 870, 195, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
+    c->setPlotArea(55, 58, 770, 175, 0xffffff, -1, -1, 0xcccccc, 0xcccccc);
 
 
 	// 범례형식 지정  ------- 
@@ -1152,7 +1161,7 @@ BOOL CPChartDialog::DestroyWindow()
 	// TODO: Add your specialized code here and/or call the base class
 	m_gridOOC.DeleteAllItems();	
 
-	MyTrace(PRT_BASIC, "pChartDlg Destroyed...\n" );
+	MyTrace(PRT_BASIC, "YR PChart Dialog Destroyed...\n" );
 	
 	return CDialog::DestroyWindow();
 }
