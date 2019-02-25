@@ -134,7 +134,8 @@ BOOL CACE400MainDlg::OnInitDialog()
 	m_PChartDlg.ShowWindow(SW_HIDE);
 	m_FrRankDlg.Create(IDD_FR_RANK_DIALOG, this);		// make Modeless Dialog
 	m_FrRankDlg.ShowWindow(SW_HIDE);
-	m_GageDlg.Create(IDD_GAGE_DIALOG, this);			// make Modeless Dialog
+	if (m_GageDlg.Create(IDD_GAGE_DIALOG, this) == 0)			// make Modeless Dialog
+		MyTrace(PRT_BASIC, "m_GageDlg Create Fail!\n" );
 	m_GageDlg.ShowWindow(SW_HIDE);
 
 	// m_StatisticsDlg에서  m_FrRankDlg와, m_PChartDlg로 메시지를 보낼때 사용할 hwnd 를 StatisticsDlg에 넘겨준다.
@@ -224,6 +225,7 @@ BOOL CACE400MainDlg::DestroyWindow()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	m_StatisticsDlg.DestroyWindow();	// vector를 반환
+	m_ConfigDlg.DestroyWindow();
 	m_FrRankDlg.DestroyWindow();		// vector를 반환
 	m_PChartDlg.DestroyWindow();
 	m_GageDlg.DestroyWindow();
@@ -334,6 +336,7 @@ void CACE400MainDlg::OnCheckGage()
 	m_FrRankDlg.ShowWindow(SW_HIDE);
 	m_GageDlg.ShowWindow(SW_SHOW);
 	UpdateData(FALSE);
+
 	
 }
 

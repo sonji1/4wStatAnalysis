@@ -104,7 +104,8 @@ BOOL CPChartDialog::InitMember()
 	m_nFixRows = 1;
 	m_nFixCols = 1;		
 	m_nCols = NUM_OOC_GRID_COL;
-	m_nRows = MAX_OOC_GRID_ROW;
+	//m_nRows = MAX_OOC_GRID_ROW;
+	m_nRows = 201;			// default . DisplayGrid 시에 다시 맞춘다.
 	m_bEditable = FALSE;
 
 	UpdateData(FALSE);		// m_nNetCount, m_nOocNetCount edit box 화면 갱신을 위해 필요
@@ -835,6 +836,25 @@ void CPChartDialog::DisplayGrid_OOC(int nLot, int nDate, int nTrackNet /*= -1*/,
 			nLot, nDate, nTrackNet, bScrollBarInit);
 	ClearGrid_OOC();
 __PrintMemSize(FUNC(DisplayGrid_OOC), __LINE__);
+
+	int netSize = g_sLotNetDate_Info.naLotNetCnt[nLot];
+	if (m_nRows != (netSize +1))
+	{
+		m_nRows = netSize + 1; 	// netSize + 1 (헤더 라인)
+		TRY {
+			m_gridOOC.SetRowCount(m_nRows);
+			m_gridOOC.SetColumnCount(m_nCols);
+			m_gridOOC.SetFixedRowCount(m_nFixRows);
+			m_gridOOC.SetFixedColumnCount(m_nFixCols);
+		}
+		CATCH (CMemoryException, e)
+		{
+			e->ReportError();
+			e->Delete();
+			return;
+		}
+	    END_CATCH	
+	}
 
 	// Scroll Bar 초기화 옵션이 켜져 있으면 초기화 수행.
 	if (bScrollBarInit == TRUE)

@@ -227,3 +227,10 @@ void CConfigDialog::OnCheckPrtDevD64()
 	GetDlgItem(IDC_STATIC_PRINT_STATE)->SetWindowText(strTemp);
 	
 }
+
+BOOL CConfigDialog::DestroyWindow() 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CDialog::DestroyWindow();
+}

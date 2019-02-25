@@ -154,7 +154,7 @@ BOOL CFrRankDialog::DestroyWindow()
 	if (m_vsFrData.empty() == false)	
 		m_vsFrData.clear();	
 
-//	m_gridFault.DeleteAllItems();
+	m_gridFault.DeleteAllItems();
 
 	MyTrace(PRT_BASIC, "FrRank Dialog Destroyed...\n" );
 	return CDialog::DestroyWindow();
@@ -177,7 +177,8 @@ BOOL CFrRankDialog::InitMember()
 	m_nFixRows = 1;
 	m_nFixCols = 1;		
 	m_nCols = NUM_FR_GRID_COL;
-	m_nRows = MAX_FR_GRID_ROW;
+	//m_nRows = MAX_FR_GRID_ROW;
+	m_nRows = 201;			// Defalut. 실제 Display시에 제대로 맞춘다.
 	m_bEditable = FALSE;
 
 	//----------------------------
@@ -478,10 +479,29 @@ __PrintMemSize(FUNC(DisplayGridFault), __LINE__);
 	// 이전의 Grid data를 화면에서 지운다.
 	ClearGrid_Fault();
 
+
+	int netSize = m_vsFrData.size();
+	if (m_nRows != (netSize + 1))
+	{
+		m_nRows = netSize + 1; 	// netSize + 1 (헤더 라인)
+		TRY {
+			m_gridFault.SetRowCount(m_nRows);
+			m_gridFault.SetColumnCount(m_nCols);
+			m_gridFault.SetFixedRowCount(m_nFixRows);
+			m_gridFault.SetFixedColumnCount(m_nFixCols);
+		}
+		CATCH (CMemoryException, e)
+		{
+			e->ReportError();
+			e->Delete();
+			return;
+		}
+	    END_CATCH	
+	}
+
 	// scroll bar 위치를 초기화
 	m_gridFault.SetScrollPos32(SB_VERT, 0);
 	m_gridFault.SetScrollPos32(SB_HORZ, 0);
-
 
 	int nRow = 0;
 	

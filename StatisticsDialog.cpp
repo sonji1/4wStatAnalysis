@@ -197,9 +197,9 @@ BOOL CStatisticsDialog::DestroyWindow()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	Stat_deleteAllNetData();
+	m_gridSummary.DeleteAllItems();
 
-//	m_gridData.DeleteAllItems();		// 이거 시간이 너무 오래 걸림.
-//	m_gridSummary.DeleteAllItems();
+	m_gridData.DeleteAllItems();		// 이거 시간이 너무 오래 걸릴 수 있으나 하는게 맞다.
 	
 	MyTrace(PRT_BASIC, "StatDialog Destroyed...\n" );
 	return CDialog::DestroyWindow();
@@ -240,7 +240,9 @@ BOOL CStatisticsDialog::InitMember()
 	m_nFixRows = 1;
 	m_nFixCols = 1;		
 	m_nCols = NUM_DATA_GRID_COL;
-	m_nRows = MAX_DATA_GRID_ROW;
+	//m_nRows = MAX_DATA_GRID_ROW;
+	m_nRows = 201;			// Default. 실제 Display시에 제대로 맞추자.
+
 	m_bEditable = FALSE;
 /*
 	m_bListMode = TRUE;
@@ -1789,8 +1791,8 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 		dataFilePath = dlg.GetNextPathName(pos);		// pos++ ,  GetPathName()
 
 		// dirPath 부분을 떼어내서 fileName만 남긴다. (dirPath+'\' 사이즈만큼 앞부분을 자름)
-		int fileNameLength = strlen(dataFilePath);
-		fileName = dataFilePath.Mid((nSlashLoc +1), (fileNameLength - (nSlashLoc +1)));		 
+		int pathLength = strlen(dataFilePath);
+		fileName = dataFilePath.Mid((nSlashLoc +1), (pathLength - (nSlashLoc +1)));		 
 		if (fileName.Find("Sample") != -1)
 		{
 			MyTrace(PRT_BASIC, "Skip %s\n", dataFilePath );
@@ -1899,8 +1901,8 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 		dataFilePath = dlg.GetNextPathName(pos);		// pos++ ,  GetPathName()
 
 		// dirPath 부분을 떼어내서 fileName만 남긴다. (dirPath+'\' 사이즈만큼 앞부분을 자름)
-		int fileNameLength = strlen(dataFilePath);
-		fileName = dataFilePath.Mid((nSlashLoc +1), (fileNameLength - (nSlashLoc +1)));		 
+		int pathLength = strlen(dataFilePath);
+		fileName = dataFilePath.Mid((nSlashLoc +1), (pathLength - (nSlashLoc +1)));		 
 
 		//MyTrace(PRT_BASIC, "Load4wData(Single): Path=%s, file=%s \n", dataFilePath, fileName );	 // test print
 
@@ -2273,6 +2275,25 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 	m_GridSnap.InitMember();
 
 
+	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();		// tupleSize로  m_gridData  row를 맞춘다.
+	if (m_nRows != (tupleSize + 1))
+	{
+		m_nRows = (tupleSize + 1);		// 헤더라인 포함해서 tupleSize + 1
+		TRY {
+			m_gridData.SetRowCount(m_nRows);
+			m_gridData.SetColumnCount(m_nCols);
+			m_gridData.SetFixedRowCount(m_nFixRows);
+			m_gridData.SetFixedColumnCount(m_nFixCols);
+		}
+		CATCH (CMemoryException, e)
+		{
+			e->ReportError();
+			e->Delete();
+			return;
+		}
+    	END_CATCH	
+	}
+
 
 	// nLot, nNet, NDate에 맞는 모든 data Grid Tuple을 출력한다.
 	m_GridSnap.dataCount = DisplayGrid_4wData(nLot, nNet, nDate, 0);
@@ -2280,7 +2301,7 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 
 	//---------------------------
 	// Net Info Edit 박스값 설정
-	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
+	//int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 	m_editTupleNum  = tupleSize;
 
 	m_editSampleNum = g_sLotNetDate_Info.naLotSampleCnt[nLot];
@@ -2875,6 +2896,28 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	ClearGrid_Data();	
 	m_GridSnap.InitMember();
 
+	int rowSize = 0;
+	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
+		rowSize += g_pvsaNetData[nLot][nNet][date]->size();  			// date의 tupleSize 
+	if (m_nRows != (rowSize + 1))
+	{
+		m_nRows = (rowSize + 1);		// 헤더 포함 rowSize +1한다.
+
+		TRY {
+			m_gridData.SetRowCount(m_nRows);
+			m_gridData.SetColumnCount(m_nCols);
+			m_gridData.SetFixedRowCount(m_nFixRows);
+			m_gridData.SetFixedColumnCount(m_nFixCols);
+		}
+		CATCH (CMemoryException, e)
+		{
+			e->ReportError();
+			e->Delete();
+			return;
+		}
+    	END_CATCH	
+	}
+
 
 	// nLot, nNet, nDate에 맞는 모든 data Grid Tuple을 출력한다.
 	int tupleOffset = 0;
@@ -2888,7 +2931,7 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	//---------------------------
 	// Net Info Edit 박스값 설정
 
-	m_editTupleNum = 0;
+	m_editTupleNum = rowSize;
 	m_editSampleNum = g_sLotNetDate_Info.naLotSampleCnt[nLot];
 	// m_editLSL과 m_editUSL 부분은  DisplayGrid_Summary()에서 수행.
 
@@ -2920,7 +2963,7 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 		}
 
 		tupleSize = g_pvsaNetData[nLot][nNet][date]->size();
-		m_editTupleNum += tupleSize;
+		//m_editTupleNum += tupleSize;
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
 			nMinMaxInitSample = 0;

@@ -111,10 +111,12 @@ extern  BOOL		FileExists(CString strFilePath);
 extern  void 		GetDateAndTime(char *datetime);
 extern  SIZE_T 		GetProcessWorkingSetSize();
 extern  void 		__PrintMemSize(char* strFunc, int line);
+extern  void 		__PrintLine(char* strFile, int line);
+#define	__LINE_PRT__	(__PrintLine(__FILE__, __LINE__))
 
 extern  void 		AFX_CDECL MyTrace(PRT_TYPE prtType, LPCTSTR lpszFormat, ...);
-
 extern  double 		p_tdist(double t, int df);		// TDist.cpp
+
 
 //extern  int  		AFX_CDECL MyTrace2(PRT_TYPE prtType, char* pStr, int strSize, LPCTSTR lpszFormat, ...);
 //extern  int  		AFX_CDECL MySnprintf(PRT_TYPE prtType, char* pStr, int strSize, LPCTSTR lpszFormat, ...);

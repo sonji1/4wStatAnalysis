@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CACE400MainDlg
+LastClass=CConfigDialog
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "ace400statistics.h"
@@ -20,11 +20,11 @@ Class8=CPChartDialog
 Class9=CStatisticsDialog
 
 ResourceCount=7
-Resource1=IDD_MAIN_DIALOG
-Resource2=IDD_FR_RANK_DIALOG
-Resource3=IDD_PCHART_DIALOG
-Resource4=IDD_ABOUTBOX
-Resource5=IDD_CONFIG_DIALOG
+Resource1=IDD_CONFIG_DIALOG
+Resource2=IDD_ABOUTBOX
+Resource3=IDD_MAIN_DIALOG
+Resource4=IDD_PCHART_DIALOG
+Resource5=IDD_FR_RANK_DIALOG
 Resource6=IDD_STATISTICS_DIALOG
 Resource7=IDD_GAGE_DIALOG
 
@@ -61,6 +61,9 @@ Type=0
 BaseClass=CDialog
 HeaderFile=ConfigDialog.h
 ImplementationFile=ConfigDialog.cpp
+Filter=D
+VirtualFilter=dWC
+LastObject=CConfigDialog
 
 [CLS:CFrRankDialog]
 Type=0

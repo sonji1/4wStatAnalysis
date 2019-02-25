@@ -94,6 +94,7 @@ BOOL CGageDialog::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 	// TODO: Add extra initialization here
+__LINE_PRT__;
 	
 	g_sFile.Init();
 
@@ -103,7 +104,6 @@ BOOL CGageDialog::OnInitDialog()
 	if (InitView() == FALSE)
 		return FALSE;
 
-	
 
 	MyTrace(PRT_BASIC, "\"4W GageStudy Dialog\" Started...\n" );
 
@@ -722,6 +722,13 @@ int CGageDialog::getMeasData(char *pStr, int strMax, double &rdMeasData)
 BOOL CGageDialog::DestroyWindow() 
 {
 	// TODO: Add your specialized code here and/or call the base class
+	
+
+	m_gridCtrl.DeleteAllItems();
+	m_gridGageStat.DeleteAllItems();
+	m_gridBias.DeleteAllItems();
+	m_gridCapability.DeleteAllItems();
+	m_gridRept.DeleteAllItems();
 	
 
 	MyTrace(PRT_BASIC, "GageDialog Destroyed...\n" );

@@ -267,6 +267,11 @@ void __PrintMemSize(char* strFunc, int line)
 			strFunc, line, GetProcessWorkingSetSize());
 
 }
+void __PrintLine(char* strFile, int line)
+{
+	MyTrace(PRT_BASIC, "%s Line_%d\n", strFile, line);
+
+}
 
 
 //2017.11.06  TRACE의 buffer가 512까지 밖에 허용하지 않아서 아래와 같이 신규 함수 생성
