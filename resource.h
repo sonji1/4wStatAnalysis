@@ -31,7 +31,7 @@
 #define IDC_EDIT_STUDY_CNT              1012
 #define IDC_BUTTON_LOAD4W_DATA_SINGLE   1013
 #define IDC_EDIT_TUPLE_NUM              1014
-#define IDC_EDIT_SAMPLE_NUM             1015
+#define IDC_EDIT_STEP_NUM               1015
 #define IDC_EDIT_LSL                    1016
 #define IDC_EDIT_USL                    1017
 #define IDC_BUTTON_CLEAR_GRID           1018

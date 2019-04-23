@@ -439,8 +439,8 @@ void CPChartDialog::CalcPChart(int nLot, int nDate)
 
 
 		int tupleSize  = g_pvsaNetData[nLot][net][nDate]->size();
-		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-		int nTotal  = tupleSize * sampleSize; 
+		int stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
+		int nTotal  = tupleSize * stepSize; 
 		int nFault  = g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][net][nDate];
 		m_waCount[net]  = nTotal - g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][net][nDate];	// Total - NG
 		m_waNormal[net] = m_waCount[net] - nFault; 		// Count - Fault
@@ -551,7 +551,7 @@ void CPChartDialog::DisplayPChart(int nLot, int nDate, int nTrackNet /*= -1*/)
     m_ChartViewer.setImageMap(
     	c->getHTMLImageMap("", "", "title='{xLabel}: US${value}K'"));
 
-	// In this sample project, we do not need to chart object any more, so we 
+	// In this Fample project, we do not need to chart object any more, so we 
 	// delete it now.
     delete c;
 */
@@ -678,7 +678,7 @@ void CPChartDialog::DisplayPChart(int nLot, int nDate, int nTrackNet /*= -1*/)
     // Include tool tip for the chart
     m_ChartViewer.setImageMap( c->getHTMLImageMap("", "", "title='{xLabel}: US${value}K'"));
 
-	// In this sample project, we do not need to chart object any more, so we 
+	// In this Fample project, we do not need to chart object any more, so we 
 	// delete it now.
     delete c;
 

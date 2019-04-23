@@ -34,7 +34,7 @@ typedef struct sSTAT_TIME
 } sSTAT_TIME;
 
 #define	NUM_STAT_PIN		4
-#define NUM_STAT_SAMPLE		12		// 이걸 늘리게 되면 Load_4wDataFile()-> sscanf의 입력 parameter를 늘려야 한다.
+#define NUM_STAT_STEP		12		// 이걸 늘리게 되면 Load_4wDataFile()-> sscanf의 입력 parameter를 늘려야 한다.
 									// 원래는 100까지 가능하다고 함.
 class statNetData
 {
@@ -47,14 +47,14 @@ public:
 	double			dUsl;	
 
 
-#ifdef  DP_SAMPLE 
+#ifdef  DP_STEP 
 	// 동적 배열
-	int				sampleSize;
-	double* 		pdaSample; 		// pdaSample의 현재 갯수는 g_sLotNetDate_Info.naLotSampleCnt[lot]로 확인.
+	int				stepSize;
+	double* 		pdaStep; 		// pdaStep의 현재 갯수는 g_sLotNetDate_Info.naLotStepCnt[lot]로 확인.
 
 #else
 	// 고정 배열
-	double 			daSample[NUM_STAT_SAMPLE];
+	double 			daStep[NUM_STAT_STEP];
 #endif
 
 public:
@@ -68,20 +68,20 @@ public:
 		dLsl = 0;
 		dRefR = 0;
 		dUsl = 0;
-#ifdef DP_SAMPLE
-		sampleSize = 0;
-		pdaSample = NULL;
+#ifdef DP_STEP
+		stepSize = 0;
+		pdaStep = NULL;
 #else
-		::ZeroMemory(daSample, sizeof(daSample));
+		::ZeroMemory(daStep, sizeof(daStep));
 #endif
 	}
 
-#ifdef  DP_SAMPLE 
+#ifdef  DP_STEP 
 	// 소멸자
-	~statNetData()			// 소멸자에서  pda Sample에 대해 delete[]를 수행해 주자.
+	~statNetData()			// 소멸자에서  pda Step에 대해 delete[]를 수행해 주자.
 	{
-		if (pdaSample != NULL)
-			delete []pdaSample;
+		if (pdaStep != NULL)
+			delete []pdaStep;
 	}
 	
 	// Deep Copy를 하는 복사 생성자.
@@ -104,14 +104,14 @@ public:
 		//
 		// 그렇지 않으면 같은 메모리(Load_4wDataFile() 내의 netData )를 최대  MAX_TIME_FILE 개의 tuple이 공유하는 꼴이 됨. 
 		// delete할 때 특히 문제가 될 수 있다.  (하나를  MAX_TIME_FILE 횟수만큼 delete하다 죽음...)
-		sampleSize = s.sampleSize;
-		pdaSample = new double[sampleSize];		
-		memcpy(pdaSample, s.pdaSample, (sampleSize * sizeof(double)));
+		stepSize = s.stepSize;
+		pdaStep = new double[stepSize];		
+		memcpy(pdaStep, s.pdaStep, (stepSize * sizeof(double)));
 
 	}
 
 #else
-	// daSample로 고정배열을 쓴다면 deault 생성자, default 복사생성자를 사용하자.
+	// daStep로 고정배열을 쓴다면 deault 생성자, default 복사생성자를 사용하자.
 
 
 #endif
@@ -140,7 +140,7 @@ public:
 											//
 											// 2018.06.19 : 실제 현장에서 3000개 수준의  file이 존재할 수 있음.
 											// net당 300개의 기준으로는 처리불가. net당은 3000으로 늘리고, 
-											// 대신 총 sample 갯수(MAX_NET_DATA)를 8백만개로 제한하기로 함.
+											// 대신 총 step 갯수(MAX_NET_DATA)를 8백만개로 제한하기로 함.
 											//
 											// 2018.10.10 CCTC의 경우, 3174개 케이스 실제 있음. 약 27초 주기
 											//   4096을 넘으면 vector갯수(4096)문제가 있어 4000으로 결정.
@@ -150,12 +150,12 @@ public:
 //             아래의 측정 data를 토대로  Max Count를 600만으로 지정한다.
 //			   Lot, Date별로 Net* time tuple 수를 다 더한 수를 6000000으로 제한.
 //                memSize = 1461604352
-//        m_nNetDataCount = 6000000 (약, 1.46 GB 시의 Count 수, file로는 약 552MB, cctc Net 4062, sample 1개 기준 file 1980개)
+//        m_nNetDataCount = 6000000 (약, 1.46 GB 시의 Count 수, file로는 약 552MB, cctc Net 4062, step 1개 기준 file 1980개)
 //sizeof(LotNetDate_Info) = 950200
 //    sizeof(statNetData) = 128   =  4 + 24 + 4 + 12*8
 //
 //                memSize = 1398804480
-//        m_nNetDataCount = 8000000	(약, 1.4GB 시의 Count수, file로는 약 850MB, sample2개 기준 file 3000개)
+//        m_nNetDataCount = 8000000	(약, 1.4GB 시의 Count수, file로는 약 850MB, step2개 기준 file 3000개)
 //sizeof(LotNetDate_Info) = 330100
 //    sizeof(statNetData) = 128   =  4 + 24 + 4 + 12*8
 
@@ -174,10 +174,10 @@ public:
 	CString		strLotDate[MAX_LOT][MAX_DATE];	// g_pvsaNetData[lot]의 date string list
 	int			naLotDateCnt[MAX_LOT];			// g_pvsaNetData[lot]의 date 갯수 정보
 
-	// Sample data
-	int			naLotSampleCnt[MAX_LOT];		// g_pvsaNetData[lot]의 실제 sample 갯수 정보	
-												// daSample도 vector로 관리하기 위함.
-												// sample은 같은 lot에서는 모든 net에 대해 갯수가 동일함.
+	// Step data
+	int			naLotStepCnt[MAX_LOT];		// g_pvsaNetData[lot]의 실제 step 갯수 정보	
+												// daStep도 vector로 관리하기 위함.
+												// step은 같은 lot에서는 모든 net에 대해 갯수가 동일함.
 
 	// Net data
 	int			naLotNet[MAX_LOT][MAX_NET_PER_LOT];
@@ -199,15 +199,15 @@ public:
 	
 
 	// Date별 종합 data
-	short		waLotNetDate_FaultCnt[MAX_LOT][MAX_NET_PER_LOT][MAX_DATE];	// 해당 date의 time*sample별 Fault sumup
-														// USL이나 LSL을 초과한 date별 fault sample의 count
+	short		waLotNetDate_FaultCnt[MAX_LOT][MAX_NET_PER_LOT][MAX_DATE];	// 해당 date의 time*step별 Fault sumup
+														// USL이나 LSL을 초과한 date별 fault step의 count
 														// Lot 로딩시에 모두 계산해서 Tree의 Net 장애표시 기준으로 사용한다.
-	short		waLotNetDate_NgCnt[MAX_LOT][MAX_NET_PER_LOT][MAX_DATE];		// 해당 date의 time*sample 별 Ng sumup
+	short		waLotNetDate_NgCnt[MAX_LOT][MAX_NET_PER_LOT][MAX_DATE];		// 해당 date의 time*step 별 Ng sumup
 														
 	// Net 별 종합 data
-	short		waNetFaultCount[MAX_LOT][MAX_NET_PER_LOT];	// 해당 Net의 총 fault 갯수 (date*time*sample별 Fault 를 sumup)
-	short		waNetNgCount[MAX_LOT][MAX_NET_PER_LOT];	    // 해당 Net의 총 NG 갯수 (date*time*sample별 Fault를 sumup)
-	short		waNetTotalCount[MAX_LOT][MAX_NET_PER_LOT];	// 해당 Net의 Total data 갯수 (tupleSize * sampleSize * date 개수)
+	short		waNetFaultCount[MAX_LOT][MAX_NET_PER_LOT];	// 해당 Net의 총 fault 갯수 (date*time*step별 Fault 를 sumup)
+	short		waNetNgCount[MAX_LOT][MAX_NET_PER_LOT];	    // 해당 Net의 총 NG 갯수 (date*time*step별 Fault를 sumup)
+	short		waNetTotalCount[MAX_LOT][MAX_NET_PER_LOT];	// 해당 Net의 Total data 갯수 (tupleSize * stepSize * date 개수)
 
 
 	LotNetDate_Info() 
@@ -223,7 +223,7 @@ public:
 			for (date=0; date < MAX_DATE; date++)
 				strLotDate[lot][date] = "";
 			naLotDateCnt[lot] = 0;
-			naLotSampleCnt[lot] = 0;
+			naLotStepCnt[lot] = 0;
 			naLotNetCnt[lot] = 0;
 
 
@@ -267,7 +267,7 @@ public:
 			for (date=0; date < MAX_DATE; date++)
 				strLotDate[lot][date] = "";
 			naLotDateCnt[lot] = 0;
-			naLotSampleCnt[lot] = 0;
+			naLotStepCnt[lot] = 0;
 			naLotNetCnt[lot] = 0;
 
 			for (int net=0; net < MAX_NET_PER_LOT; net++)
@@ -333,7 +333,7 @@ public:
 		for (date=0; date < MAX_DATE; date++)
 			strLotDate[lot][date] = "";
 		naLotDateCnt[lot] = 0;
-		naLotSampleCnt[lot] = 0;
+		naLotStepCnt[lot] = 0;
 		naLotNetCnt[lot] = 0;
 
 		return 0;
@@ -536,7 +536,7 @@ public:
 	CString strTupleMin; 
 	CString strTupleMax;
 
-	CString strData[NUM_STAT_SAMPLE];
+	CString strData[NUM_STAT_STEP];
 
 	DataSnapTuple()	// 생성자
 	{
@@ -554,7 +554,7 @@ public:
 		strTupleMin = ""; 
 		strTupleMax = "";
 
-		for (i = 0; i < NUM_STAT_SAMPLE; i++)
+		for (i = 0; i < NUM_STAT_STEP; i++)
 			strData[i] = "";
 	}
 
@@ -574,7 +574,7 @@ public:
 		strTupleMin = ""; 
 		strTupleMax = "";
 
-		for (i = 0; i < NUM_STAT_SAMPLE; i++)
+		for (i = 0; i < NUM_STAT_STEP; i++)
 			strData[i] = "";
 	}
 };
@@ -632,7 +632,7 @@ public:
 	CGridCtrl	m_gridData;
 	CString		m_editStrSelect;
 	int			m_editTupleNum;
-	int			m_editSampleNum;
+	int			m_editStepNum;
 	BOOL		m_bDataGridFaultOnly;
 	BOOL		m_bSimulateULSL;
 	BOOL		m_bApplyULSL;
@@ -786,7 +786,7 @@ public:
 	// 2018.07.18 4W p-chart에서도 활용하기 위해 다음 m_sLotNetDate_Info 정보를 전역변수(g_sLotNetDate_Info)로 변경함. 
 	//LotNetDate_Info		m_sLotNetDate_Info;		// lot, net, date 기준 key 값과 각종 Net별 정보를 관리하는 클래스
 
-	int			m_nNetDataCount;			// Stat_insertNetData 호출 횟수 (vector 갯수, sample 수 상관없는 time tuple의 수)
+	int			m_nNetDataCount;			// Stat_insertNetData 호출 횟수 (vector 갯수, step 수 상관없는 time tuple의 수)
 											// vector의 갯수를 8000000(MAX_NET_DATA)개로 제한하기 위한 변수
 											//
 											// Multi Load 하고 MAX_NET_DATA 때문에 종료되었다면,  맨 마지막 Lot, 

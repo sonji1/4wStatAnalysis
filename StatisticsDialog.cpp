@@ -33,7 +33,7 @@ CStatisticsDialog::CStatisticsDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CStatisticsDialog)
 	m_editStrSelect = _T("");
 	m_editTupleNum = 0;
-	m_editSampleNum = 0;
+	m_editStepNum = 0;
 	m_bDataGridFaultOnly = FALSE;
 	m_bSimulateULSL = FALSE;
 	m_bApplyULSL = FALSE;
@@ -44,7 +44,6 @@ CStatisticsDialog::CStatisticsDialog(CWnd* pParent /*=NULL*/)
 	m_nTree_CurrLot = -1;	
 	m_nTree_CurrNet = -1;	
 	m_nCombo_CurrDate = DATE_ALL;	
-	m_bDataGridFaultOnly = FALSE;
 
 	m_dSimulUsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
 	m_dSimulLsl = -1;		// 미사용의 의미로 -1. m_bApplyULSL = TRUE 일 때에만 이 값이 설정된다.
@@ -66,7 +65,7 @@ void CStatisticsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GRID_DATA, 			m_gridData);
 	DDX_Text(pDX, IDC_EDIT_SELECT, 				m_editStrSelect);
 	DDX_Text(pDX, IDC_EDIT_TUPLE_NUM, 			m_editTupleNum);
-	DDX_Text(pDX, IDC_EDIT_SAMPLE_NUM, 			m_editSampleNum);
+	DDX_Text(pDX, IDC_EDIT_STEP_NUM, 			m_editStepNum);
 	DDX_Check(pDX, IDC_CHECK_DATA_FAULT_ONLY, 	m_bDataGridFaultOnly);
 	DDX_Check(pDX, IDC_CHECK_SIMUL_ULSL, 		m_bSimulateULSL);
 	DDX_Check(pDX, IDC_CHECK_APPLY_ULSL, 		m_bApplyULSL);
@@ -80,15 +79,15 @@ BEGIN_MESSAGE_MAP(CStatisticsDialog, CDialog)
 	//{{AFX_MSG_MAP(CStatisticsDialog)
 	ON_WM_TIMER()
 	ON_WM_SHOWWINDOW()
-	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE, 		OnSelchangedTree)
-	ON_CBN_SELCHANGE(IDC_COMBO_DATE, 			OnSelchangeComboDate)
-	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA, 		OnButtonLoad4wData)
-	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA_SINGLE, OnButtonLoad4wData_SingleLot)
-	ON_BN_CLICKED(IDC_CHECK_DATA_FAULT_ONLY, 	OnCheckDataFaultOnly)
-	ON_BN_CLICKED(IDC_BUTTON_SAVE_STAT_CSV, 	OnButtonSaveStatCsv)
-	ON_BN_CLICKED(IDC_BUTTON_VIEW_STAT_CSV, 	OnButtonViewStatCsv)
-	ON_BN_CLICKED(IDC_CHECK_SIMUL_ULSL, 		OnCheckSimulUlsl)
-	ON_BN_CLICKED(IDC_CHECK_APPLY_ULSL, 		OnCheckApplyUlsl)
+	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE, 			OnSelchangedTree)
+	ON_CBN_SELCHANGE(IDC_COMBO_DATE, 				OnSelchangeComboDate)
+	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA, 			OnButtonLoad4wData)
+	ON_BN_CLICKED(IDC_BUTTON_LOAD4W_DATA_SINGLE, 	OnButtonLoad4wData_SingleLot)
+	ON_BN_CLICKED(IDC_CHECK_DATA_FAULT_ONLY, 		OnCheckDataFaultOnly)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE_STAT_CSV, 		OnButtonSaveStatCsv)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_STAT_CSV, 		OnButtonViewStatCsv)
+	ON_BN_CLICKED(IDC_CHECK_SIMUL_ULSL, 			OnCheckSimulUlsl)
+	ON_BN_CLICKED(IDC_CHECK_APPLY_ULSL, 			OnCheckApplyUlsl)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -471,11 +470,12 @@ void CStatisticsDialog::OnButtonLoad4wData()
 
 	Load_Log4wDir();
 
-	EndWaitCursor();		// 커서를 원상복구한다.
 
 	// default Net 조회: 별도로 클릭이 없어도 첫번째 Lot, 첫번째 Net을 조회해 준다.
 	DisplayGrid_DefaultLotNet();
 //__PrintMemSize(FUNC(OnButtonLoad4wData), __LINE__);
+//
+	EndWaitCursor();		// 커서를 원상복구한다.
 
 	// LOAD LOG4W가 완료되었음을 FR Rank Dlg에 알린다.
 	//::SendMessage(m_hwnd_FrRankDlg, UWM_LOAD_LOG4W_DATA, 0, 0);
@@ -632,7 +632,7 @@ void CStatisticsDialog::Load_Log4wDir(LPCTSTR pstr)
 				lotName = dirName.Mid(9, (length -9));
 #else
 			// 2018.06.22 :  ACE400_2222,  ACE400_3333 이런 것들을 같은 lot으로 처리하다보니 
-			//               sample count가 달라서 ACE400_3333은 처리를 하지 않고 건너뛰고 그러다 로직이 꼬여서 죽음.
+			//               step count가 달라서 ACE400_3333은 처리를 하지 않고 건너뛰고 그러다 로직이 꼬여서 죽음.
 			//               맨뒤의 숫자 네개 떼어내는 기능을 위와 같이 막아서  다른 lot으로 처리하기로 함.
 			lotName = dirName.Mid(9, (length -9));
 #endif
@@ -773,7 +773,7 @@ BOOL CStatisticsDialog::CheckEmptyDirectory(CString dirPath)
 
 		nFile++;
 
-		// sample이 아닌 정상 4W Data file이 하나라도 있으면 FALSE 리턴
+		// Sample이 아닌 정상 4W Data file이 하나라도 있으면 FALSE 리턴
 		return FALSE;
 	}
 	if (nFile == 0)
@@ -1102,35 +1102,35 @@ int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNam
 	int 	nNet, i, nNet2;
 	char	strWord[300];
 	char 	strWord2[3][200];
-	char 	strSample[NUM_STAT_SAMPLE*2][200];
-	int		nFileSample = 0;
+	char 	strStep[NUM_STAT_STEP*2][200];
+	int		nFileStep = 0;
 
 	//------------------------------
 	//  4W Raw Data 파일 헤더 Read 
 	::ZeroMemory(str, sizeof(str));
-	::ZeroMemory(&strSample, sizeof(strSample));
+	::ZeroMemory(&strStep, sizeof(strStep));
 	fgets(str, sizeof(str), fp);		// 파일 헤더 read.  파일 헤더는 라인째 통째로 읽는다.
 
 	// 헤더에서 data 의 갯수를 파악하기 위해 "S=" 의 갯수를 카운트한다.
 	sscanf(str, "    ,  Pin1 ,Pin2 ,Pin3 , Pin4 ,  Min., Ref., Max.,%s   %s   %s   %s   %s   %s   %s   %s   %s   %s   %s   %s   ", 
-			strSample[0], strSample[1], strSample[2], strSample[3], strSample[4], strSample[5],
-			strSample[6], strSample[7], strSample[8], strSample[9], strSample[10], strSample[11]);
-	for (i = 0; i < NUM_STAT_SAMPLE; i++)
+			strStep[0], strStep[1], strStep[2], strStep[3], strStep[4], strStep[5],
+			strStep[6], strStep[7], strStep[8], strStep[9], strStep[10], strStep[11]);
+	for (i = 0; i < NUM_STAT_STEP; i++)
 	{
-		strTemp = strSample[i];
+		strTemp = strStep[i];
 		if (strTemp.Left(2) == "S=")		
-			nFileSample++;
+			nFileStep++;
 	}
-	if (nFileSample != g_sLotNetDate_Info.naLotSampleCnt[nLot])
+	if (nFileStep != g_sLotNetDate_Info.naLotStepCnt[nLot])
 	{
-		if (g_sLotNetDate_Info.naLotSampleCnt[nLot] == 0)	// 초기값이면 nFileSample 값으로  바꾼다.
-			g_sLotNetDate_Info.naLotSampleCnt[nLot] = nFileSample;			
+		if (g_sLotNetDate_Info.naLotStepCnt[nLot] == 0)	// 초기값이면 nFileStep 값으로  바꾼다.
+			g_sLotNetDate_Info.naLotStepCnt[nLot] = nFileStep;			
 
-		// 같은 nLot 안에서는 nFileSample의 값이 모두 같아야 한다.
+		// 같은 nLot 안에서는 nFileStep의 값이 모두 같아야 한다.
 		else
 		{
-			strTemp.Format("Load_4wDataFile(): nFileSample=%d is not same with g_sLotNetDate_Info.naLotSampleCnt[%d]=%d!", 
-					nFileSample, nLot, g_sLotNetDate_Info.naLotSampleCnt[nLot]);
+			strTemp.Format("Load_4wDataFile(): nFileStep=%d is not same with g_sLotNetDate_Info.naLotStepCnt[%d]=%d!", 
+					nFileStep, nLot, g_sLotNetDate_Info.naLotStepCnt[nLot]);
 			ERR.Set(SW_LOGIC_ERR, strTemp); 
 			ErrMsg(-1, TRUE);  ERR.Reset(); 
 			return -1;
@@ -1202,8 +1202,8 @@ int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNam
 
 
 		// loop를 돌 때 마다 아래 버퍼를 초기화한다. 
-		::ZeroMemory(netData.daSample, sizeof(netData.daSample));
-		::ZeroMemory(&strSample, sizeof(strSample));
+		::ZeroMemory(netData.daStep, sizeof(netData.daStep));
+		::ZeroMemory(&strStep, sizeof(strStep));
 		sscanf(str, "%s %d, %d, %d, %d, %d, %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
 				strWord, &nNet2, 
 				&g_sLotNetDate_Info.waLotNetPin[nLot][nNet][0],
@@ -1213,12 +1213,12 @@ int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNam
 				&strWord2[0],  
 				&strWord2[1],  
 				&strWord2[2], 
-				&strSample[0], &strSample[1], &strSample[2],   &strSample[3], 
-				&strSample[4], &strSample[5], &strSample[6],   &strSample[7], 
-				&strSample[8], &strSample[9], &strSample[10],  &strSample[11],
-				&strSample[12], &strSample[13], &strSample[14],   &strSample[15], 
-				&strSample[16], &strSample[17], &strSample[18],   &strSample[19], 
-				&strSample[20], &strSample[21], &strSample[22],  &strSample[23] 
+				&strStep[0], &strStep[1], &strStep[2],   &strStep[3], 
+				&strStep[4], &strStep[5], &strStep[6],   &strStep[7], 
+				&strStep[8], &strStep[9], &strStep[10],  &strStep[11],
+				&strStep[12], &strStep[13], &strStep[14],   &strStep[15], 
+				&strStep[16], &strStep[17], &strStep[18],   &strStep[19], 
+				&strStep[20], &strStep[21], &strStep[22],  &strStep[23] 
 				);
 
 		//double min, ref, max;
@@ -1235,43 +1235,43 @@ int CStatisticsDialog::Load_4wDataFile(CString dataFilePath, CString dataFileNam
 		//g_sLotNetDate_Info.daLotNetUsl[nLot][nNet] = (double)atof(strWord2[2]);	// max-> USL(Upper Spec Limit)으로 사용.
 
 		// Read Measure Value --------
-		int	   nSample = 0;
-		for (i = 0; i < nFileSample; i++)
+		int	   nStep = 0;
+		for (i = 0; i < nFileStep; i++)
 		{
 			// NG 값 체크
-			if (strcmp("NG", strSample[nSample]) == 0)
+			if (strcmp("NG", strStep[nStep]) == 0)
 			{
-				nSample++;			// NG는 skip 한다.
+				nStep++;			// NG는 skip 한다.
 
 				// NG 999999.00 인 경우에는 진짜 NG 처리
-				if (strcmp("999999.00,", strSample[nSample]) == 0)
+				if (strcmp("999999.00,", strStep[nStep]) == 0)
 				{
 
-					netData.daSample[i] = (double)(-1);
-					nSample++;		// 999999.00 은 -1로 처리
+					netData.daStep[i] = (double)(-1);
+					nStep++;		// 999999.00 은 -1로 처리
 				}
 
 				// NG 64.28 과 같이  숫자가 뒤에 오는 경우
 				// NG가 이전 값에 대한 에러 표시 이므로 숫자를  정상처리한다.
 				else
 				{
-					netData.daSample[i] = (double)atof(strSample[nSample]);
-					nSample++;		
+					netData.daStep[i] = (double)atof(strStep[nStep]);
+					nStep++;		
 				}
 			}
 
 			// NG 없이 999999.00 만 있는 경우  NG 처리
-			else if (strcmp("999999.00,", strSample[nSample]) == 0)
+			else if (strcmp("999999.00,", strStep[nStep]) == 0)
 			{
-				netData.daSample[i] = (double)(-1);		
-				nSample++;			// 999999.00 은 -1로 처리
+				netData.daStep[i] = (double)(-1);		
+				nStep++;			// 999999.00 은 -1로 처리
 			}
 
 			else
 			{
-				// daSample 값 
-				netData.daSample[i] = (double)atof(strSample[nSample]);
-				nSample++;
+				// daStep 값 
+				netData.daStep[i] = (double)atof(strStep[nStep]);
+				nStep++;
 
 			}
 		}
@@ -1556,7 +1556,7 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 	//-----------------------
 	// Fault 처리 수행
 	
-	int 	tupleSize, tuple, sample, sampleSize;
+	int 	tupleSize, tuple, step, stepSize;
 	double 	dLsl, dUsl;
 
 	// 2018.05.31  Net 내부 공통 Lsl, Usl은 막고 tuple별 Lsl, Usl을 사용하기로 함.
@@ -1604,15 +1604,15 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 				dUsl = (*g_pvsaNetData[nLot][nNet][date])[tuple].dUsl;
 			}
 
-			sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-			for (sample= 0; sample < sampleSize; sample++)
+			stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
+			for (step= 0; step < stepSize; step++)
 			{
-				double dSampleVal = (*g_pvsaNetData[nLot][nNet][date])[tuple].daSample[sample];
-				if ((*g_pvsaNetData[nLot][nNet][date])[tuple].daSample[sample] == -1)	//NG
+				double dStepVal = (*g_pvsaNetData[nLot][nNet][date])[tuple].daStep[step];
+				if ((*g_pvsaNetData[nLot][nNet][date])[tuple].daStep[step] == -1)	//NG
 					g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][nNet][date]++;
 				else
 				{
-					if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
+					if (dStepVal < dLsl || dStepVal > dUsl)		// Fault
 						g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][date]++;
 				}
 			}
@@ -1621,7 +1621,7 @@ void CStatisticsDialog::Tree_CheckNetFault(HTREEITEM hNetItem, int nLot)
 		//nNetFaultCount += g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][date];
 		g_sLotNetDate_Info.waNetFaultCount[nLot][nNet] += g_sLotNetDate_Info.waLotNetDate_FaultCnt[nLot][nNet][date];
 		g_sLotNetDate_Info.waNetNgCount[nLot][nNet] += g_sLotNetDate_Info.waLotNetDate_NgCnt[nLot][nNet][date];
-		g_sLotNetDate_Info.waNetTotalCount[nLot][nNet] += (tupleSize * sampleSize);
+		g_sLotNetDate_Info.waNetTotalCount[nLot][nNet] += (tupleSize * stepSize);
 	}
 
 
@@ -1662,11 +1662,11 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	//
 //__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
 	
-	CString strTemp;
 
 	//-----------------------------
 	// File Open Dialog 생성
 	
+	CString strTemp;
 	char szFilter[] = "CSV Files(*.CSV)|*.CSV|All Files(*.*)|*.*||";
 	CFileDialog dlg(TRUE, 		// bOpenFileDialg = TRUE: 타이틀바에 '열기' 출력
 					NULL, 		// lpszDefExt           : 기본 확장자
@@ -1711,26 +1711,27 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 
 
 //__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
+//
 
 	//-----------------------------
-	// Lot Name을 먼저 처리
-	
+	// LotName, DateName 처리
 
 	// 선택된 CSV파일들의 폴더명(dirPath)을 획득한다. --------------
+	
 
+	// '\'위치(nSlashLoc) 뒷부분(fileName)을  떼어내면 폴더명(dirPath)만 남는다.
+	//   ex) "D:\log4w\20180503_036782A2S\Ng_Log4WSample0_20180503_010135_NG_Net_-2558.CSV"
+	//        nSlashLoc는 27이 리턴됨. 27부터 Left()를 이용해서 왼쪽을 선택하면 폴더Path (dirPath).
+	//        dirPath는 "D:\log4w\20180503_036782A2S"   . 결과적으로 오른쪽 fileName만 삭제됨.
 	CString dataFilePath, dirPath;
 	POSITION pos= dlg.GetStartPosition();
 	dataFilePath = dlg.GetNextPathName(pos);
 	
-	// 1. ReverseFind()로 뒤에서부터 '\' 위치를 찾는다.  
+	//  ReverseFind()로 뒤에서부터 '\' 위치를 찾는다.  
 	int nSlashLoc = dataFilePath.ReverseFind('\\');	 
-
-	// 2.  뒷부분(fileName)을  떼어내면 폴더명(dirPath)만 남는다.
-	//   ex) "D:\log4w\20180503_036782A2S\Ng_Log4WSample0_20180503_010135_NG_Net_-2558.CSV"
-	//        nSlashLoc는 27이 리턴됨. 27부터 Left()를 이용해서 왼쪽을 선택하면 폴더Path (dirPath).
-	//        dirPath는 "D:\log4w\20180503_036782A2S"   . 결과적으로 오른쪽 fileName만 삭제됨.
 	dirPath = dataFilePath.Left(nSlashLoc); 
 	MyTrace(PRT_BASIC, "Load 4wData(Single)...: Lot=%s\n\n\n", dirPath);
+
 
 #if 0
  	// 2019.01.29 :  D:\\log\\ 이외의 디렉토리도 로딩이 필요하여 아래 코드를 코멘트 처리함
@@ -1778,14 +1779,25 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 		return;
 	}
 
-	BeginWaitCursor();			// 커서를 waiting 모드로 바꾼다.
 
-	// Check Empty Directory     -------------------------
+
+	// "20170925_A30-19-C-4W-NEW-0920" 라면 맨앞의 날짜는 떼고 tree item으로 삽입한다. 
+	lotName = lotName.Mid(9, (length -9));		// "20170925_" 날짜 부분을 떼어낸다.
+
+
+	// 여기까지.. Lot Name, Date Name 확보.
+	MyTrace(PRT_BASIC, "Load 4wData(Single): Lot=%s, Date=%s \n\n\n", lotName, dateName);
+	
+
+	//-------------------------
+	// Check Empty Directory     
+	
 	// 빈 lot이 추가되는 것을 막기 위해 Insert할 디렉토리가 빈 디렉토리인지 검사한다.  (자원절약)
-	//  : 직접 파일을 선택한 것이므로 실제로 file이 없는게 아니라 
-	//    'sample_xxxx' 파일만 선택했을 경우를 대비해서 필요하다. 
+	// 선택한 파일의 name이 처리가 가능한 파일들인지 확인한다.  'Sample_xxxx' 파일만 선택했을 경우를 대비
 	CString fileName; 
 	BOOL	bFileFound = FALSE;
+
+
 	for (pos= dlg.GetStartPosition(); pos != NULL; )
 	{
 		dataFilePath = dlg.GetNextPathName(pos);		// pos++ ,  GetPathName()
@@ -1799,12 +1811,11 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 			continue;
 		}
 
-		// Sample이 아닌 정상 4W data file이 하나라도 있으면 break; 
+		// 파일이름이 'Sample_xxxx'가 아닌 정상 4W data file이 하나라도 있다면 break; 
 		bFileFound = TRUE;
 		break;
 
 	}
-
 	if(bFileFound == FALSE)		
 	{
 		strTemp.Format("Any proper '4w Data File' was not Selected. Can't do InsertItem. : OnButtonLoad4wData_SingleLot()\n\n", dirPath);
@@ -1814,17 +1825,10 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	}
 
 
-	// "20170925_A30-19-C-4W-NEW-0920" 라면 맨앞의 날짜는 떼고 tree item으로 삽입한다. 
-	lotName = lotName.Mid(9, (length -9));		// "20170925_" 날짜 부분을 떼어낸다.
-
-
-	// 여기까지.. Lot Name, Date Name 확보.
-	MyTrace(PRT_BASIC, "Load 4wData(Single): Lot=%s, Date=%s \n\n\n", lotName, dateName);
-	
-
-
 	//----------------------------------------------
 	// UI (Tree, Date, Grid )  및 메모리 초기화 
+	
+	BeginWaitCursor();			// 커서를 waiting 모드로 바꾼다.
 	
 	ClearGrid(); // data Grid, summary Grid, edit박스 등 UI를 초기화한다.
 //__PrintMemSize(FUNC(Load4wData_SingleLot), __LINE__);
@@ -1934,6 +1938,10 @@ void CStatisticsDialog::OnButtonLoad4wData_SingleLot()
 	MyTrace(PRT_BASIC, "          m_nNetDataCount = %d\n", m_nNetDataCount);
 	MyTrace(PRT_BASIC, "\n");
 
+
+	//--------------
+	// 완료 
+	
 	EndWaitCursor();		// 커서를 원상 복구한다.
 
 	// LOAD LOG4W가 완료되었음을 FR Rank Dlg에 알린다.
@@ -2275,7 +2283,9 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 	m_GridSnap.InitMember();
 
 
-	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();		// tupleSize로  m_gridData  row를 맞춘다.
+	// tupleSize로  m_gridData  row를 맞춘다.
+	// 2019.02.25: grid를 불필요하게 max로 row를 잡아서 메모리를 과도하게 사용하는 문제 해결.
+	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();		
 	if (m_nRows != (tupleSize + 1))
 	{
 		m_nRows = (tupleSize + 1);		// 헤더라인 포함해서 tupleSize + 1
@@ -2304,7 +2314,7 @@ void CStatisticsDialog::Display_SumupLotNetDate(int nLot, int nNet, int nDate)
 	//int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 	m_editTupleNum  = tupleSize;
 
-	m_editSampleNum = g_sLotNetDate_Info.naLotSampleCnt[nLot];
+	m_editStepNum = g_sLotNetDate_Info.naLotStepCnt[nLot];
 
 
 	// m_editLSL과 m_editUSL 부분은  DisplayGrid_Summary()에서 수행.
@@ -2356,45 +2366,45 @@ void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 
 	// 1. Calc Count, Avg, Min, Max	 ----------------
-	int		tuple, sample, sampleSize;
+	int		tuple, step, stepSize;
 	double  dSum=0;
-	int		nMinMaxInitSample = 0;	// Min, Max initial 위치
+	int		nMinMaxInitStep = 0;	// Min, Max initial 위치
 	for (tuple=0; tuple < tupleSize; tuple++)
 	{
-		nMinMaxInitSample = 0;
+		nMinMaxInitStep = 0;
 
-		sampleSize =  g_sLotNetDate_Info.naLotSampleCnt[nLot];
-		for (sample= 0; sample < sampleSize; sample++)
+		stepSize =  g_sLotNetDate_Info.naLotStepCnt[nLot];
+		for (step= 0; step < stepSize; step++)
 		{
 			rnTotal++;
-			if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] != -1)		// NG가 아니라면
+			if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step] != -1)		// NG가 아니라면
 			{
 				rnCount++;
-				dSum += (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+				dSum += (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 
 				// Min, Max 초기화
-				if (tuple==0 && sample==nMinMaxInitSample)
+				if (tuple==0 && step==nMinMaxInitStep)
 				{
-					rdMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
-					rdMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					rdMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
+					rdMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 				}
 				else
 				{
 					// 최대값보다 현재값이 크면 최대값 변경
-					if (rdMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
-						rdMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					if (rdMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step])
+						rdMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 
 					// 최소값보다 현재값이 작으면 최소값 변경
-					if (rdMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
-						rdMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					if (rdMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step])
+						rdMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 				}
 
 			}
 			else
 			{
 				// Min Max 초기화 위치의 값이 NG라면 초기화 위치를 하나 증가 시킨다. 
-				if (sample == nMinMaxInitSample)		
-					nMinMaxInitSample++;						
+				if (step == nMinMaxInitStep)		
+					nMinMaxInitStep++;						
 			}
 		}
 	}
@@ -2408,12 +2418,12 @@ void	CalcSummary_AvgSigmaMinMax(int nLot, int nNet, int nDate,  		// argument
 	{
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
-			sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-			for (sample= 0; sample < g_sLotNetDate_Info.naLotSampleCnt[nLot]; sample++)
+			stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
+			for (step= 0; step < g_sLotNetDate_Info.naLotStepCnt[nLot]; step++)
 			{
-				if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] != -1)
+				if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step] != -1)
 				{
-					dDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] - rdAvg;
+					dDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step] - rdAvg;
 					dDiffPowerSum += (dDiff * dDiff);		
 				}
 			}
@@ -2452,7 +2462,7 @@ int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tup
 
 	int tupleSize = g_pvsaNetData[nLot][nNet][nDate]->size();
 
-	int 	tuple, sample, prtTuple=0;
+	int 	tuple, step, prtTuple=0;
 	int    	nTupleCount=0/*, nFaultCount=0*/; 
 	double  dTupleSum=0;
 	double 	dTupleAvg=0, dTupleMin=0, dTupleMax=0;
@@ -2468,38 +2478,38 @@ int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tup
 		dTupleAvg=0; 
 		dTupleMin=0; 
 		dTupleMax=0;
-		int nMinMaxInitSample = 0;		// Min, Max의 초기화 위치 표시
+		int nMinMaxInitStep = 0;		// Min, Max의 초기화 위치 표시
 
-		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-		for (sample= 0; sample < sampleSize; sample++)
+		int stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
+		for (step= 0; step < stepSize; step++)
 		{
-			if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] != -1)	// NG가 아니라면
+			if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step] != -1)	// NG가 아니라면
 			{
 				nTupleCount++;
-				dTupleSum += (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+				dTupleSum += (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 
 				// Min, Max 초기화
-				if (sample == nMinMaxInitSample)
+				if (step == nMinMaxInitStep)
 				{
-					dTupleMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
-					dTupleMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					dTupleMax = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
+					dTupleMin = (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 				}
 				else
 				{
 					// 최대값보다 현재값이 크면 최대값 변경
-					if (dTupleMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
-						dTupleMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					if (dTupleMax <  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step])
+						dTupleMax =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 
 					// 최소값보다 현재값이 작으면 최소값 변경
-					if (dTupleMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample])
-						dTupleMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample];
+					if (dTupleMin >  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step])
+						dTupleMin =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step];
 				}
 			}
 			else
 			{
 				// Min Max 초기화 위치의 값이 NG라면 초기화 위치를 하나 증가 시킨다. 
-				if (sample == nMinMaxInitSample)		
-					nMinMaxInitSample++;						
+				if (step == nMinMaxInitStep)		
+					nMinMaxInitStep++;						
 			}
 		}	
 
@@ -2516,12 +2526,12 @@ int CStatisticsDialog::DisplayGrid_4wData(int nLot, int nNet, int nDate, int tup
 
 		if (nTupleCount -1)	// check devide by zero!	: Variance
 		{
-			int sampleSize =  g_sLotNetDate_Info.naLotSampleCnt[nLot];
-			for (sample= 0; sample < sampleSize; sample++)
+			int stepSize =  g_sLotNetDate_Info.naLotStepCnt[nLot];
+			for (step= 0; step < stepSize; step++)
 			{
-				if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] != -1)
+				if ((*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step] != -1)
 				{
-					dTupleDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daSample[sample] - dTupleAvg;
+					dTupleDiff =  (*g_pvsaNetData[nLot][nNet][nDate])[tuple].daStep[step] - dTupleAvg;
 					dTupleDiffPowerSum += (dTupleDiff * dTupleDiff);		
 				}
 			}
@@ -2552,7 +2562,7 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 						double dTupleAvg, double dTupleSigma, double dTupleMin, double dTupleMax)
 {
 	CString strTemp;
-	int 	sample;
+	int 	step;
 
 	// 2018.05.31  Net tuple 공통 Lsl, Usl은 코멘트처리하고 tuple별 Lsl, Usl을 사용하기로 함.
 	//dLsl = g_sLotNetDate_Info.daLotNetLsl[nLot][nNet];
@@ -2577,22 +2587,22 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 	// 0     1      2     3     4     5     6     7     8     9     10    11    12    13     14      ....   25
 	// No,  Date, Time,  Pin1, Pin2, Pin3, Pin4,  R,   LSL,  USL,  Avg, Sigma, Min, Max,  Data1, .... Data12
 
-	// 1. Check 4W Data Fault  in  samples ---------------------
-	int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
+	// 1. Check 4W Data Fault  in  steps ---------------------
+	int stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
 	int nFaultCount = 0;
-	for (sample= 0; sample < sampleSize; sample++) // col 14~25:  Sample1~ Sample12
+	for (step= 0; step < stepSize; step++) // col 14~25:  Step1~ Step12
 	{
 															
-		if ((*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daSample[sample] != -1)		// NG가 아니면
+		if ((*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daStep[step] != -1)		// NG가 아니면
 		{
-			double dSampleVal = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daSample[sample];
+			double dStepVal = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daStep[step];
 
-			if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
+			if (dStepVal < dLsl || dStepVal > dUsl)		// Fault
 				nFaultCount++;
 		}
 	}
 
-	// m_bDataGridFaultOnly가 TRUE 일때  현재 sample 중에 Fault가 한개도 없다면 출력하지 않고 리턴.
+	// m_bDataGridFaultOnly가 TRUE 일때  현재 step 중에 Fault가 한개도 없다면 출력하지 않고 리턴.
 	if (m_bDataGridFaultOnly == TRUE &&  nFaultCount == 0)
 		return -1;
 
@@ -2671,25 +2681,25 @@ int CStatisticsDialog::DisplayGrid_4wData_Tuple( int nLot, int nNet, int nDate, 
 
 
 	// 4. Display Tuple 4W Data   ------------------------
-	for (sample= 0; sample < sampleSize; sample++) // col 14~25:  Sample1~ Sample12
+	for (step= 0; step < stepSize; step++) // col 14~25:  Step1~ Step12
 	{
-		if ((*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daSample[sample] == -1)	// NG이면
+		if ((*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daStep[step] == -1)	// NG이면
 		{
-			m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATA1+sample, "NG");	
-			m_GridSnap.saData[nPrtTuple].strData[sample] = "NG";
+			m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATA1+step, "NG");	
+			m_GridSnap.saData[nPrtTuple].strData[step] = "NG";
 		}
 
 		else		// NG가 아니면
 		{
-			double dSampleVal = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daSample[sample];
+			double dStepVal = (*g_pvsaNetData[nLot][nNet][nDate])[nTuple].daStep[step];
 
-			strTemp.Format("%.2f",  dSampleVal);
-			m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATA1+sample, strTemp);	
-			m_GridSnap.saData[nPrtTuple].strData[sample] = strTemp;
+			strTemp.Format("%.2f",  dStepVal);
+			m_gridData.SetItemText(nPrtTuple+1, DATA_COL_DATA1+step, strTemp);	
+			m_GridSnap.saData[nPrtTuple].strData[step] = strTemp;
 
-			if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
+			if (dStepVal < dLsl || dStepVal > dUsl)		// Fault
 			{
-				m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_DATA1+sample, 	// row, col
+				m_gridData.SetItemBkColour(nPrtTuple+1, DATA_COL_DATA1+step, 	// row, col
 									//RGB(0xdc, 0x24, 0x4c));		// crimson(0xdc143c)보다 약간 연한 빨강
 									RGB(0xff, 0x63, 0x47));			// tomato : 진한 주황
 			}
@@ -2801,7 +2811,7 @@ void CStatisticsDialog::ClearGrid()
 	
 	// Grid와 함께 Grid Sub Edit 박스도 초기화한다.
 	m_editTupleNum = 0;
-	m_editSampleNum = 0;
+	m_editStepNum = 0;
 
 
 	// data를 업데이트하기 전에 지우기. 
@@ -2932,7 +2942,7 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	// Net Info Edit 박스값 설정
 
 	m_editTupleNum = rowSize;
-	m_editSampleNum = g_sLotNetDate_Info.naLotSampleCnt[nLot];
+	m_editStepNum = g_sLotNetDate_Info.naLotStepCnt[nLot];
 	// m_editLSL과 m_editUSL 부분은  DisplayGrid_Summary()에서 수행.
 
 
@@ -2946,12 +2956,12 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 	
 	
 	// 1. Calc Count, Avg, Min, Max	 ----------------
-	int		tuple, sample, tupleSize, sampleSize;
+	int		tuple, step, tupleSize, stepSize;
 	int	   	nTotal=0, nCount=0;
 //	int		nFaultCount=0; 
 	double  dSum=0;
 	double 	dAvg=0, dMax=0, dMin=0; 
-	int		nMinMaxInitSample = 0;	// Min, Max initial 위치
+	int		nMinMaxInitStepLoc = 0;	// Min, Max initial 위치
 	for (date=0; date < g_sLotNetDate_Info.naLotDateCnt[nLot]; date++)
 	{
 		if (g_pvsaNetData[nLot][nNet][date] == NULL)
@@ -2966,35 +2976,35 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 		//m_editTupleNum += tupleSize;
 		for (tuple=0; tuple < tupleSize; tuple++)
 		{
-			nMinMaxInitSample = 0;
-			sampleSize =  g_sLotNetDate_Info.naLotSampleCnt[nLot];
-			for (sample= 0; sample < sampleSize; sample++)
+			nMinMaxInitStepLoc = 0;
+			stepSize =  g_sLotNetDate_Info.naLotStepCnt[nLot];
+			for (step= 0; step < stepSize; step++)
 			{
 				nTotal++;
-				if ((*g_pvsaNetData[nLot][nNet][date])[tuple].daSample[sample] != -1)	// NG가 아니라면
+				if ((*g_pvsaNetData[nLot][nNet][date])[tuple].daStep[step] != -1)	// NG가 아니라면
 				{
-					double dSampleVal/*, dLsl, dUsl*/;
-					dSampleVal = (*g_pvsaNetData[nLot][nNet][date])[tuple].daSample[sample];
+					double dStepVal/*, dLsl, dUsl*/;
+					dStepVal = (*g_pvsaNetData[nLot][nNet][date])[tuple].daStep[step];
 
 					// Min, Max, Sum, Count 구하기 -----------
 					nCount++;
-					dSum += dSampleVal; 
+					dSum += dStepVal; 
 	
 					// Min, Max 초기화
-					if (date== 0 && tuple==0 && sample==nMinMaxInitSample)
+					if (date== 0 && tuple==0 && step==nMinMaxInitStepLoc)
 					{
-						dMax = dSampleVal; 
-						dMin = dSampleVal; 
+						dMax = dStepVal; 
+						dMin = dStepVal; 
 					}
 					else
 					{
 						// 최대값보다 현재값이 크면 최대값 변경
-						if (dMax <  dSampleVal)
-							dMax =  dSampleVal; 
+						if (dMax <  dStepVal)
+							dMax =  dStepVal; 
 	
 						// 최소값보다 현재값이 작으면 최소값 변경
-						if (dMin >  dSampleVal)
-							dMin =  dSampleVal;
+						if (dMin >  dStepVal)
+							dMin =  dStepVal;
 					}
 
 
@@ -3004,15 +3014,15 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 					// Fault Count 구하기 -----------------------
 					//dLsl = g_sLotNetDate_Info.daLotNetLsl[nLot][nNet];
 					//dUsl = g_sLotNetDate_Info.daLotNetUsl[nLot][nNet];
-					//if (dSampleVal < dLsl || dSampleVal > dUsl)
+					//if (dStepVal < dLsl || dStepVal > dUsl)
 					//	nFaultCount++;
 	
 				}
 				else
 				{
 					// Min Max 초기화 위치의 값이 NG라면 초기화 위치를 하나 증가 시킨다. 
-					if (sample == nMinMaxInitSample)		
-						nMinMaxInitSample++;						
+					if (step == nMinMaxInitStepLoc)		
+						nMinMaxInitStepLoc++;						
 				}
 			}
 		}
@@ -3036,12 +3046,12 @@ void CStatisticsDialog::Display_SumupLotNet(int nLot, int nNet)
 			tupleSize = g_pvsaNetData[nLot][nNet][date]->size();	// date마다 tupleSize가 다름!
 			for (tuple=0; tuple < tupleSize; tuple++)
 			{
-				sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-				for (sample= 0; sample < sampleSize; sample++)
+				stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
+				for (step= 0; step < stepSize; step++)
 				{
-					if ((*g_pvsaNetData[nLot][nNet][date])[tuple].daSample[sample] != -1)
+					if ((*g_pvsaNetData[nLot][nNet][date])[tuple].daStep[step] != -1)
 					{
-						dDiff =  (*g_pvsaNetData[nLot][nNet][date])[tuple].daSample[sample] - dAvg;
+						dDiff =  (*g_pvsaNetData[nLot][nNet][date])[tuple].daStep[step] - dAvg;
 						dDiffPowerSum += (dDiff * dDiff);		
 					}
 				}
@@ -3086,7 +3096,7 @@ void CStatisticsDialog::Display_SumupLotDate(int nLot, int nDate)
 
 	// data를 업데이트하기 전에 지우기. 지워야 하므로 UpdateDate(True)는 필요 없음.
 	m_editTupleNum = 0;
-	m_editSampleNum = 0;
+	m_editStepNum = 0;
 
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
 	ClearGrid_Data();	
@@ -3118,7 +3128,7 @@ void CStatisticsDialog::Display_SumupLot(int nLot)
 
 	// data를 업데이트하기 전에 지우기. 지워야 하므로 UpdateData(True)는 필요 없음.
 	m_editTupleNum = 0;
-	m_editSampleNum = 0;
+	m_editStepNum = 0;
 	ClearGrid_Data();	
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
 	m_GridSnap.InitMember();
@@ -3139,7 +3149,7 @@ void CStatisticsDialog::Display_SumupTotal()
 
 	// data를 업데이트하기 전에 지우기. 지워야 하므로 UpdateDate(True)는 필요 없음.
 	m_editTupleNum = 0;
-	m_editSampleNum = 0;
+	m_editStepNum = 0;
 	ClearGrid_Data();	
 	ClearGrid_Summary();	// data를 업데이트하기 전에 지우기.
 	m_GridSnap.InitMember();
@@ -3188,6 +3198,15 @@ void CStatisticsDialog::OnButtonViewStatCsv()
 			g_sLotNetDate_Info.strLot[nLot], 
 			(m_nCombo_CurrDate == DATE_ALL) ? "_" : g_sLotNetDate_Info.strLotDate[nLot][nDate], 
 			nNet); 					
+/*
+ *  빠져 있어서 넣었는데 풀어서 테스트는 아직 못해 봄
+	if(!FileExists(strTemp)) // 파일이 존재하지 않으면 에러 출력
+	{ 	
+		ERR.Set(FLAG_FILE_NOT_FOUND, strTemp); 
+		ErrMsg();  ERR.Reset(); return; 
+	}
+*/
+
 
 	::ShellExecute(NULL,"open","EXCEl.EXE",strTemp,"NULL",SW_SHOWNORMAL);	
 
@@ -3195,7 +3214,7 @@ void CStatisticsDialog::OnButtonViewStatCsv()
 }
 
 
-// 1. 지금까지 insert 한 data를  binary 파일을 open하여  write. 
+// 1. 지금까지 insert 한 data를  write. 
 // 2. data를 delete하고 file을 close  
 void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 {
@@ -3248,7 +3267,7 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 				m_GridSnap.Summary.strFault, 		// 9: Fault Count
 
 				m_editTupleNum,				// edit box
-				m_editSampleNum);			// edit box
+				m_editStepNum);			// edit box
 
 	//-----------------------------------
 	//  Data Grid Data 출력
@@ -3284,9 +3303,9 @@ void CStatisticsDialog::SaveStat_CsvFile(int nLot, int nNet, int nComboDate)
 				m_GridSnap.saData[row].strTupleMax);
 
 
-		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[nLot];
-		for (int sample=0; sample < sampleSize; sample++)
-			fprintf(fp, "%s, ", m_GridSnap.saData[row].strData[sample]);
+		int stepSize = g_sLotNetDate_Info.naLotStepCnt[nLot];
+		for (int step=0; step < stepSize; step++)
+			fprintf(fp, "%s, ", m_GridSnap.saData[row].strData[step]);
 
 		fprintf(fp, "\n");
 
@@ -3326,7 +3345,7 @@ void CStatisticsDialog::Save_StatLotDataFile()
 
 #if 0 
 	//-----------------------------------
-	// p Chart를 위한 sample data 출력 
+	// p Chart를 위한 step data 출력 
 
 	// Time 별 p chart data 출력하기  (문제있는 time을 찾기)
 	//    1개 lot, date에 한해서(time 갯수가 같아야 하므로)  같은 time의 모든 net의 fault갯수를 세어본다.
@@ -3365,15 +3384,15 @@ void CStatisticsDialog::Save_StatLotDataFile()
 					double dLsl = (*g_pvsaNetData[lot][net][date])[time].dLsl;
 					double dUsl = (*g_pvsaNetData[lot][net][date])[time].dUsl;
 
-					int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
-					for (int sample= 0; sample < sampleSize; sample++)
+					int stepSize = g_sLotNetDate_Info.naLotStepCnt[lot];
+					for (int step= 0; step < stepSize; step++)
 					{
-						double dSampleVal = (*g_pvsaNetData[lot][net][date])[time].daSample[sample];
-						if ((*g_pvsaNetData[lot][net][date])[time].daSample[sample] == -1)	//NG
+						double dStepVal = (*g_pvsaNetData[lot][net][date])[time].daStep[step];
+						if ((*g_pvsaNetData[lot][net][date])[time].daStep[step] == -1)	//NG
 							waTimeNgCount[time]++;
 						else
 						{
-							if (dSampleVal < dLsl || dSampleVal > dUsl)		// Fault
+							if (dStepVal < dLsl || dStepVal > dUsl)		// Fault
 								waTimeFaultCount[time]++;
 						}
 					}
@@ -3389,7 +3408,7 @@ void CStatisticsDialog::Save_StatLotDataFile()
 
 	for (lot =0; lot < 1; lot++)		// Lot은 1개로 고정
 	{
-		int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
+		int stepSize = g_sLotNetDate_Info.naLotStepCnt[lot];
 		for (time =0; time < tupleSize; time++)
 		{
 			CString strTime;
@@ -3398,7 +3417,7 @@ void CStatisticsDialog::Save_StatLotDataFile()
 					(*g_pvsaNetData[lot][1][0])[time].statTime.min,
 					(*g_pvsaNetData[lot][1][0])[time].statTime.sec);
 
-			waTimeTotalCount[time] = (netCount * sampleSize);		// net 갯수 * sample 갯수
+			waTimeTotalCount[time] = (netCount * stepSize);		// net 갯수 * step 갯수
 			fprintf(fp, "Time(%s)=,%d, FaultCount=,%d, Count=,%d, Total=%d, NgCount=%d\n", 
 							strTime, time, 
 							waTimeFaultCount[time], (waTimeTotalCount[time] - waTimeNgCount[time]),
@@ -3420,7 +3439,7 @@ void CStatisticsDialog::Save_StatLotDataFile()
 			if (g_sLotNetDate_Info.naLotNet[lot][net] == -1)
 				continue;
 
-			// Total = SampleCount* tupleSize,   Count = Total - Ng
+			// Total = StepCount* tupleSize,   Count = Total - Ng
 			fprintf(fp, "Lot=%d,(%s), Net=,%d, FaultCount=,%d, Count=,%d, NgCount=,%d, TotCount=,%d\n", 
 							lot, g_sLotNetDate_Info.strLot[lot], net, 
 							g_sLotNetDate_Info.waNetFaultCount[lot][net],
@@ -3464,10 +3483,10 @@ void CStatisticsDialog::Save_StatLotDataFile()
 								(*g_pvsaNetData[lot][net][date])[tuple].statTime.min,
 								(*g_pvsaNetData[lot][net][date])[tuple].statTime.sec);
 
-						fprintf(fp, "    waSample");
-						int sampleSize = g_sLotNetDate_Info.naLotSampleCnt[lot];
-						for (int sample=0; sample < sampleSize; sample++)
-							fprintf(fp, ", %.2f", (*g_pvsaNetData[lot][net][date])[tuple].daSample[sample] );
+						fprintf(fp, "    waStep");
+						int stepSize = g_sLotNetDate_Info.naLotStepCnt[lot];
+						for (int step=0; step < stepSize; step++)
+							fprintf(fp, ", %.2f", (*g_pvsaNetData[lot][net][date])[tuple].daStep[step] );
 
 					}
 	
